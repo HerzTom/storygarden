@@ -1,0 +1,6 @@
+# WorkBuddy 项目数据
+.workbuddy/
+
+# 系统临时文件
+Thumbs.db
+.DS_Store
