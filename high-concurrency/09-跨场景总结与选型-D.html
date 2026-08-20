@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>跨场景总结与选型决策框架 · 高并发Wiki</title>
+<style>
+:root{
+  --primary:#0891B2;--primary-hover:#0E7490;--primary-light:#E0F7FA;
+  --accent:#06B6D4;--accent2:#38BDF8;
+  --text-heading:#07162E;--text-body:#1E293B;--text-secondary:#64748B;--text-disabled:#B2B4B8;
+  --bg-main:#FFFFFF;--bg-secondary:#F4F8FB;--bg-card:#FFFFFF;--bg-code:#EEF4F8;
+  --border:#DDE7EE;--divider:#E4EEF4;
+  --bg-sidebar:#07162E;--text-sidebar:#CBD5E1;--bg-sidebar-active:rgba(6,182,212,.2);
+  --banner-from:#07162E;--banner-mid:#0A2A5E;--banner-to:#0891B2;
+  --shadow:rgba(7,22,46,.08);--shadow-hover:rgba(7,22,46,.18);
+  --success:#22C55E;--warning:#F59E0B;--error:#EF4444;--info:#38BDF8;
+  --scene:#06B6D4;
+}
+[data-theme="dark"]{
+  --primary:#22D3EE;--primary-hover:#67E8F9;--primary-light:rgba(34,211,238,.12);
+  --accent:#22D3EE;--accent2:#60A5FA;
+  --text-heading:#F1F5F9;--text-body:#E2E8F0;--text-secondary:#94A3B8;--text-disabled:#64748B;
+  --bg-main:#050D1F;--bg-secondary:#0A1628;--bg-card:#0F1F38;--bg-code:#132743;
+  --border:#1E3A5F;--divider:rgba(148,163,184,.15);
+  --bg-sidebar:#040A18;--text-sidebar:#94A3B8;--bg-sidebar-active:rgba(34,211,238,.2);
+  --banner-from:#040A18;--banner-mid:#0A2A5E;--banner-to:#0E7490;
+  --shadow:rgba(0,0,0,.35);--shadow-hover:rgba(0,0,0,.55);
+  --success:#4ADE80;--warning:#FBBF24;--error:#F87171;--info:#60A5FA;
+  --scene:#22D3EE;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;background:var(--bg-main);color:var(--text-body);line-height:1.8;transition:background .3s,color .3s}
+a{text-decoration:none;color:inherit}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:250px;background:var(--bg-sidebar);color:var(--text-sidebar);padding:28px 0;overflow-y:auto;z-index:100}
+.sidebar .sb-brand{display:flex;align-items:center;gap:10px;padding:0 22px 22px;border-bottom:1px solid rgba(148,163,184,.15);margin-bottom:18px;color:#fff;font-weight:700}
+.sidebar .sb-brand .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--banner-mid),var(--banner-to));display:flex;align-items:center;justify-content:center}
+.sidebar .sb-scene{padding:0 22px 16px;font-size:.78rem;color:#67E8F9;letter-spacing:2px}
+.sidebar nav a{display:flex;align-items:center;gap:12px;padding:11px 22px;font-size:.9rem;transition:all .2s;border-left:3px solid transparent}
+.sidebar nav a .num{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--text-sidebar);display:flex;align-items:center;justify-content:center;font-size:.72rem;flex-shrink:0;transition:all .2s}
+.sidebar nav a:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar nav a.active{color:#67E8F9;background:var(--bg-sidebar-active);border-left-color:#22D3EE}
+.sidebar nav a.active .num{border-color:#22D3EE;background:#22D3EE;color:#07162E;font-weight:700}
+.sidebar .sb-foot{padding:20px 22px;font-size:.78rem;color:var(--text-sidebar);opacity:.6}
+.main{margin-left:250px}
+.banner{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--banner-from),var(--banner-mid) 55%,var(--banner-to));color:#fff;padding:64px 48px 56px}
+.banner .orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.4}
+.banner .orb1{width:300px;height:300px;background:#06B6D4;top:-120px;right:10%}
+.banner .orb2{width:260px;height:260px;background:#8B5CF6;bottom:-130px;left:-60px}
+.banner-inner{position:relative;z-index:2;max-width:900px}
+.banner .kick{display:inline-block;background:rgba(6,182,212,.3);border:1px solid rgba(255,255,255,.3);padding:4px 14px;border-radius:999px;font-size:.8rem;letter-spacing:1px;margin-bottom:16px}
+.banner h1{font-size:2.2rem;margin-bottom:12px}
+.banner p{color:rgba(255,255,255,.82);max-width:680px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1100px;margin:-30px auto 0;padding:0 40px;position:relative;z-index:5}
+.stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:0 4px 16px var(--shadow);text-align:center}
+.stat b{display:block;font-size:1.35rem;color:var(--primary)}
+.stat span{font-size:.8rem;color:var(--text-secondary)}
+.content{max-width:1100px;margin:0 auto;padding:30px 40px 60px}
+section{padding:38px 0 10px}
+.sec-title{display:flex;align-items:center;gap:14px;font-size:1.45rem;color:var(--text-heading);padding-bottom:14px;border-bottom:2px solid var(--divider);margin-bottom:22px}
+.sec-title .sn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--banner-mid),var(--banner-to));color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.prose p{margin-bottom:14px}
+.prose b{color:var(--text-heading)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:20px 0}
+.cards.two{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;box-shadow:0 2px 8px var(--shadow);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 22px var(--shadow-hover)}
+.card h4{color:var(--text-heading);font-size:1rem;margin-bottom:8px}
+.card p{font-size:.88rem;color:var(--text-secondary)}
+.card p b{color:var(--text-body)}
+.callout{display:flex;gap:12px;border-radius:0 12px 12px 0;padding:16px 20px;margin:20px 0;font-size:.93rem}
+.callout.info{background:var(--primary-light);border-left:4px solid var(--primary)}
+.callout.warn{background:rgba(245,158,11,.1);border-left:4px solid var(--warning)}
+.callout .ico{font-size:1.25rem;flex-shrink:0}
+.callout b{color:var(--text-heading)}
+.figure{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 2px 10px var(--shadow);margin:22px 0}
+.figure .cap{text-align:center;font-size:.84rem;color:var(--text-secondary);margin-top:10px}
+.tbl{overflow-x:auto;border-radius:14px;border:1px solid var(--border);box-shadow:0 2px 10px var(--shadow);margin:20px 0}
+table{width:100%;border-collapse:collapse;background:var(--bg-card);font-size:.88rem;min-width:760px}
+th{background:var(--bg-sidebar);color:#fff;padding:12px 14px;text-align:left;font-weight:600;white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--divider);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--primary-light)}
+td a{color:var(--primary);font-weight:600}
+td a:hover{text-decoration:underline}
+.lv{display:inline-block;font-size:.72rem;font-weight:600;padding:2px 10px;border-radius:999px;color:#fff;white-space:nowrap}
+.lv.g{background:var(--success)}.lv.y{background:var(--warning)}.lv.r{background:var(--error)}.lv.b{background:var(--info)}.lv.p{background:#8B5CF6}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.stage{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;box-shadow:0 2px 8px var(--shadow);margin-bottom:16px;border-top:4px solid var(--scene)}
+.stage h4{color:var(--text-heading);font-size:1.05rem;margin-bottom:6px}
+.stage .meta{font-size:.8rem;color:var(--text-secondary);margin-bottom:10px}
+.stage ul{margin:8px 0 0 20px;font-size:.9rem}
+.stage li{margin-bottom:6px}
+.principle{display:flex;gap:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:18px 22px;box-shadow:0 2px 8px var(--shadow);margin-bottom:14px}
+.principle .pn{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--banner-mid),var(--banner-to));color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.principle h4{color:var(--text-heading);font-size:1rem;margin-bottom:4px}
+.principle p{font-size:.88rem;color:var(--text-secondary)}
+.principle p b{color:var(--text-body)}
+.pagenav{display:flex;justify-content:space-between;gap:16px;margin:30px 0 0}
+.pagenav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px 20px;box-shadow:0 2px 8px var(--shadow);transition:all .25s}
+.pagenav a:hover{border-color:var(--primary);transform:translateY(-3px)}
+.pagenav .lbl{font-size:.76rem;color:var(--text-secondary)}
+.pagenav .ttl{color:var(--text-heading);font-weight:600;font-size:.95rem}
+.pagenav a.next{text-align:right}
+footer{background:var(--bg-sidebar);color:var(--text-sidebar);text-align:center;padding:26px;font-size:.82rem}
+.fab{width:44px;height:44px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);box-shadow:0 2px 8px var(--shadow);cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:all .3s;color:var(--text-body)}
+.fab:hover{box-shadow:0 4px 16px var(--shadow-hover);transform:scale(1.1);background:var(--primary);color:#fff;border-color:var(--primary)}
+#home-btn{position:fixed;bottom:76px;left:24px;z-index:200}
+#theme-btn{position:fixed;bottom:24px;right:24px;z-index:200}
+#top-btn{position:fixed;bottom:76px;right:24px;z-index:200}
+@media(max-width:1000px){.sidebar{display:none}.main{margin-left:0}.stats{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:1fr}.cards.two{grid-template-columns:1fr}#home-btn{bottom:68px;left:16px}}
+@media(max-width:700px){.banner h1{font-size:1.6rem}.content{padding:20px 20px 50px}.pagenav{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a class="sb-brand" href="index.html"><span class="logo">⚡</span>高并发 Wiki</a>
+  <div class="sb-scene">FINAL · 总结与选型</div>
+  <nav id="sb-nav">
+    <a href="#s1" class="active"><span class="num">1</span>七场景核心矛盾横向对比</a>
+    <a href="#s2"><span class="num">2</span>高并发优化的通用原则</a>
+    <a href="#s3"><span class="num">3</span>技术选型决策矩阵</a>
+    <a href="#s4"><span class="num">4</span>架构演进路径</a>
+    <a href="#s5"><span class="num">5</span>结语</a>
+  </nav>
+  <div class="sb-foot">从场景到选型 · 收官</div>
+</aside>
+
+<div class="main">
+<header class="banner">
+  <div class="orb orb1"></div><div class="orb orb2"></div>
+  <div class="banner-inner">
+    <span class="kick">🧭 跨场景总结与选型决策框架</span>
+    <h1>把七个场景装进一张地图</h1>
+    <p>走完七个场景，你会发现高并发没有"标准答案"，只有"合适的取舍"。这一页把所有场景摆到同一张桌子上横向对比，提炼通用原则，并给出<b>可以直接抄的选型决策矩阵与演进路径</b>。</p>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><b>7</b><span>典型场景全覆盖</span></div>
+  <div class="stat"><b>8 条</b><span>通用优化原则</span></div>
+  <div class="stat"><b>12 格</b><span>QPS×一致性决策矩阵</span></div>
+  <div class="stat"><b>3 段</b><span>架构演进生命周期</span></div>
+</div>
+
+<div class="content">
+
+<section id="s1">
+  <div class="sec-title"><span class="sn">1</span>七场景核心矛盾与优化方向横向对比</div>
+  <div class="prose">
+    <p>每个场景都有一句"命门"。把它们放在一起看，你会发现高并发的解法虽然千变万化，但套路高度收敛：<b>拦截、异步、缓存、分片、降级</b>——变的只是它们的组合比例。</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>场景</th><th>流量特征</th><th>核心矛盾（一句话）</th><th>三角站位</th><th>王牌手段</th></tr></thead>
+      <tbody>
+        <tr><td><span class="dot" style="background:#EF4444"></span><a href="02-秒杀抢票-A.html">秒杀/抢票</a></td><td>瞬时脉冲</td><td>百万人抢一行数据库记录</td><td><span class="lv g">一致性+性能</span></td><td>漏斗拦截 + Redis 预扣减 + MQ 削峰</td></tr>
+        <tr><td><span class="dot" style="background:#F59E0B"></span><a href="03-车联网IoT-A.html">车联网/IoT</a></td><td>持续高压写</td><td>写入永不停歇，存储无限膨胀</td><td><span class="lv b">性能+可用性</span></td><td>Kafka 缓冲 + 时序库 + 冷热分层</td></tr>
+        <tr><td><span class="dot" style="background:#22C55E"></span><a href="04-Feed流推荐-A.html">Feed 流/推荐</a></td><td>读多写少</td><td>大V一发帖，千万收件箱爆炸</td><td><span class="lv b">性能+可用性</span></td><td>推拉结合 + 多级缓存</td></tr>
+        <tr><td><span class="dot" style="background:#8B5CF6"></span><a href="05-热搜榜在线统计-A.html">热搜榜/在线统计</a></td><td>读写双高</td><td>全网流量砸向同一个热 Key</td><td><span class="lv b">性能+可用性</span></td><td>本地聚合 + 分片计数 + 概率算法</td></tr>
+        <tr><td><span class="dot" style="background:#0EA5E9"></span><a href="06-分布式任务调度-A.html">任务调度</a></td><td>整点脉冲</td><td>千万闹钟不重响、不漏响</td><td><span class="lv g">一致性+可用性</span></td><td>时间轮 + 分片广播 + 幂等兜底</td></tr>
+        <tr><td><span class="dot" style="background:#D97706"></span><a href="07-金融支付-A.html">金融支付</a></td><td>高并发+强一致</td><td>又要快，又要分毫不差</td><td><span class="lv r">一致性至上</span></td><td>TCC/消息表 + 对账兜底</td></tr>
+        <tr><td><span class="dot" style="background:#EC4899"></span><a href="08-直播弹幕IM长连接-A.html">弹幕/IM 长连接</a></td><td>海量连接+扇出</td><td>连接吃内存，扇出吃带宽</td><td><span class="lv b">性能+可用性</span></td><td>网关分层 + 批推抽样 + seq 补拉</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout info"><span class="ico">🔍</span><div><b>规律浮现：</b>7 个场景里有 5 个把"一致性"放到了第三位——这不是偷懒，而是业务允许（弹幕丢一条、热搜差 3 万热度都没人在意）。<b>只有钱和库存这两样东西，用户会拿着计算器跟你对账。</b>所以选型的第一问永远是："这个数错了，会不会有人找我？"</div></div>
+</section>
+
+<section id="s2">
+  <div class="sec-title"><span class="sn">2</span>高并发优化的通用原则（取舍与权衡）</div>
+  <div class="principle"><div class="pn">1</div><div><h4>能拦截就别处理 —— 漏斗原则</h4><p>请求越早被挡下成本越低：CDN/静态化挡一批、网关限流挡一批、缓存挡一批，<b>能到数据库的请求应该只剩涓涓细流</b>。（秒杀页把 100 万请求过滤成 100 个写入）</p></div></div>
+  <div class="principle"><div class="pn">2</div><div><h4>能异步就别同步 —— 削峰填谷</h4><p>用户只需要"受理成功"，不需要"处理完成"。MQ 是高并发第一神器：把脉冲流量摊平成匀速消费，<b>代价是你要学会面对"处理中"这个中间态</b>。</p></div></div>
+  <div class="principle"><div class="pn">3</div><div><h4>能不精确就别精确 —— 误差换性能</h4><p>HyperLogLog 用 12KB 数 1 亿人，误差 0.8%；在线人数"10万+"模糊显示。<b>先问业务容忍度，再决定花多少钱买精度</b>。（热搜榜页的合法货币）</p></div></div>
+  <div class="principle"><div class="pn">4</div><div><h4>热点要拆，冷热要分 —— 分而治之</h4><p>热 Key 拆分片、大 V 单独处理、热数据 SSD 冷数据对象存储。<b>二八定律是高并发最可靠的地图</b>：找到那 20% 的热点，单独伺候。</p></div></div>
+  <div class="principle"><div class="pn">5</div><div><h4>一切皆可降级 —— 保命优先</h4><p>非核心功能（推荐、特效、实时性）都要有开关。大促前先演练"关掉哪些功能系统还能活"。<b>降级预案没演练过 = 没有预案</b>。</p></div></div>
+  <div class="principle"><div class="pn">6</div><div><h4>幂等是分布式的入场券 —— 重复必然发生</h4><p>网络会重传、MQ 会重投、用户会连点、调度会重触发。<b>"至少一次 + 幂等消费"是工程界的标准答案</b>，唯一 ID + 状态机检查，每个写接口都要有。</p></div></div>
+  <div class="principle"><div class="pn">7</div><div><h4>最终一致 + 对账兜底 —— 别迷信强一致</h4><p>强一致又慢又脆，多数链路用最终一致就够——但必须配<b>对账/校准任务</b>定期抓差异。支付系统如此，库存系统如此，计数系统也如此。</p></div></div>
+  <div class="principle"><div class="pn">8</div><div><h4>为失败设计，而不是为成功设计 —— 面向雪崩编程</h4><p>重连要退避、依赖要熔断、缓存要防击穿、扩容要预留水位。<b>压垮系统的从来不是流量本身，而是流量引发的连锁反应</b>。（重连风暴、缓存雪崩、调度自杀式脉冲）</p></div></div>
+</section>
+
+<section id="s3">
+  <div class="sec-title"><span class="sn">3</span>技术选型决策矩阵（QPS 量级 × 一致性要求）</div>
+  <div class="prose">
+    <p>把两个最关键的维度画成一张矩阵：<b>横轴是流量量级，纵轴是一致性要求</b>。每一格给出一个"组件套餐"——不是唯一解，但照抄不会翻车。</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>一致性 \ QPS</th><th>&lt; 1千（起步）</th><th>1千 ~ 1万（成长）</th><th>1万 ~ 10万（大厂线）</th><th>&gt; 10万（顶流）</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="lv r">强一致</span><br><span style="font-size:.8rem;color:var(--text-secondary)">钱/库存/凭证</span></td>
+          <td>MySQL 事务 + 唯一索引幂等，<b>什么中间件都别加</b></td>
+          <td>MySQL 主从 + Redis 预扣减 + 本地消息表</td>
+          <td>分库分表 + TCC/事务消息 + 热点账户缓冲记账 + 对账</td>
+          <td>单元化多活 + 自研分布式事务框架 + 实时对账</td>
+        </tr>
+        <tr>
+          <td><span class="lv y">最终一致</span><br><span style="font-size:.8rem;color:var(--text-secondary)">订单流转/通知/Feed</span></td>
+          <td>MySQL + 定时任务补偿</td>
+          <td>Redis 缓存 + RocketMQ/Kafka 异步化</td>
+          <td>多级缓存 + MQ 削峰 + 推拉结合 + 分片消费</td>
+          <td>异地多活 + 分层缓存体系 + 自动对账校准</td>
+        </tr>
+        <tr>
+          <td><span class="lv g">弱一致/可丢</span><br><span style="font-size:.8rem;color:var(--text-secondary)">弹幕/计数/监控</span></td>
+          <td>Redis 单实例计数直接梭哈</td>
+          <td>Redis + 本地聚合批量刷新</td>
+          <td>分片计数 + HyperLogLog + 抽样降级</td>
+          <td>边缘聚合 + Flink 流式计算 + 概率数据结构全家桶</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout warn"><span class="ico">⚠️</span><div><b>使用说明书：</b>① 先定位<b>纵轴</b>（数错了会不会有人找你算账？），再定位<b>横轴</b>（用真实峰值 QPS，别用老板的梦想 QPS）；② <b>只买当前格子的东西</b>——在"起步"格子里上分库分表，等于给自行车装飞机引擎；③ 同一个系统的不同链路可以落在不同格子里（支付核心在左上，支付通知在中间行），<b>按链路选型，不是按系统选型</b>。</div></div>
+</section>
+
+<section id="s4">
+  <div class="sec-title"><span class="sn">4</span>架构演进路径：跟着业务生命周期走</div>
+  <div class="prose">
+    <p>最贵的错误不是"架构不够先进"，而是<b>"架构超前于业务"</b>。正确的姿势是：让架构永远比当前流量领先半步——不多不少。</p>
+  </div>
+
+  <div class="stage">
+    <h4>🌱 初创期（日活 &lt; 10万 · QPS &lt; 1千）—— 单体 + 主从，跑通业务再说</h4>
+    <div class="meta">关键词：快糙猛 · 一台顶配数据库能解决 90% 的问题</div>
+    <ul>
+      <li><b>架构：</b>单体应用 × N 实例 + Nginx 负载均衡 + MySQL 主从 + Redis 缓存热点。就这四样，别加了。</li>
+      <li><b>必须做对的三件事：</b>接口幂等（以后救命）、数据库索引（80% 的慢都是没索引）、代码分层清晰（为日后拆分留缝）。</li>
+      <li><b>常见翻车：</b>初创团队上微服务 + K8s + 服务网格，业务没跑通，运维先累死——<b>复杂度是借来的债，流量没来就要付利息</b>。</li>
+    </ul>
+  </div>
+
+  <div class="stage">
+    <h4>🌿 成长期（日活 10万~500万 · QPS 1千~5万）—— 拆服务、上 MQ、防热点</h4>
+    <div class="meta">关键词：异步化 · 缓存体系 · 按业务域拆分</div>
+    <ul>
+      <li><b>架构：</b>按业务域拆微服务（订单/用户/商品，别拆太细）+ MQ 异步解耦 + 多级缓存 + 核心表分库分表。</li>
+      <li><b>标志性事件：</b>第一次大促被打挂 → 引入限流熔断降级三件套；第一次缓存雪崩 → 学会过期时间加随机数。</li>
+      <li><b>常见翻车：</b>拆微服务拆上瘾，200 个服务互相调用查个订单要过 8 跳——<b>拆分的粒度应该由团队人数决定，不是由技术情怀决定</b>。</li>
+    </ul>
+  </div>
+
+  <div class="stage">
+    <h4>🌳 成熟期（日活 &gt; 500万 · QPS &gt; 5万）—— 单元化、多活、精细化治理</h4>
+    <div class="meta">关键词：容灾 · 成本 · 全链路可观测</div>
+    <ul>
+      <li><b>架构：</b>同城双活/异地多活 + 单元化部署（用户分片封闭）+ 全链路压测 + 混沌工程常态化演练。</li>
+      <li><b>关注点转移：</b>从"扛得住吗"变成"挂了一个机房还扛得住吗"和"这么多机器能不能省点钱"（冷热分层、弹性伸缩、离在线混部）。</li>
+      <li><b>常见翻车：</b>多活架构建好了但从来不敢真切流量——<b>没有定期演练的多活，只是贵了三倍的单活</b>。</li>
+    </ul>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 900 210" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="ar9" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6" fill="none" stroke="var(--scene)" stroke-width="1.5"/></marker></defs>
+      <line x1="40" y1="160" x2="860" y2="160" stroke="var(--border)" stroke-width="2" marker-end="url(#ar9)"/>
+      <text x="850" y="185" text-anchor="end" font-size="11" fill="var(--text-secondary)">业务规模 →</text>
+      <circle cx="160" cy="160" r="8" fill="#22C55E"/>
+      <text x="160" y="140" text-anchor="middle" font-size="13" fill="var(--text-heading)" font-weight="bold">🌱 初创</text>
+      <text x="160" y="120" text-anchor="middle" font-size="11" fill="var(--text-secondary)">单体+主从+缓存</text>
+      <text x="160" y="185" text-anchor="middle" font-size="11" fill="var(--text-secondary)">别过度设计</text>
+      <circle cx="450" cy="160" r="8" fill="#F59E0B"/>
+      <text x="450" y="140" text-anchor="middle" font-size="13" fill="var(--text-heading)" font-weight="bold">🌿 成长</text>
+      <text x="450" y="120" text-anchor="middle" font-size="11" fill="var(--text-secondary)">微服务+MQ+分库分表</text>
+      <text x="450" y="185" text-anchor="middle" font-size="11" fill="var(--text-secondary)">限流熔断降级三件套</text>
+      <circle cx="740" cy="160" r="8" fill="#EF4444"/>
+      <text x="740" y="140" text-anchor="middle" font-size="13" fill="var(--text-heading)" font-weight="bold">🌳 成熟</text>
+      <text x="740" y="120" text-anchor="middle" font-size="11" fill="var(--text-secondary)">单元化+多活+混沌工程</text>
+      <text x="740" y="185" text-anchor="middle" font-size="11" fill="var(--text-secondary)">容灾与成本并重</text>
+      <path d="M180,155 C260,80 360,80 430,150" fill="none" stroke="var(--scene)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ar9)"/>
+      <path d="M470,150 C550,80 650,80 720,150" fill="none" stroke="var(--scene)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ar9)"/>
+      <text x="305" y="70" text-anchor="middle" font-size="11" fill="var(--text-secondary)">触发点：数据库扛不住/大促翻车</text>
+      <text x="595" y="70" text-anchor="middle" font-size="11" fill="var(--text-secondary)">触发点：机房故障不可接受/成本失控</text>
+    </svg>
+    <div class="cap">演进由"疼痛"触发，而非由"先进"驱动——每次升级都应该能说出它解决了哪次事故</div>
+  </div>
+</section>
+
+<section id="s5">
+  <div class="sec-title"><span class="sn">5</span>结语</div>
+  <div class="prose">
+    <p>如果这一整套 Wiki 只能让你记住三句话，希望是这三句：</p>
+  </div>
+  <div class="cards">
+    <div class="card"><h4>1️⃣ 高并发的本质是取舍</h4><p>不可能三角逼你排优先级。<b>先问"什么可以牺牲"，再问"怎么优化"</b>——顺序反了，做出来的就是又贵又慢的四不像。</p></div>
+    <div class="card"><h4>2️⃣ 套路是收敛的</h4><p>拦截、异步、缓存、分片、降级、幂等——七个场景翻来覆去就这六板斧。<b>新场景来了先套用矩阵定位，八成能直接抄作业</b>。</p></div>
+    <div class="card"><h4>3️⃣ 架构跟着业务走</h4><p>没有"最好的架构"，只有"当前阶段合适的架构"。<b>让架构领先业务半步</b>：领先太多是浪费，落后半步是事故。</p></div>
+  </div>
+  <div class="callout info"><span class="ico">🎓</span><div><b>接下来去哪？</b>纸上得来终觉浅——最好的下一步是挑一个你业务里最像的场景（回到<a href="index.html" style="color:var(--primary);font-weight:600">总目录</a>找对应章节），把里面的"事故现场还原"当成演练剧本，在自己的系统里做一次压测和降级演练。<b>高并发的手感，是压出来的，不是读出来的。</b></div></div>
+</section>
+
+<div class="pagenav">
+  <a href="08-直播弹幕IM长连接-A.html"><div class="lbl">← 上一篇</div><div class="ttl">💬 场景七：直播弹幕 / IM 长连接</div></a>
+  <a class="next" href="01-引言-B.html"><div class="lbl">回到起点 →</div><div class="ttl">📖 引言：什么是高并发</div></a>
+</div>
+</div>
+
+<footer>高并发系统设计深度剖析 · 跨场景总结与选型决策框架 · 全系列完</footer>
+</div>
+
+<a class="fab" id="home-btn" href="index.html" title="返回首页">🏠</a>
+<button class="fab" id="top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<button class="fab" id="theme-btn" onclick="toggleTheme()" title="切换主题">🌙</button>
+
+<script>
+(function(){
+  var t=localStorage.getItem('hk-theme')||'light';
+  document.documentElement.setAttribute('data-theme',t);
+  function sync(){var b=document.getElementById('theme-btn');if(b)b.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌙';}
+  window.toggleTheme=function(){
+    var c=document.documentElement.getAttribute('data-theme');
+    var n=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    localStorage.setItem('hk-theme',n);
+    sync();
+  };
+  window.addEventListener('DOMContentLoaded',sync);
+  var ids=['s1','s2','s3','s4','s5'];
+  var links=document.querySelectorAll('#sb-nav a');
+  window.addEventListener('scroll',function(){
+    var cur=ids[0];
+    ids.forEach(function(id){var el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<150)cur=id;});
+    links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});
+  },{passive:true});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>场景二：车联网/IoT数据平台 · 高并发Wiki</title>
+<style>
+:root{
+  --primary:#0891B2;--primary-hover:#0E7490;--primary-light:#E0F7FA;
+  --accent:#06B6D4;--accent2:#38BDF8;
+  --text-heading:#07162E;--text-body:#1E293B;--text-secondary:#64748B;--text-disabled:#B2B4B8;
+  --bg-main:#FFFFFF;--bg-secondary:#F4F8FB;--bg-card:#FFFFFF;--bg-code:#EEF4F8;
+  --border:#DDE7EE;--divider:#E4EEF4;
+  --bg-sidebar:#07162E;--text-sidebar:#CBD5E1;--bg-sidebar-active:rgba(6,182,212,.2);
+  --banner-from:#07162E;--banner-mid:#0A2A5E;--banner-to:#0891B2;
+  --shadow:rgba(7,22,46,.08);--shadow-hover:rgba(7,22,46,.18);
+  --success:#22C55E;--warning:#F59E0B;--error:#EF4444;--info:#38BDF8;
+  --scene:#F59E0B;
+}
+[data-theme="dark"]{
+  --primary:#22D3EE;--primary-hover:#67E8F9;--primary-light:rgba(34,211,238,.12);
+  --accent:#22D3EE;--accent2:#60A5FA;
+  --text-heading:#F1F5F9;--text-body:#E2E8F0;--text-secondary:#94A3B8;--text-disabled:#64748B;
+  --bg-main:#050D1F;--bg-secondary:#0A1628;--bg-card:#0F1F38;--bg-code:#132743;
+  --border:#1E3A5F;--divider:rgba(148,163,184,.15);
+  --bg-sidebar:#040A18;--text-sidebar:#94A3B8;--bg-sidebar-active:rgba(34,211,238,.2);
+  --banner-from:#040A18;--banner-mid:#0A2A5E;--banner-to:#0E7490;
+  --shadow:rgba(0,0,0,.35);--shadow-hover:rgba(0,0,0,.55);
+  --success:#4ADE80;--warning:#FBBF24;--error:#F87171;--info:#60A5FA;
+  --scene:#FBBF24;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;background:var(--bg-main);color:var(--text-body);line-height:1.8;transition:background .3s,color .3s}
+a{text-decoration:none;color:inherit}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:250px;background:var(--bg-sidebar);color:var(--text-sidebar);padding:28px 0;overflow-y:auto;z-index:100}
+.sidebar .sb-brand{display:flex;align-items:center;gap:10px;padding:0 22px 22px;border-bottom:1px solid rgba(148,163,184,.15);margin-bottom:18px;color:#fff;font-weight:700}
+.sidebar .sb-brand .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--banner-mid),var(--banner-to));display:flex;align-items:center;justify-content:center}
+.sidebar .sb-scene{padding:0 22px 16px;font-size:.78rem;color:#67E8F9;letter-spacing:2px}
+.sidebar nav a{display:flex;align-items:center;gap:12px;padding:11px 22px;font-size:.9rem;transition:all .2s;border-left:3px solid transparent}
+.sidebar nav a .num{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--text-sidebar);display:flex;align-items:center;justify-content:center;font-size:.72rem;flex-shrink:0;transition:all .2s}
+.sidebar nav a:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar nav a.active{color:#67E8F9;background:var(--bg-sidebar-active);border-left-color:#22D3EE}
+.sidebar nav a.active .num{border-color:#22D3EE;background:#22D3EE;color:#07162E;font-weight:700}
+.sidebar .sb-foot{padding:20px 22px;font-size:.78rem;color:var(--text-sidebar);opacity:.6}
+.main{margin-left:250px}
+.banner{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--banner-from),var(--banner-mid) 55%,var(--banner-to));color:#fff;padding:64px 48px 56px}
+.banner .orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.4}
+.banner .orb1{width:300px;height:300px;background:#F59E0B;top:-120px;right:10%}
+.banner .orb2{width:260px;height:260px;background:#06B6D4;bottom:-130px;left:-60px}
+.banner-inner{position:relative;z-index:2;max-width:900px}
+.banner .kick{display:inline-block;background:rgba(245,158,11,.25);border:1px solid rgba(255,255,255,.3);padding:4px 14px;border-radius:999px;font-size:.8rem;letter-spacing:1px;margin-bottom:16px}
+.banner h1{font-size:2.2rem;margin-bottom:12px}
+.banner p{color:rgba(255,255,255,.82);max-width:680px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1060px;margin:-30px auto 0;padding:0 40px;position:relative;z-index:5}
+.stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:0 4px 16px var(--shadow);text-align:center}
+.stat b{display:block;font-size:1.35rem;color:var(--primary)}
+.stat span{font-size:.8rem;color:var(--text-secondary)}
+.content{max-width:1060px;margin:0 auto;padding:30px 40px 60px}
+section{padding:38px 0 10px}
+.sec-title{display:flex;align-items:center;gap:14px;font-size:1.45rem;color:var(--text-heading);padding-bottom:14px;border-bottom:2px solid var(--divider);margin-bottom:22px}
+.sec-title .sn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--banner-mid),var(--banner-to));color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.prose p{margin-bottom:14px}
+.prose b{color:var(--text-heading)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:20px 0}
+.cards.two{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;box-shadow:0 2px 8px var(--shadow);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 22px var(--shadow-hover)}
+.card h4{color:var(--text-heading);font-size:1rem;margin-bottom:8px}
+.card p{font-size:.88rem;color:var(--text-secondary)}
+.card p b{color:var(--text-body)}
+.callout{display:flex;gap:12px;border-radius:0 12px 12px 0;padding:16px 20px;margin:20px 0;font-size:.93rem}
+.callout.info{background:var(--primary-light);border-left:4px solid var(--primary)}
+.callout.warn{background:rgba(245,158,11,.1);border-left:4px solid var(--warning)}
+.callout.danger{background:rgba(239,68,68,.08);border-left:4px solid var(--error)}
+.callout .ico{font-size:1.25rem;flex-shrink:0}
+.callout b{color:var(--text-heading)}
+.figure{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 2px 10px var(--shadow);margin:22px 0}
+.figure .cap{text-align:center;font-size:.84rem;color:var(--text-secondary);margin-top:10px}
+.opt{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;box-shadow:0 2px 8px var(--shadow);margin-bottom:16px}
+.opt h4{color:var(--text-heading);font-size:1.02rem;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.opt h4 .tag{font-size:.7rem;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--primary-light);color:var(--primary)}
+.opt .gp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.opt .gain,.opt .cost{border-radius:10px;padding:12px 16px;font-size:.87rem}
+.opt .gain{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25)}
+.opt .cost{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.22)}
+.opt .gain b{color:var(--success)}
+.opt .cost b{color:var(--error)}
+.tbl{overflow-x:auto;border-radius:14px;border:1px solid var(--border);box-shadow:0 2px 10px var(--shadow);margin:20px 0}
+table{width:100%;border-collapse:collapse;background:var(--bg-card);font-size:.88rem;min-width:720px}
+th{background:var(--bg-sidebar);color:#fff;padding:12px 14px;text-align:left;font-weight:600;white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--divider);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--primary-light)}
+.lv{display:inline-block;font-size:.72rem;font-weight:600;padding:2px 10px;border-radius:999px;color:#fff;white-space:nowrap}
+.lv.g{background:var(--success)}.lv.y{background:var(--warning)}.lv.r{background:var(--error)}.lv.b{background:var(--info)}
+/* quiz */
+.quiz{background:var(--bg-card);border:1px solid var(--border);border-left:4px solid var(--scene);border-radius:0 12px 12px 0;padding:16px 20px;box-shadow:0 2px 8px var(--shadow);margin-bottom:14px;font-size:.92rem}
+.quiz details{margin-top:8px}
+.quiz summary{cursor:pointer;color:var(--primary);font-weight:600;font-size:.88rem}
+.quiz details p{margin-top:8px;font-size:.88rem;color:var(--text-secondary)}
+.pagenav{display:flex;justify-content:space-between;gap:16px;margin:30px 0 0}
+.pagenav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px 20px;box-shadow:0 2px 8px var(--shadow);transition:all .25s}
+.pagenav a:hover{border-color:var(--primary);transform:translateY(-3px)}
+.pagenav .lbl{font-size:.76rem;color:var(--text-secondary)}
+.pagenav .ttl{color:var(--text-heading);font-weight:600;font-size:.95rem}
+.pagenav a.next{text-align:right}
+footer{background:var(--bg-sidebar);color:var(--text-sidebar);text-align:center;padding:26px;font-size:.82rem}
+.fab{width:44px;height:44px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);box-shadow:0 2px 8px var(--shadow);cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:all .3s;color:var(--text-body)}
+.fab:hover{box-shadow:0 4px 16px var(--shadow-hover);transform:scale(1.1);background:var(--primary);color:#fff;border-color:var(--primary)}
+#home-btn{position:fixed;bottom:76px;left:24px;z-index:200}
+#theme-btn{position:fixed;bottom:24px;right:24px;z-index:200}
+#top-btn{position:fixed;bottom:76px;right:24px;z-index:200}
+@media(max-width:1000px){.sidebar{display:none}.main{margin-left:0}.stats{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:1fr}.cards.two{grid-template-columns:1fr}.opt .gp{grid-template-columns:1fr}#home-btn{bottom:68px;left:16px}}
+@media(max-width:700px){.banner h1{font-size:1.6rem}.content{padding:20px 20px 50px}.pagenav{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a class="sb-brand" href="index.html"><span class="logo">⚡</span>高并发 Wiki</a>
+  <div class="sb-scene">SCENE 02 · 车联网/IoT</div>
+  <nav id="sb-nav">
+    <a href="#s1" class="active"><span class="num">1</span>场景描述与业务特征</a>
+    <a href="#s2"><span class="num">2</span>整体运作流程</a>
+    <a href="#s3"><span class="num">3</span>核心瓶颈与一致性挑战</a>
+    <a href="#s4"><span class="num">4</span>优化手段、获益与代价</a>
+    <a href="#s5"><span class="num">5</span>方案对比与选型建议</a>
+    <a href="#s6"><span class="num">6</span>推演检验</a>
+  </nav>
+  <div class="sb-foot">持续高压写入型 · 海量存储</div>
+</aside>
+
+<div class="main">
+<header class="banner">
+  <div class="orb orb1"></div><div class="orb orb2"></div>
+  <div class="banner-inner">
+    <span class="kick">🚗 持续高压写入型 · 海量存储</span>
+    <h1>场景二：车联网 / IoT 数据平台</h1>
+    <p>如果说秒杀是"百米冲刺"，IoT 就是"永不停歇的马拉松"：百万台车每秒都在上报位置、车速、电池状态，写入洪流 7×24 小时不退潮，存储账单还蹭蹭上涨。</p>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><b>100万+</b><span>在线设备数（中型车企）</span></div>
+  <div class="stat"><b>百万点/秒</b><span>持续写入速率</span></div>
+  <div class="stat"><b>TB/天</b><span>新增数据量</span></div>
+  <div class="stat"><b>99:1</b><span>写读比（写远大于读）</span></div>
+</div>
+
+<div class="content">
+
+<section id="s1">
+  <div class="sec-title"><span class="sn">1</span>场景描述与业务特征</div>
+  <div class="prose">
+    <p>每辆智能汽车就像一个话痨：每 1~10 秒上报一次 GPS、车速、电机温度、电池 SOC……单车每天产生数万条数据。一家有 100 万台在网车辆的车企，平台每秒要接住<b>几十万到几百万个数据点</b>。类比：不是一群人挤一扇门（秒杀），而是<b>一百万根水管同时对着你的水库放水，全年不关阀</b>。</p>
+  </div>
+  <div class="figure">
+    <svg viewBox="0 0 760 170" width="100%" aria-label="IoT持续写入流量曲线">
+      <line x1="50" y1="135" x2="720" y2="135" stroke="var(--text-secondary)" stroke-width="1.5"/>
+      <line x1="50" y1="135" x2="50" y2="25" stroke="var(--text-secondary)" stroke-width="1.5"/>
+      <text x="30" y="35" font-size="10" fill="var(--text-secondary)">写入</text>
+      <text x="700" y="155" font-size="10" fill="var(--text-secondary)">时间 →</text>
+      <path d="M55,62 Q150,52 250,60 Q350,70 450,55 Q550,45 650,58 L718,55" fill="none" stroke="var(--scene)" stroke-width="3"/>
+      <path d="M55,62 Q150,52 250,60 Q350,70 450,55 Q550,45 650,58 L718,55 L718,135 L55,135 Z" fill="var(--scene)" opacity=".1"/>
+      <line x1="50" y1="100" x2="720" y2="100" stroke="var(--success)" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <text x="130" y="95" font-size="10" fill="var(--success)">普通业务系统的日常水位</text>
+      <text x="390" y="42" font-size="11" fill="var(--scene)" font-weight="bold" text-anchor="middle">持续高位运行，没有"低谷喘息期"（早晚高峰还会再抬一截）</text>
+    </svg>
+    <div class="cap">持续型流量：不是"能不能扛住一秒"，而是"能不能扛住每一秒" —— 拼的是吞吐、成本和稳定性。</div>
+  </div>
+  <div class="cards">
+    <div class="card"><h4>🌊 写多读少</h4><p>数据 99% 的时间在"睡觉"，只有查轨迹、出报表、诊断故障时才被读。<b>为写优化</b>是第一原则。</p></div>
+    <div class="card"><h4>⏱️ 时序天性</h4><p>每条数据都带时间戳、按时间追加、极少修改。<b>天生适合时序数据库</b>（按时间分区、列式压缩）。</p></div>
+    <div class="card"><h4>📦 单条小、总量大</h4><p>一条报文几百字节，但架不住量大：<b>1TB/天起步</b>，存储成本是核心 KPI。</p></div>
+    <div class="card"><h4>🔌 弱网乱序</h4><p>车过隧道、进地库就断网，恢复后<b>补传旧数据</b>——数据到达顺序和产生顺序经常不一致。</p></div>
+    <div class="card"><h4>🔁 至少一次送达</h4><p>设备端重试机制导致<b>同一条数据可能被发两次</b>，平台必须自己去重。</p></div>
+    <div class="card"><h4>🚨 实时+离线双需求</h4><p>既要实时告警（电池过热 3 秒内通知），又要离线分析（月度驾驶行为报告），<b>一份数据两条处理链路</b>。</p></div>
+  </div>
+</section>
+
+<section id="s2">
+  <div class="sec-title"><span class="sn">2</span>整体运作流程</div>
+  <div class="prose">
+    <p>IoT 平台的标准姿势是<b>"接入 → 缓冲 → 分流 → 分层存储"</b>：网关只管接得快，Kafka 当巨型蓄水池，后面实时、离线两条流水线各取所需，最后按数据温度分层存放。</p>
+  </div>
+  <div class="figure">
+    <svg viewBox="0 0 780 400" width="100%" aria-label="IoT数据平台架构图">
+      <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--text-secondary)"/></marker></defs>
+      <g font-size="11" text-anchor="middle">
+        <!-- devices -->
+        <rect x="20" y="130" width="110" height="100" rx="10" fill="var(--bg-code)" stroke="var(--scene)" stroke-width="1.5"/>
+        <text x="75" y="155" fill="var(--text-heading)" font-weight="bold">🚗 百万设备</text>
+        <text x="75" y="175" fill="var(--text-secondary)" font-size="9.5">MQTT / TCP 长连接</text>
+        <text x="75" y="191" fill="var(--text-secondary)" font-size="9.5">1~10秒/次上报</text>
+        <text x="75" y="207" fill="var(--text-secondary)" font-size="9.5">断网补传</text>
+        <!-- gateway -->
+        <rect x="170" y="130" width="120" height="100" rx="10" fill="var(--bg-code)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="230" y="155" fill="var(--text-heading)" font-weight="bold">接入网关集群</text>
+        <text x="230" y="175" fill="var(--text-secondary)" font-size="9.5">EMQX/自研网关</text>
+        <text x="230" y="191" fill="var(--text-secondary)" font-size="9.5">鉴权·解码·薄处理</text>
+        <text x="230" y="207" fill="var(--text-secondary)" font-size="9.5">只做转发不做业务</text>
+        <!-- kafka -->
+        <rect x="330" y="130" width="120" height="100" rx="10" fill="var(--bg-code)" stroke="var(--accent)" stroke-width="2.5"/>
+        <text x="390" y="155" fill="var(--text-heading)" font-weight="bold">Kafka 蓄水池</text>
+        <text x="390" y="175" fill="var(--text-secondary)" font-size="9.5">按 vin 分区保序</text>
+        <text x="390" y="191" fill="var(--text-secondary)" font-size="9.5">削峰 + 多方订阅</text>
+        <text x="390" y="207" fill="var(--text-secondary)" font-size="9.5">留存7天可回放</text>
+        <!-- realtime -->
+        <rect x="500" y="40" width="130" height="82" rx="10" fill="var(--bg-code)" stroke="var(--info)" stroke-width="1.5"/>
+        <text x="565" y="63" fill="var(--text-heading)" font-weight="bold">⚡ 实时流处理</text>
+        <text x="565" y="82" fill="var(--text-secondary)" font-size="9.5">Flink：告警规则</text>
+        <text x="565" y="98" fill="var(--text-secondary)" font-size="9.5">去重·乱序水位线</text>
+        <!-- batch -->
+        <rect x="500" y="150" width="130" height="82" rx="10" fill="var(--bg-code)" stroke="var(--info)" stroke-width="1.5"/>
+        <text x="565" y="173" fill="var(--text-heading)" font-weight="bold">🕐 批量写入</text>
+        <text x="565" y="192" fill="var(--text-secondary)" font-size="9.5">攒批 5000 条/次</text>
+        <text x="565" y="208" fill="var(--text-secondary)" font-size="9.5">顺序写时序库</text>
+        <!-- offline -->
+        <rect x="500" y="260" width="130" height="82" rx="10" fill="var(--bg-code)" stroke="var(--info)" stroke-width="1.5"/>
+        <text x="565" y="283" fill="var(--text-heading)" font-weight="bold">📊 离线数仓</text>
+        <text x="565" y="302" fill="var(--text-secondary)" font-size="9.5">Spark/Hive T+1</text>
+        <text x="565" y="318" fill="var(--text-secondary)" font-size="9.5">报表·模型训练</text>
+        <!-- storage -->
+        <rect x="668" y="40" width="96" height="82" rx="10" fill="var(--bg-code)" stroke="var(--success)" stroke-width="1.5"/>
+        <text x="716" y="68" fill="var(--text-heading)" font-weight="bold">🔥 热</text>
+        <text x="716" y="88" fill="var(--text-secondary)" font-size="9">Redis/内存表</text>
+        <text x="716" y="103" fill="var(--text-secondary)" font-size="9">最新状态·告警</text>
+        <rect x="668" y="150" width="96" height="82" rx="10" fill="var(--bg-code)" stroke="var(--success)" stroke-width="1.5"/>
+        <text x="716" y="178" fill="var(--text-heading)" font-weight="bold">🌡️ 温</text>
+        <text x="716" y="198" fill="var(--text-secondary)" font-size="9">时序库 3~6月</text>
+        <text x="716" y="213" fill="var(--text-secondary)" font-size="9">轨迹·近期查询</text>
+        <rect x="668" y="260" width="96" height="82" rx="10" fill="var(--bg-code)" stroke="var(--success)" stroke-width="1.5"/>
+        <text x="716" y="288" fill="var(--text-heading)" font-weight="bold">🧊 冷</text>
+        <text x="716" y="308" fill="var(--text-secondary)" font-size="9">对象存储/湖</text>
+        <text x="716" y="323" fill="var(--text-secondary)" font-size="9">合规归档·极便宜</text>
+      </g>
+      <line x1="130" y1="180" x2="168" y2="180" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar2)"/>
+      <line x1="290" y1="180" x2="328" y2="180" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar2)"/>
+      <line x1="450" y1="160" x2="498" y2="86" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar2)"/>
+      <line x1="450" y1="180" x2="498" y2="190" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar2)"/>
+      <line x1="450" y1="205" x2="498" y2="296" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar2)"/>
+      <line x1="630" y1="81" x2="666" y2="81" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar2)"/>
+      <line x1="630" y1="191" x2="666" y2="191" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar2)"/>
+      <line x1="630" y1="301" x2="666" y2="301" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar2)"/>
+      <text x="390" y="380" font-size="11" fill="var(--primary)" text-anchor="middle" font-weight="bold">核心思想：接入与处理解耦，一份数据多路消费，按"温度"分层存放省钱</text>
+    </svg>
+  </div>
+  <div class="callout info"><span class="ico">🧠</span><div><b>为什么 Kafka 是灵魂？</b>它把"设备上报速度"和"下游处理速度"彻底解耦：下游挂了、慢了，数据先在 Kafka 里躺着（可回放）；新增一个消费方（比如新上线的告警系统）也不用动接入层。<b>顺序写磁盘 + 分区并行</b>让它单集群轻松扛百万级 TPS。</div></div>
+</section>
+
+<section id="s3">
+  <div class="sec-title"><span class="sn">3</span>核心瓶颈与数据一致性挑战</div>
+  <div class="cards two">
+    <div class="card"><h4>🕰️ 乱序：迟到的数据算不算数？</h4><p>车辆 10:00 过隧道断网，10:05 恢复后补传 10:00~10:05 的数据。此时"10:00~10:05 平均车速"的统计窗口早关了。<b>Flink 水位线（Watermark）</b>就是给迟到数据留的宽限期：窗口多等 N 秒再关账。等太久实时性差，等太短数据不准——又是取舍。</p></div>
+    <div class="card"><h4>👯 重复：至少一次的副作用</h4><p>设备发出报文没收到 ACK 就重发，平台可能收到两条一模一样的数据。里程统计、电费计算会<b>虚增</b>。解法：以"设备ID+时间戳+序列号"做唯一键去重，或选支持 <b>upsert 的时序库</b>让重复写入天然幂等。</p></div>
+    <div class="card"><h4>💾 写入放大：数据库被"逐条写"拖死</h4><p>百万点/秒逐条 INSERT，任何数据库都会跪——每条都要走一遍网络、解析、索引、刷盘。<b>攒批写入</b>（每 5000 条或每 200ms 刷一次）能把开销摊薄百倍，代价是数据可见性延迟零点几秒。</p></div>
+    <div class="card"><h4>💰 存储成本：不删数据会破产</h4><p>1TB/天 × 365 天 × 3 副本 ≈ PB 级。全放 SSD 时序库，存储账单能吓哭 CFO。必须<b>冷热分层 + 降采样</b>（3 个月前的数据从秒级抽稀成分钟级）+ 列式压缩（时序数据压缩比可达 10:1 以上）。</p></div>
+  </div>
+  <div class="callout danger"><span class="ico">💥</span><div><b>事故现场还原：</b>某车企促销活动 OTA 升级，百万台车同时重连、同时全量补传离线数据，瞬时流量翻 8 倍打崩接入层，连锁压垮 Kafka 消费延迟 4 小时——<b>设备端"随机退避重连 + 补传限速"必须在协议里就设计好</b>，等出事再改，车已经在路上了。</div></div>
+</section>
+
+<section id="s4">
+  <div class="sec-title"><span class="sn">4</span>优化手段、获益与代价</div>
+  <div class="opt">
+    <h4>① MQTT 网关集群 + 薄接入 <span class="tag">接入层</span></h4>
+    <p style="font-size:.9rem;color:var(--text-secondary)">网关只做鉴权、解码、转发三件事，不写数据库不做业务，无状态水平扩容。</p>
+    <div class="gp">
+      <div class="gain"><b>✅ 获益：</b>单节点数十万连接，扩容只需加机器；业务变更不动接入层。</div>
+      <div class="cost"><b>⚠️ 代价：</b>多一跳转发延迟；网关集群本身的连接均衡与会话迁移要额外设计。</div>
+    </div>
+  </div>
+  <div class="opt">
+    <h4>② Kafka 缓冲 + 按设备分区 <span class="tag">核心</span></h4>
+    <p style="font-size:.9rem;color:var(--text-secondary)">所有数据先进 Kafka，按 vin（车架号）哈希分区，保证同一辆车的数据在分区内有序。</p>
+    <div class="gp">
+      <div class="gain"><b>✅ 获益：</b>削峰、解耦、可回放三合一；单车数据局部有序，简化下游乱序处理。</div>
+      <div class="cost"><b>⚠️ 代价：</b>端到端延迟增加百毫秒级；Kafka 集群本身的容量规划与运维成本；分区数一旦设小，扩分区会打乱有序性。</div>
+    </div>
+  </div>
+  <div class="opt">
+    <h4>③ 批量写入 + 时序数据库 <span class="tag">存储</span></h4>
+    <p style="font-size:.9rem;color:var(--text-secondary)">消费端攒批（如 5000 条/200ms）写入 TDengine / InfluxDB / Apache IoTDB，按时间+设备分区，列式压缩。</p>
+    <div class="gp">
+      <div class="gain"><b>✅ 获益：</b>写入吞吐提升 10~100 倍；压缩比 10:1 起步，存储成本大降；时间范围查询飞快。</div>
+      <div class="cost"><b>⚠️ 代价：</b>数据可见延迟亚秒级；攒批进程崩溃可能丢一小批（需 Kafka 位点重放兜底）；时序库对复杂关联查询不友好。</div>
+    </div>
+  </div>
+  <div class="opt">
+    <h4>④ Flink 流处理：水位线 + 状态去重 <span class="tag">一致性</span></h4>
+    <p style="font-size:.9rem;color:var(--text-secondary)">用事件时间 + Watermark 容忍乱序，用 keyed state 记录已见序列号去重，checkpoint 保证 exactly-once。</p>
+    <div class="gp">
+      <div class="gain"><b>✅ 获益：</b>迟到数据不丢、重复数据不重算，统计结果可信；告警秒级触达。</div>
+      <div class="cost"><b>⚠️ 代价：</b>状态后端占内存/磁盘；水位线延迟拉长实时性；Flink 作业的调优与运维门槛不低。</div>
+    </div>
+  </div>
+  <div class="opt">
+    <h4>⑤ 冷热分层 + 降采样 <span class="tag">成本</span></h4>
+    <p style="font-size:.9rem;color:var(--text-secondary)">热数据（7天）SSD 时序库，温数据（6个月）降采样后存 HDD，冷数据转对象存储（S3/OSS）只为合规留存。</p>
+    <div class="gp">
+      <div class="gain"><b>✅ 获益：</b>综合存储成本降 70%+，热查询性能不受海量历史拖累。</div>
+      <div class="cost"><b>⚠️ 代价：</b>跨层查询体验割裂（查半年前轨迹要等几秒）；降采样丢失细节，事故回溯可能不够用——留存粒度要和法务/安全团队对齐。</div>
+    </div>
+  </div>
+  <div class="callout warn"><span class="ico">🛡️</span><div><b>降级策略：</b>① 洪峰超限 → 网关按数据优先级丢弃（先丢车机娱乐埋点，死保安全告警类报文）；② 时序库写入积压 → 自动拉大攒批窗口、非关键指标降频；③ 设备端配合 → 下发指令降低上报频率（10秒/次 → 60秒/次）。<b>IoT 的三角站位：性能+可用性优先，接受"秒级最终一致"。</b></div></div>
+</section>
+
+<section id="s5">
+  <div class="sec-title"><span class="sn">5</span>多种解决方案对比与选型建议</div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>存储方案</th><th>写入吞吐</th><th>压缩/成本</th><th>查询能力</th><th>适用规模</th></tr></thead>
+      <tbody>
+        <tr><td><b>MySQL 分表</b><br><span style="font-size:.8rem;color:var(--text-secondary)">按月分表硬扛</span></td><td><span class="lv r">低 · 万级/秒</span></td><td><span class="lv r">差</span></td><td><span class="lv g">SQL 灵活</span></td><td>万台设备以内的试水期</td></tr>
+        <tr><td><b>MongoDB</b><br><span style="font-size:.8rem;color:var(--text-secondary)">文档模型+TTL索引</span></td><td><span class="lv y">中 · 十万级/秒</span></td><td><span class="lv y">中</span></td><td><span class="lv y">较灵活</span></td><td>报文结构多变的中小平台</td></tr>
+        <tr><td><b>时序数据库</b><br><span style="font-size:.8rem;color:var(--text-secondary)">TDengine/InfluxDB/IoTDB</span></td><td><span class="lv g">高 · 百万级/秒</span></td><td><span class="lv g">优 · 10:1+</span></td><td><span class="lv y">时间维度极强</span></td><td>十万~百万设备的主流选择</td></tr>
+        <tr><td><b>HBase/Cassandra</b><br><span style="font-size:.8rem;color:var(--text-secondary)">宽表 LSM 存储</span></td><td><span class="lv g">高 · 百万级/秒</span></td><td><span class="lv y">中</span></td><td><span class="lv r">只适合按键查</span></td><td>超大规模+自有大数据团队</td></tr>
+        <tr><td><b>数据湖方案</b><br><span style="font-size:.8rem;color:var(--text-secondary)">Kafka→Iceberg/Hudi+OLAP</span></td><td><span class="lv g">高（批流一体）</span></td><td><span class="lv g">优 · 对象存储价</span></td><td><span class="lv g">分析能力最强</span></td><td>分析需求重于点查的平台</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout info"><span class="ico">🎯</span><div><b>选型口诀：</b>万台以内 MySQL 分表先跑起来别过度设计；设备上十万，<b>Kafka + 时序数据库</b>是性价比之王；报文字段天天变选 MongoDB 换开发效率；分析报表是主战场就直接建数据湖。记住 IoT 的钱大头在存储——<b>选型先算三年存储账单，再看性能参数</b>。</div></div>
+</section>
+
+<!-- ===== 6 ===== -->
+<section id="s6">
+  <div class="sec-title"><span class="sn">6</span>推演检验：换个条件还成立吗？</div>
+  <div class="prose"><p>背下架构图不算学会，能判断"条件变了方案还成不成立"才算。先自己推，再展开参考。</p></div>
+  <div class="quiz">
+    <p><b>推演 1：</b>如果百万台车从"秒级定时上报"改成"仅报警时上报"（事件驱动），Kafka + 时序库这套还需要吗？</p>
+    <details><summary>💡 参考推演</summary><p>日常写入量骤降几个数量级，时序库可以退化成普通库分表。但注意<b>事件驱动的风险是相关性脉冲</b>：台风天全城车辆同时报警、OTA 升级后全量回传日志——瞬时峰值可能比定时上报更猛。所以 Kafka 这层缓冲<b>反而更不能省</b>：定时上报的流量可预测，事件驱动的流量不可预测，越不可预测越需要队列兑底。</p></details>
+  </div>
+  <div class="quiz">
+    <p><b>推演 2：</b>如果新业务要求"查车辆当前位置"毫秒级响应（网约车派单），攢批写入还成立吗？</p>
+    <details><summary>💡 参考推演</summary><p>成立，但要<b>读写路径分离</b>：攢批只影响"历史轨迹落库"的延迟，而"当前位置"应该在消费链路上顺手更新一份 Redis 里的 last-known 状态（每车一个 key，覆盖写）。查实时位置读 Redis，查历史轨迹读时序库——同一份数据两条链路，各自优化各自的延迟，而不是逼落库链路提速。</p></details>
+  </div>
+  <div class="quiz">
+    <p><b>推演 3：</b>如果存储预算砍半，三年账单撑不住，优先动哪一层？</p>
+    <details><summary>💡 参考推演</summary><p>先谈<b>数据生命周期</b>而不是换数据库：热数据（近30天）保留秒级精度；温数据降采样成分钟级聚合（体积缩几十倍）；冷数据归档对象存储甚至删原始报文只留聚合结果。大部分 IoT 分析只用聚合值，原始报文的"全量永久保存"往往是惯性而非需求——先把需求问清楚，再动架构。</p></details>
+  </div>
+</section>
+
+<div class="pagenav">
+  <a href="02-秒杀抢票-A.html"><div class="lbl">← 上一篇</div><div class="ttl">🎟️ 场景一：秒杀 / 抢票</div></a>
+  <a class="next" href="04-Feed流推荐-A.html"><div class="lbl">下一篇 →</div><div class="ttl">📱 场景三：社交 Feed 流 / 短视频推荐</div></a>
+</div>
+</div>
+
+<footer>高并发系统设计深度剖析 · 场景二：车联网 / IoT 数据平台</footer>
+</div>
+
+<a class="fab" id="home-btn" href="index.html" title="返回首页">🏠</a>
+<button class="fab" id="top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<button class="fab" id="theme-btn" onclick="toggleTheme()" title="切换主题">🌙</button>
+
+<script>
+(function(){
+  var t=localStorage.getItem('hk-theme')||'light';
+  document.documentElement.setAttribute('data-theme',t);
+  function sync(){var b=document.getElementById('theme-btn');if(b)b.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌙';}
+  window.toggleTheme=function(){
+    var c=document.documentElement.getAttribute('data-theme');
+    var n=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    localStorage.setItem('hk-theme',n);
+    sync();
+  };
+  window.addEventListener('DOMContentLoaded',sync);
+  var ids=['s1','s2','s3','s4','s5','s6'];
+  var links=document.querySelectorAll('#sb-nav a');
+  window.addEventListener('scroll',function(){
+    var cur=ids[0];
+    ids.forEach(function(id){var el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<150)cur=id;});
+    links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});
+  },{passive:true});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>场景五：分布式定时任务调度 · 高并发Wiki</title>
+<style>
+:root{
+  --primary:#0891B2;--primary-hover:#0E7490;--primary-light:#E0F7FA;
+  --accent:#06B6D4;--accent2:#38BDF8;
+  --text-heading:#07162E;--text-body:#1E293B;--text-secondary:#64748B;--text-disabled:#B2B4B8;
+  --bg-main:#FFFFFF;--bg-secondary:#F4F8FB;--bg-card:#FFFFFF;--bg-code:#EEF4F8;
+  --border:#DDE7EE;--divider:#E4EEF4;
+  --bg-sidebar:#07162E;--text-sidebar:#CBD5E1;--bg-sidebar-active:rgba(6,182,212,.2);
+  --banner-from:#07162E;--banner-mid:#0A2A5E;--banner-to:#0891B2;
+  --shadow:rgba(7,22,46,.08);--shadow-hover:rgba(7,22,46,.18);
+  --success:#22C55E;--warning:#F59E0B;--error:#EF4444;--info:#38BDF8;
+  --scene:#0EA5E9;
+}
+[data-theme="dark"]{
+  --primary:#22D3EE;--primary-hover:#67E8F9;--primary-light:rgba(34,211,238,.12);
+  --accent:#22D3EE;--accent2:#60A5FA;
+  --text-heading:#F1F5F9;--text-body:#E2E8F0;--text-secondary:#94A3B8;--text-disabled:#64748B;
+  --bg-main:#050D1F;--bg-secondary:#0A1628;--bg-card:#0F1F38;--bg-code:#132743;
+  --border:#1E3A5F;--divider:rgba(148,163,184,.15);
+  --bg-sidebar:#040A18;--text-sidebar:#94A3B8;--bg-sidebar-active:rgba(34,211,238,.2);
+  --banner-from:#040A18;--banner-mid:#0A2A5E;--banner-to:#0E7490;
+  --shadow:rgba(0,0,0,.35);--shadow-hover:rgba(0,0,0,.55);
+  --success:#4ADE80;--warning:#FBBF24;--error:#F87171;--info:#60A5FA;
+  --scene:#38BDF8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;background:var(--bg-main);color:var(--text-body);line-height:1.8;transition:background .3s,color .3s}
+a{text-decoration:none;color:inherit}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:250px;background:var(--bg-sidebar);color:var(--text-sidebar);padding:28px 0;overflow-y:auto;z-index:100}
+.sidebar .sb-brand{display:flex;align-items:center;gap:10px;padding:0 22px 22px;border-bottom:1px solid rgba(148,163,184,.15);margin-bottom:18px;color:#fff;font-weight:700}
+.sidebar .sb-brand .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--banner-mid),var(--banner-to));display:flex;align-items:center;justify-content:center}
+.sidebar .sb-scene{padding:0 22px 16px;font-size:.78rem;color:#67E8F9;letter-spacing:2px}
+.sidebar nav a{display:flex;align-items:center;gap:12px;padding:11px 22px;font-size:.9rem;transition:all .2s;border-left:3px solid transparent}
+.sidebar nav a .num{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--text-sidebar);display:flex;align-items:center;justify-content:center;font-size:.72rem;flex-shrink:0;transition:all .2s}
+.sidebar nav a:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar nav a.active{color:#67E8F9;background:var(--bg-sidebar-active);border-left-color:#22D3EE}
+.sidebar nav a.active .num{border-color:#22D3EE;background:#22D3EE;color:#07162E;font-weight:700}
+.sidebar .sb-foot{padding:20px 22px;font-size:.78rem;color:var(--text-sidebar);opacity:.6}
+.main{margin-left:250px}
+.banner{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--banner-from),var(--banner-mid) 55%,var(--banner-to));color:#fff;padding:64px 48px 56px}
+.banner .orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.4}
+.banner .orb1{width:300px;height:300px;background:#0EA5E9;top:-120px;right:10%}
+.banner .orb2{width:260px;height:260px;background:#06B6D4;bottom:-130px;left:-60px}
+.banner-inner{position:relative;z-index:2;max-width:900px}
+.banner .kick{display:inline-block;background:rgba(14,165,233,.3);border:1px solid rgba(255,255,255,.3);padding:4px 14px;border-radius:999px;font-size:.8rem;letter-spacing:1px;margin-bottom:16px}
+.banner h1{font-size:2.2rem;margin-bottom:12px}
+.banner p{color:rgba(255,255,255,.82);max-width:680px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1060px;margin:-30px auto 0;padding:0 40px;position:relative;z-index:5}
+.stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:0 4px 16px var(--shadow);text-align:center}
+.stat b{display:block;font-size:1.35rem;color:var(--primary)}
+.stat span{font-size:.8rem;color:var(--text-secondary)}
+.content{max-width:1060px;margin:0 auto;padding:30px 40px 60px}
+section{padding:38px 0 10px}
+.sec-title{display:flex;align-items:center;gap:14px;font-size:1.45rem;color:var(--text-heading);padding-bottom:14px;border-bottom:2px solid var(--divider);margin-bottom:22px}
+.sec-title .sn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--banner-mid),var(--banner-to));color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.prose p{margin-bottom:14px}
+.prose b{color:var(--text-heading)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:20px 0}
+.cards.two{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;box-shadow:0 2px 8px var(--shadow);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 22px var(--shadow-hover)}
+.card h4{color:var(--text-heading);font-size:1rem;margin-bottom:8px}
+.card p{font-size:.88rem;color:var(--text-secondary)}
+.card p b{color:var(--text-body)}
+.callout{display:flex;gap:12px;border-radius:0 12px 12px 0;padding:16px 20px;margin:20px 0;font-size:.93rem}
+.callout.info{background:var(--primary-light);border-left:4px solid var(--primary)}
+.callout.warn{background:rgba(245,158,11,.1);border-left:4px solid var(--warning)}
+.callout.danger{background:rgba(239,68,68,.08);border-left:4px solid var(--error)}
+.callout .ico{font-size:1.25rem;flex-shrink:0}
+.callout b{color:var(--text-heading)}
+.figure{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 2px 10px var(--shadow);margin:22px 0}
+.figure .cap{text-align:center;font-size:.84rem;color:var(--text-secondary);margin-top:10px}
+.opt{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;box-shadow:0 2px 8px var(--shadow);margin-bottom:16px}
+.opt h4{color:var(--text-heading);font-size:1.02rem;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.opt h4 .tag{font-size:.7rem;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--primary-light);color:var(--primary)}
+.opt .gp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.opt .gain,.opt .cost{border-radius:10px;padding:12px 16px;font-size:.87rem}
+.opt .gain{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25)}
+.opt .cost{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.22)}
+.opt .gain b{color:var(--success)}
+.opt .cost b{color:var(--error)}
+.tbl{overflow-x:auto;border-radius:14px;border:1px solid var(--border);box-shadow:0 2px 10px var(--shadow);margin:20px 0}
+table{width:100%;border-collapse:collapse;background:var(--bg-card);font-size:.88rem;min-width:720px}
+th{background:var(--bg-sidebar);color:#fff;padding:12px 14px;text-align:left;font-weight:600;white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--divider);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--primary-light)}
+.lv{display:inline-block;font-size:.72rem;font-weight:600;padding:2px 10px;border-radius:999px;color:#fff;white-space:nowrap}
+.lv.g{background:var(--success)}.lv.y{background:var(--warning)}.lv.r{background:var(--error)}.lv.b{background:var(--info)}
+.quiz{background:var(--bg-card);border:1px solid var(--border);border-left:4px solid var(--scene);border-radius:0 12px 12px 0;padding:16px 20px;box-shadow:0 2px 8px var(--shadow);margin-bottom:14px;font-size:.92rem}
+.quiz details{margin-top:8px}
+.quiz summary{cursor:pointer;color:var(--primary);font-weight:600;font-size:.88rem}
+.quiz details p{margin-top:8px;font-size:.88rem;color:var(--text-secondary)}
+.pagenav{display:flex;justify-content:space-between;gap:16px;margin:30px 0 0}
+.pagenav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px 20px;box-shadow:0 2px 8px var(--shadow);transition:all .25s}
+.pagenav a:hover{border-color:var(--primary);transform:translateY(-3px)}
+.pagenav .lbl{font-size:.76rem;color:var(--text-secondary)}
+.pagenav .ttl{color:var(--text-heading);font-weight:600;font-size:.95rem}
+.pagenav a.next{text-align:right}
+footer{background:var(--bg-sidebar);color:var(--text-sidebar);text-align:center;padding:26px;font-size:.82rem}
+.fab{width:44px;height:44px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);box-shadow:0 2px 8px var(--shadow);cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:all .3s;color:var(--text-body)}
+.fab:hover{box-shadow:0 4px 16px var(--shadow-hover);transform:scale(1.1);background:var(--primary);color:#fff;border-color:var(--primary)}
+#home-btn{position:fixed;bottom:76px;left:24px;z-index:200}
+#theme-btn{position:fixed;bottom:24px;right:24px;z-index:200}
+#top-btn{position:fixed;bottom:76px;right:24px;z-index:200}
+@media(max-width:1000px){.sidebar{display:none}.main{margin-left:0}.stats{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:1fr}.cards.two{grid-template-columns:1fr}.opt .gp{grid-template-columns:1fr}#home-btn{bottom:68px;left:16px}}
+@media(max-width:700px){.banner h1{font-size:1.6rem}.content{padding:20px 20px 50px}.pagenav{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a class="sb-brand" href="index.html"><span class="logo">⚡</span>高并发 Wiki</a>
+  <div class="sb-scene">SCENE 05 · 任务调度</div>
+  <nav id="sb-nav">
+    <a href="#s1" class="active"><span class="num">1</span>场景描述与业务特征</a>
+    <a href="#s2"><span class="num">2</span>整体运作流程</a>
+    <a href="#s3"><span class="num">3</span>核心瓶颈与一致性挑战</a>
+    <a href="#s4"><span class="num">4</span>优化手段、获益与代价</a>
+    <a href="#s5"><span class="num">5</span>方案对比与选型建议</a>
+    <a href="#s6"><span class="num">6</span>推演检验</a>
+  </nav>
+  <div class="sb-foot">海量任务并发触发</div>
+</aside>
+
+<div class="main">
+<header class="banner">
+  <div class="orb orb1"></div><div class="orb orb2"></div>
+  <div class="banner-inner">
+    <span class="kick">⏰ 海量任务并发触发</span>
+    <h1>场景五：分布式定时任务调度</h1>
+    <p>凌晨 1 点，千万个"闹钟"同时响起：还款提醒、订单超时关闭、对账批处理、报表生成……调度系统要保证每个闹钟<b>不重复响、不漏响</b>，还要把活儿均匀摊给一群打工机器。</p>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><b>千万级</b><span>待调度任务总量</span></div>
+  <div class="stat"><b>10万+/秒</b><span>触发峰值（整点脉冲）</span></div>
+  <div class="stat"><b>不重不漏</b><span>调度语义底线</span></div>
+  <div class="stat"><b>秒级</b><span>触发精度要求</span></div>
+</div>
+
+<div class="content">
+
+<section id="s1">
+  <div class="sec-title"><span class="sn">1</span>场景描述与业务特征</div>
+  <div class="prose">
+    <p>定时任务分两大类：<b>固定周期任务</b>（每天凌晨跑对账、每 5 分钟同步库存）和<b>海量单次延迟任务</b>（每笔订单下单后 30 分钟未支付自动关闭——1000 万笔订单就是 1000 万个独立闹钟）。前者数量少但任务重，后者数量恐怖但单个轻。</p>
+    <p>类比：公司行政订了一个"每天 9 点全员打卡提醒"（周期任务），同时每个员工还各自设了"会前 10 分钟提醒"（延迟任务）。行政的难点是<b>大扫除那天活儿太重要分工</b>；个人闹钟的难点是<b>数量太多，不能给每个闹钟雇一个人盯着</b>。</p>
+  </div>
+  <div class="cards">
+    <div class="card"><h4>🕐 整点脉冲</h4><p>Cron 表达式天然喜欢整点（0 0 * * *），导致<b>凌晨0点/1点出现人为制造的调度洪峰</b>——自己给自己造了个"秒杀"。</p></div>
+    <div class="card"><h4>👥 集群去重</h4><p>任务服务部署 10 个实例，"每天发一次账单"绝不能<b>发 10 次</b>——分布式环境下"谁来执行"必须有共识。</p></div>
+    <div class="card"><h4>📮 不能漏</h4><p>执行到一半机器宕机、调度中心重启期间到期的任务——<b>漏跑一次还款扣款，就是资损事故</b>。</p></div>
+    <div class="card"><h4>⚖️ 分片均衡</h4><p>"给 5000 万用户发推送"这种大任务，要<b>切成分片摊给整个集群</b>；切得不匀，就会一台累死、九台围观。</p></div>
+    <div class="card"><h4>🔀 依赖编排</h4><p>报表任务要等对账任务先完成——任务间有 <b>DAG 依赖</b>，上游失败下游怎么办，都是调度语义的一部分。</p></div>
+    <div class="card"><h4>📈 触发精度分层</h4><p>订单关单差 5 秒无所谓，但优惠券整点生效差 5 秒会被投诉——<b>不同任务对精度的要求差异巨大</b>，可分级对待。</p></div>
+  </div>
+</section>
+
+<section id="s2">
+  <div class="sec-title"><span class="sn">2</span>整体运作流程</div>
+  <div class="prose">
+    <p>主流架构是<b>"调度中心 + 执行器集群"</b>分离：调度中心只负责"看表掐点"（谁到期了、派给谁），执行器只负责"干活"。海量延迟任务则常用<b>时间轮</b>或<b>延迟消息</b>专门处理——不为每个闹钟雇人，而是雇一个"敲钟人"每秒看一格。</p>
+  </div>
+  <div class="figure">
+    <svg viewBox="0 0 780 420" width="100%" aria-label="分布式调度架构图">
+      <defs><marker id="ar5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--text-secondary)"/></marker></defs>
+      <g font-size="11" text-anchor="middle">
+        <!-- scheduler -->
+        <rect x="40" y="50" width="180" height="110" rx="10" fill="var(--bg-code)" stroke="var(--primary)" stroke-width="2.5"/>
+        <text x="130" y="76" fill="var(--text-heading)" font-weight="bold">🧠 调度中心（主备）</text>
+        <text x="130" y="96" fill="var(--text-secondary)" font-size="9.5">扫描到期任务（DB索引）</text>
+        <text x="130" y="112" fill="var(--text-secondary)" font-size="9.5">选主：只有Leader派活</text>
+        <text x="130" y="128" fill="var(--text-secondary)" font-size="9.5">路由策略：轮询/分片/故障转移</text>
+        <text x="130" y="144" fill="var(--text-secondary)" font-size="9.5">失败重试 · 超时告警</text>
+        <!-- executors -->
+        <rect x="320" y="30" width="150" height="56" rx="10" fill="var(--bg-code)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="395" y="53" fill="var(--text-heading)" font-weight="bold">⚙️ 执行器 A</text>
+        <text x="395" y="72" fill="var(--text-secondary)" font-size="9.5">分片0：处理 uid%3==0</text>
+        <rect x="320" y="102" width="150" height="56" rx="10" fill="var(--bg-code)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="395" y="125" fill="var(--text-heading)" font-weight="bold">⚙️ 执行器 B</text>
+        <text x="395" y="144" fill="var(--text-secondary)" font-size="9.5">分片1：处理 uid%3==1</text>
+        <rect x="320" y="174" width="150" height="56" rx="10" fill="var(--bg-code)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="395" y="197" fill="var(--text-heading)" font-weight="bold">⚙️ 执行器 C</text>
+        <text x="395" y="216" fill="var(--text-secondary)" font-size="9.5">分片2：处理 uid%3==2</text>
+        <!-- registry -->
+        <rect x="40" y="190" width="180" height="70" rx="10" fill="var(--bg-code)" stroke="var(--info)" stroke-width="1.5"/>
+        <text x="130" y="216" fill="var(--text-heading)" font-weight="bold">📋 注册中心/DB</text>
+        <text x="130" y="236" fill="var(--text-secondary)" font-size="9.5">执行器心跳注册 · 任务表 · 执行日志</text>
+        <!-- timewheel -->
+        <rect x="530" y="290" width="210" height="100" rx="10" fill="var(--bg-code)" stroke="var(--scene)" stroke-width="2"/>
+        <text x="635" y="314" fill="var(--text-heading)" font-weight="bold">🎡 海量延迟任务专用通道</text>
+        <text x="635" y="334" fill="var(--text-secondary)" font-size="9.5">时间轮 / RocketMQ延迟消息 /</text>
+        <text x="635" y="350" fill="var(--text-secondary)" font-size="9.5">Redis ZSet(score=到期时间)</text>
+        <text x="635" y="366" fill="var(--text-secondary)" font-size="9.5">订单关单等千万级"小闹钟"</text>
+        <!-- biz -->
+        <rect x="560" y="80" width="150" height="110" rx="10" fill="var(--bg-code)" stroke="var(--success)" stroke-width="1.5"/>
+        <text x="635" y="106" fill="var(--text-heading)" font-weight="bold">🏭 业务逻辑</text>
+        <text x="635" y="126" fill="var(--text-secondary)" font-size="9.5">对账 · 推送 · 关单</text>
+        <text x="635" y="142" fill="var(--text-secondary)" font-size="9.5">幂等键防重复执行</text>
+        <text x="635" y="158" fill="var(--text-secondary)" font-size="9.5">执行结果回报调度中心</text>
+        <!-- timewheel circle -->
+        <circle cx="130" cy="330" r="46" fill="none" stroke="var(--scene)" stroke-width="2"/>
+        <g stroke="var(--scene)" stroke-width="1" opacity=".55">
+          <line x1="130" y1="284" x2="130" y2="296"/><line x1="176" y1="330" x2="164" y2="330"/>
+          <line x1="130" y1="376" x2="130" y2="364"/><line x1="84" y1="330" x2="96" y2="330"/>
+          <line x1="163" y1="297" x2="154" y2="306"/><line x1="163" y1="363" x2="154" y2="354"/>
+          <line x1="97" y1="363" x2="106" y2="354"/><line x1="97" y1="297" x2="106" y2="306"/>
+        </g>
+        <line x1="130" y1="330" x2="130" y2="292" stroke="var(--error)" stroke-width="2.5"/>
+        <text x="130" y="335" font-size="8.5" fill="var(--text-secondary)">时间轮</text>
+        <text x="248" y="316" font-size="9.5" fill="var(--text-secondary)" text-anchor="start">指针每秒走一格，</text>
+        <text x="248" y="332" font-size="9.5" fill="var(--text-secondary)" text-anchor="start">只处理当前格子挂的任务；</text>
+        <text x="248" y="348" font-size="9.5" fill="var(--text-secondary)" text-anchor="start">千万任务 O(1) 触发，</text>
+        <text x="248" y="364" font-size="9.5" fill="var(--text-secondary)" text-anchor="start">不用给每个闹钟开线程</text>
+      </g>
+      <line x1="220" y1="80" x2="318" y2="58" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar5)"/>
+      <line x1="220" y1="105" x2="318" y2="128" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar5)"/>
+      <line x1="220" y1="130" x2="318" y2="198" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar5)"/>
+      <line x1="470" y1="130" x2="558" y2="130" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar5)"/>
+      <line x1="130" y1="160" x2="130" y2="188" stroke="var(--text-secondary)" stroke-width="1.2" stroke-dasharray="4 4"/>
+      <line x1="395" y1="230" x2="395" y2="255" stroke="var(--text-secondary)" stroke-width="1" stroke-dasharray="4 4"/>
+      <line x1="635" y1="288" x2="635" y2="192" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#ar5)"/>
+      <text x="390" y="410" font-size="11" fill="var(--primary)" text-anchor="middle" font-weight="bold">核心思想：调度与执行分离；周期任务走"调度中心"，千万级延迟小闹钟走"时间轮/延迟消息"专用通道</text>
+    </svg>
+  </div>
+  <div class="callout info"><span class="ico">🧠</span><div><b>时间轮为什么快？</b>朴素做法：每秒扫描全表"WHERE 到期时间 &lt;= now"——千万任务扫到天荒地老。时间轮把任务按到期时间挂到环形格子上，<b>指针走到哪格才看哪格</b>，触发复杂度 O(1)。Netty、Kafka、Dubbo 的内部延迟任务全是这么玩的。</div></div>
+</section>
+
+<section id="s3">
+  <div class="sec-title"><span class="sn">3</span>核心瓶颈与数据一致性挑战</div>
+  <div class="cards two">
+    <div class="card"><h4>👯 重复执行：最常见的翻车</h4><p>调度中心派活后没收到 ACK（网络抖动/执行器GC），触发重试——但其实第一次已经执行了。<b>还款扣两次、短信发两条</b>。解法：调度侧"分布式锁+状态机"防重派，<b>业务侧幂等键兜底</b>（双保险缺一不可）。</p></div>
+    <div class="card"><h4>🕳️ 漏触发：静悄悄的事故</h4><p>调度中心主节点宕机、主备切换的 30 秒里到期的任务无人问津。解法：<b>启动后补扫</b>（捞出"应触发而未触发"的任务补跑）+ 任务表带状态字段可对账——漏跑要能被发现，更要能被补救。</p></div>
+    <div class="card"><h4>⚖️ 分片倾斜：一台累死九台围观</h4><p>按 uid%10 分片发推送，但大客户的数据集中在某几个分片——<b>数据分布不均导致执行时长差 10 倍</b>。解法：更细粒度的动态分片（任务队列模式：干完领下一批），代替静态取模。</p></div>
+    <div class="card"><h4>🌊 调度洪峰自伤：DB 被自己人打挂</h4><p>凌晨 0 点 5000 个 Cron 同时开跑，全都猛查业务库——<b>调度系统自己制造了秒杀现场</b>。解法：错峰（加随机抖动 offset）、分级（非关键任务错开整点）、对下游限流。</p></div>
+  </div>
+  <div class="callout danger"><span class="ico">💥</span><div><b>事故现场还原：</b>某金融平台调度中心升级重启 3 分钟，期间 1.2 万笔"还款日扣款"任务未触发，且无补扫机制——第二天用户集体逾期、征信受影响，赔偿+公关损失惨重。此后行规：<b>资金类任务必须"可对账、可补跑、有监控"，三者缺一不上线</b>。</div></div>
+</section>
+
+<section id="s4">
+  <div class="sec-title"><span class="sn">4</span>优化手段、获益与代价</div>
+  <div class="opt">
+    <h4>① 调度中心选主 + 执行器分离 <span class="tag">架构</span></h4>
+    <p style="font-size:.9rem;color:var(--text-secondary)">调度中心多实例部署但只有 Leader 派活（DB乐观锁/ZooKeeper选主），执行器无状态水平扩容。</p>
+    <div class="gp">
+      <div class="gain"><b>✅ 获益：</b>调度不重复、执行可扩容；调度中心与业务解耦，升级互不影响。</div>
+      <div class="cost"><b>⚠️ 代价：</b>主备切换窗口存在触发延迟；多一套系统要部署运维。</div>
+    </div>
+  </div>
+  <div class="opt">
+    <h4>② 分片广播（静态/动态） <span class="tag">扩展</span></h4>
+    <p style="font-size:.9rem;color:var(--text-secondary)">大任务广播给所有执行器，每台按分片参数处理自己那份（index/total）；进阶版用"任务队列"动态领取。</p>
+    <div class="gp">
+      <div class="gain"><b>✅ 获益：</b>千万级数据的批处理时长随机器数线性下降；动态领取天然抗倾斜。</div>
+      <div class="cost"><b>⚠️ 代价：</b>业务代码要感知分片逻辑；某分片失败的"部分重跑"逻辑要自己设计。</div>
+    </div>
+  </div>
+  <div class="opt">
+    <h4>③ 时间轮 / 延迟消息处理海量小闹钟 <span class="tag">核心</span></h4>
+    <p style="font-size:.9rem;color:var(--text-secondary)">订单关单类"一单一闹钟"任务不进调度中心，改用 RocketMQ 延迟消息 / Redis ZSet 轮询 / 内存时间轮。</p>
+    <div class="gp">
+      <div class="gain"><b>✅ 获益：</b>千万级延迟任务触发成本趋近 O(1)；调度中心只管几千个周期任务，压力骤降。</div>
+      <div class="cost"><b>⚠️ 代价：</b>RocketMQ 开源版只有固定延迟级别（18档）；Redis ZSet 方案要自己处理轮询与竞争；内存时间轮重启丢任务需持久化配合。</div>
+    </div>
+  </div>
+  <div class="opt">
+    <h4>④ 幂等键 + 状态机 <span class="tag">一致性</span></h4>
+    <p style="font-size:.9rem;color:var(--text-secondary)">每次执行携带唯一执行ID，业务表加"执行状态"字段：INIT→RUNNING→DONE，重复请求直接短路返回。</p>
+    <div class="gp">
+      <div class="gain"><b>✅ 获益：</b>无论调度层怎么重试、网络怎么抖，业务效果恰好一次；对账有据可查。</div>
+      <div class="cost"><b>⚠️ 代价：</b>每个任务都要设计幂等逻辑（无法框架代劳）；状态表数据量随执行次数增长需归档。</div>
+    </div>
+  </div>
+  <div class="opt">
+    <h4>⑤ 错峰 + 随机抖动 <span class="tag">防自伤</span></h4>
+    <p style="font-size:.9rem;color:var(--text-secondary)">给 Cron 加随机偏移（0点0分 → 0点0~15分随机），非关键任务主动避开整点；对下游 DB 设并发上限。</p>
+    <div class="gp">
+      <div class="gain"><b>✅ 获益：</b>削掉人为制造的整点洪峰，下游数据库夜里不再"心律不齐"。</div>
+      <div class="cost"><b>⚠️ 代价：</b>任务完成时间不确定性增大；有严格时点要求的任务（优惠券生效）不能参与错峰。</div>
+    </div>
+  </div>
+  <div class="callout warn"><span class="ico">🛡️</span><div><b>降级策略：</b>① 调度中心故障 → 执行器本地兜底 Cron 接管核心任务（提前配置）；② 下游过载 → 非关键任务自动延后（任务分级：资金类 &gt; 通知类 &gt; 报表类）；③ 积压严重 → 丢弃可丢任务（如营销推送），保住资金类任务的执行窗口。<b>三角站位：一致性（不重不漏）优先，触发精度可适度松动。</b></div></div>
+</section>
+
+<section id="s5">
+  <div class="sec-title"><span class="sn">5</span>多种解决方案对比与选型建议</div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>方案</th><th>任务规模</th><th>不重不漏保障</th><th>运维成本</th><th>适用场景</th></tr></thead>
+      <tbody>
+        <tr><td><b>单机 Cron / Spring @Scheduled</b><br><span style="font-size:.8rem;color:var(--text-secondary)">最朴素方案</span></td><td><span class="lv r">几十个</span></td><td><span class="lv r">无（多实例会重复）</span></td><td><span class="lv g">零</span></td><td>单体应用、非关键任务</td></tr>
+        <tr><td><b>@Scheduled + 分布式锁</b><br><span style="font-size:.8rem;color:var(--text-secondary)">Redis/DB锁抢执行权</span></td><td><span class="lv y">百级</span></td><td><span class="lv y">防重但不防漏</span></td><td><span class="lv g">低</span></td><td>小集群过渡方案</td></tr>
+        <tr><td><b>XXL-Job</b><br><span style="font-size:.8rem;color:var(--text-secondary)">调度中心+执行器 · 国内主流</span></td><td><span class="lv g">万级</span></td><td><span class="lv g">失败重试+路由策略</span></td><td><span class="lv y">中 · 需部署调度中心</span></td><td>中大型业务的标准答案</td></tr>
+        <tr><td><b>PowerJob / DolphinScheduler</b><br><span style="font-size:.8rem;color:var(--text-secondary)">支持DAG工作流编排</span></td><td><span class="lv g">十万级</span></td><td><span class="lv g">强 · 支持依赖重跑</span></td><td><span class="lv y">中高</span></td><td>任务间有复杂依赖/大数据ETL</td></tr>
+        <tr><td><b>延迟消息/时间轮</b><br><span style="font-size:.8rem;color:var(--text-secondary)">RocketMQ延迟/Redis ZSet</span></td><td><span class="lv g">千万级单次任务</span></td><td><span class="lv g">MQ可靠投递+幂等</span></td><td><span class="lv y">中</span></td><td>订单关单等海量"一次性闹钟"</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout info"><span class="ico">🎯</span><div><b>选型口诀：</b>单体应用 @Scheduled 就好别折腾；服务多实例了先加<b>分布式锁</b>止血；任务上百、要监控要重试，直接上 <b>XXL-Job</b>（部署半天就能跑）；有 DAG 依赖选 <b>PowerJob/DolphinScheduler</b>；海量订单关单这种"一单一闹钟"，<b>别塞进调度中心</b>，走延迟消息才是正道。两类任务分流处理，是这个场景最重要的架构直觉。</div></div>
+</section>
+
+<!-- ===== 6 ===== -->
+<section id="s6">
+  <div class="sec-title"><span class="sn">6</span>推演检验：换个条件还成立吗？</div>
+  <div class="prose"><p>背下架构图不算学会，能判断"条件变了方案还成不成立"才算。先自己推，再展开参考。</p></div>
+  <div class="quiz">
+    <p><b>推演 1：</b>如果调度中心整体宕机 10 分钟后恢复，这 10 分钟里错过的定时任务怎么办？全部补跑一遍对吗？</p>
+    <details><summary>💡 参考推演</summary><p>不存在统一答案，这就是 <b>misfire 策略</b>要按任务语义选：对路同步这种"只要最新一次"的任务，<b>补一次</b>即可（中间错过的丢弃）；对每小时对账这种"每次都有意义"的任务，要<b>逐次补齐</b>；对报表推送这种过时就没用的，直接<b>跳过</b>。前提是任务幂等——补跑两遍不能出两份错账。恢复策略不是框架配置项，是业务决策。</p></details>
+  </div>
+  <div class="quiz">
+    <p><b>推演 2：</b>如果凌晨跑批任务从 10 分钟涨到 3 小时（数据量涨了 20 倍），架构要跟着变吗？</p>
+    <details><summary>💡 参考推演</summary><p>两个问题会先后爆发：① 单机 3 小时可能撞上早高峰——上<b>分片广播</b>，把数据按 ID 取模切给 N 台机器并行跑，3 小时压回十几分钟；② 如果任务周期比执行时长还短（每小时调一次但跑 3 小时），还要选<b>阻塞策略</b>：串行等待、丢弃后续还是覆盖前一次？任务变重从来不只是"跑慢点"，它会把调度重叠、资源争抢这些隐藏问题一并引爆。</p></details>
+  </div>
+  <div class="quiz">
+    <p><b>推演 3：</b>如果我的小网站每天只有 100 单，订单超时关单还需要延迟消息吗？扫表轮询不行吗？</p>
+    <details><summary>💡 参考推演</summary><p>完全行，而且<b>更好</b>：每分钟扫一次订单表，100 单的表扫描毫无压力，方案简单到不会出错、不依赖任何中间件。延迟消息是为"千万级订单 + 秒级精度"准备的，小体量上它反而多了一个故障源。方案没有高级与低级，只有与体量匹配与否——这和选型口诀里"单体别折腾"是同一个直觉。</p></details>
+  </div>
+</section>
+
+<div class="pagenav">
+  <a href="05-热搜榜在线统计-A.html"><div class="lbl">← 上一篇</div><div class="ttl">🔥 场景四：实时热搜榜 / 在线人数统计</div></a>
+  <a class="next" href="07-金融支付-A.html"><div class="lbl">下一篇 →</div><div class="ttl">💰 场景六：金融支付</div></a>
+</div>
+</div>
+
+<footer>高并发系统设计深度剖析 · 场景五：分布式定时任务调度</footer>
+</div>
+
+<a class="fab" id="home-btn" href="index.html" title="返回首页">🏠</a>
+<button class="fab" id="top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+<button class="fab" id="theme-btn" onclick="toggleTheme()" title="切换主题">🌙</button>
+
+<script>
+(function(){
+  var t=localStorage.getItem('hk-theme')||'light';
+  document.documentElement.setAttribute('data-theme',t);
+  function sync(){var b=document.getElementById('theme-btn');if(b)b.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌙';}
+  window.toggleTheme=function(){
+    var c=document.documentElement.getAttribute('data-theme');
+    var n=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    localStorage.setItem('hk-theme',n);
+    sync();
+  };
+  window.addEventListener('DOMContentLoaded',sync);
+  var ids=['s1','s2','s3','s4','s5','s6'];
+  var links=document.querySelectorAll('#sb-nav a');
+  window.addEventListener('scroll',function(){
+    var cur=ids[0];
+    ids.forEach(function(id){var el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<150)cur=id;});
+    links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur);});
+  },{passive:true});
+})();
+</script>
+</body>
+</html>
