@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高并发系统设计深度剖析 · 从场景到选型</title>
+<style>
+:root{
+  --primary:#0891B2;--primary-hover:#0E7490;--primary-light:#E0F7FA;
+  --accent:#06B6D4;--accent2:#38BDF8;
+  --text-heading:#07162E;--text-body:#1E293B;--text-secondary:#64748B;--text-disabled:#B2B4B8;
+  --bg-main:#FFFFFF;--bg-secondary:#F4F8FB;--bg-card:#FFFFFF;--bg-code:#EEF4F8;
+  --border:#DDE7EE;--divider:#E4EEF4;--bg-disabled:#F5F6F8;
+  --bg-sidebar:#07162E;--text-sidebar:#E2E8F0;--bg-sidebar-active:rgba(6,182,212,.2);
+  --banner-from:#07162E;--banner-mid:#0A2A5E;--banner-to:#0891B2;
+  --shadow:rgba(7,22,46,.08);--shadow-hover:rgba(7,22,46,.18);--nav-h:60px;
+  --success:#22C55E;--warning:#F59E0B;--error:#EF4444;--info:#38BDF8;
+  --tag-pulse:#EF4444;--tag-write:#F59E0B;--tag-read:#22C55E;--tag-agg:#8B5CF6;--tag-sched:#0EA5E9;--tag-fin:#D97706;--tag-conn:#EC4899;
+}
+[data-theme="dark"]{
+  --primary:#22D3EE;--primary-hover:#67E8F9;--primary-light:rgba(34,211,238,.12);
+  --accent:#22D3EE;--accent2:#60A5FA;
+  --text-heading:#F1F5F9;--text-body:#E2E8F0;--text-secondary:#94A3B8;--text-disabled:#64748B;
+  --bg-main:#050D1F;--bg-secondary:#0A1628;--bg-card:#0F1F38;--bg-code:#132743;
+  --border:#1E3A5F;--divider:rgba(148,163,184,.15);--bg-disabled:#1E293B;
+  --bg-sidebar:#040A18;--text-sidebar:#94A3B8;--bg-sidebar-active:rgba(34,211,238,.2);
+  --banner-from:#040A18;--banner-mid:#0A2A5E;--banner-to:#0E7490;
+  --shadow:rgba(0,0,0,.35);--shadow-hover:rgba(0,0,0,.55);
+  --success:#4ADE80;--warning:#FBBF24;--error:#F87171;--info:#60A5FA;
+  --tag-pulse:#F87171;--tag-write:#FBBF24;--tag-read:#4ADE80;--tag-agg:#A78BFA;--tag-sched:#38BDF8;--tag-fin:#FBBF24;--tag-conn:#F472B6;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:var(--nav-h)}
+body{font-family:'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;background:var(--bg-main);color:var(--text-body);line-height:1.75;transition:background .3s,color .3s}
+a{text-decoration:none;color:inherit}
+.container{max-width:1160px;margin:0 auto;padding:0 32px}
+/* ===== HERO ===== */
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--banner-from) 0%,var(--banner-mid) 55%,var(--banner-to) 100%);color:#fff;padding:calc(var(--nav-h) + 96px) 32px 88px;text-align:center}
+.hero .orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.45;pointer-events:none}
+.hero .orb1{width:420px;height:420px;background:#06B6D4;top:-160px;left:-120px}
+.hero .orb2{width:360px;height:360px;background:#3B82F6;bottom:-180px;right:-100px}
+.hero .orb3{width:200px;height:200px;background:#22D3EE;top:30%;right:18%;opacity:.25}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%)}
+.hero-inner{position:relative;z-index:2;max-width:860px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);padding:6px 18px;border-radius:999px;font-size:.85rem;letter-spacing:2px;margin-bottom:28px;backdrop-filter:blur(4px)}
+.hero h1{font-size:2.9rem;font-weight:700;letter-spacing:1px;line-height:1.3;margin-bottom:18px}
+.hero h1 .glow{background:linear-gradient(90deg,#67E8F9,#38BDF8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.sub{font-size:1.12rem;color:rgba(255,255,255,.82);max-width:640px;margin:0 auto 40px}
+.hero-stats{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+.hstat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:14px 28px;backdrop-filter:blur(6px);min-width:130px}
+.hstat b{display:block;font-size:1.6rem;color:#67E8F9}
+.hstat span{font-size:.82rem;color:rgba(255,255,255,.75)}
+/* traffic pulse svg */
+.pulse-wrap{position:relative;z-index:2;margin-top:48px}
+/* ===== SECTIONS ===== */
+.section{padding:72px 0}
+.section.alt{background:var(--bg-secondary)}
+.sec-head{text-align:center;margin-bottom:48px}
+.sec-head .kicker{display:inline-block;color:var(--primary);font-size:.85rem;font-weight:600;letter-spacing:3px;margin-bottom:10px}
+.sec-head h2{font-size:1.9rem;color:var(--text-heading);margin-bottom:12px}
+.sec-head p{color:var(--text-secondary);max-width:620px;margin:0 auto}
+/* ===== PATH ===== */
+.path{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative}
+.path-step{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:32px 28px;box-shadow:0 2px 10px var(--shadow);position:relative;transition:transform .25s,box-shadow .25s}
+.path-step:hover{transform:translateY(-5px);box-shadow:0 10px 28px var(--shadow-hover)}
+.path-step .stepnum{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--banner-mid),var(--banner-to));color:#fff;font-weight:700;font-size:1.2rem;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.path-step h3{color:var(--text-heading);font-size:1.15rem;margin-bottom:10px}
+.path-step p{font-size:.92rem;color:var(--text-secondary)}
+.path-step .goto{display:inline-flex;align-items:center;gap:6px;margin-top:16px;color:var(--primary);font-size:.9rem;font-weight:600}
+.path-step .goto:hover{color:var(--primary-hover)}
+/* ===== SCENE CARDS ===== */
+.scene-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.scene-card{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:28px;box-shadow:0 2px 10px var(--shadow);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s;position:relative;overflow:hidden}
+.scene-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity .25s}
+.scene-card:hover{transform:translateY(-6px);box-shadow:0 12px 32px var(--shadow-hover);border-color:var(--primary)}
+.scene-card:hover::before{opacity:1}
+.sc-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.sc-icon{width:52px;height:52px;border-radius:14px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0}
+.sc-no{font-size:.75rem;color:var(--text-disabled);font-weight:600;letter-spacing:1px}
+.sc-title{font-size:1.12rem;font-weight:700;color:var(--text-heading);line-height:1.4}
+.sc-tag{display:inline-block;font-size:.72rem;font-weight:600;padding:3px 12px;border-radius:999px;color:#fff;margin-bottom:12px;align-self:flex-start}
+.sc-desc{font-size:.9rem;color:var(--text-secondary);flex:1;margin-bottom:16px}
+.sc-desc b{color:var(--text-body)}
+.sc-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.chip{font-size:.72rem;background:var(--bg-code);color:var(--text-secondary);padding:3px 10px;border-radius:6px;border:1px solid var(--divider)}
+.sc-go{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px dashed var(--divider);color:var(--primary);font-size:.9rem;font-weight:600}
+.sc-go .arrow{transition:transform .25s}
+.scene-card:hover .sc-go .arrow{transform:translateX(6px)}
+/* featured cards (intro + summary) */
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+.feat-card{background:linear-gradient(135deg,var(--banner-from),var(--banner-mid) 60%,var(--banner-to));color:#fff;border-radius:18px;padding:36px 32px;position:relative;overflow:hidden;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s}
+.feat-card:hover{transform:translateY(-6px);box-shadow:0 14px 36px var(--shadow-hover)}
+.feat-card .fc-orb{position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(34,211,238,.35);filter:blur(50px);right:-60px;top:-60px}
+.feat-card .fc-kicker{position:relative;font-size:.78rem;letter-spacing:3px;color:#67E8F9;font-weight:600;margin-bottom:10px}
+.feat-card h3{position:relative;font-size:1.4rem;margin-bottom:12px}
+.feat-card p{position:relative;font-size:.92rem;color:rgba(255,255,255,.8);flex:1}
+.feat-card .fc-go{position:relative;margin-top:20px;display:inline-flex;align-items:center;gap:8px;font-weight:600;color:#67E8F9}
+/* ===== CHEAT TABLE ===== */
+.cheat{overflow-x:auto;border-radius:14px;border:1px solid var(--border);box-shadow:0 2px 10px var(--shadow)}
+table{width:100%;border-collapse:collapse;background:var(--bg-card);font-size:.9rem;min-width:760px}
+th{background:var(--bg-sidebar);color:#fff;padding:13px 16px;text-align:left;font-weight:600;white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid var(--divider);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--primary-light)}
+td .tt{display:inline-block;font-size:.72rem;font-weight:600;padding:2px 10px;border-radius:999px;color:#fff;white-space:nowrap}
+/* footer */
+footer{background:var(--bg-sidebar);color:var(--text-sidebar);text-align:center;padding:36px 24px;font-size:.85rem}
+footer .fnav{display:flex;justify-content:center;flex-wrap:wrap;gap:18px;margin-bottom:14px}
+footer .fnav a{color:var(--text-sidebar);opacity:.75;transition:opacity .2s,color .2s}
+footer .fnav a:hover{opacity:1;color:#67E8F9}
+/* floating buttons — 首页左下 / 主题右下（本页为首页故无🏠） */
+.fab{width:44px;height:44px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);box-shadow:0 2px 8px var(--shadow);cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:all .3s;color:var(--text-body)}
+.fab:hover{box-shadow:0 4px 16px var(--shadow-hover);transform:scale(1.1);background:var(--primary);color:#fff;border-color:var(--primary)}
+#top-btn{position:fixed;bottom:76px;right:24px;z-index:200}
+@media(max-width:960px){.scene-grid{grid-template-columns:repeat(2,1fr)}.path{grid-template-columns:1fr}.feat-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.hero h1{font-size:2rem}.scene-grid{grid-template-columns:1fr}.container{padding:0 20px}#theme-btn{bottom:16px;right:16px}#top-btn{bottom:68px;right:16px}}
+
+.sg-back{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text-secondary);font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;transition:color .2s,border-color .2s,background .2s,transform .2s}
+.sg-back:hover{color:var(--primary);border-color:var(--primary);transform:translateY(-1px)}
+.sg-back svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sg-float{position:fixed;top:14px;left:14px;z-index:9999;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+/* ===== 顶部导航栏（首页） ===== */
+.topbar{position:fixed;inset:0 0 auto 0;height:var(--nav-h);z-index:300;background:rgba(7,22,46,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.08)}
+.topbar-inner{height:100%;max-width:1160px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.topbar-left{display:flex;align-items:center;gap:14px;min-width:0}
+.topbar-divider{height:22px;width:1px;background:rgba(255,255,255,.18)}
+.topbar .brand{display:flex;align-items:center;color:#fff;text-decoration:none}
+.topbar .brand span{display:flex;flex-direction:column;line-height:1.12}
+.topbar .brand b{font-size:11px;letter-spacing:.06em;color:#67E8F9}
+.topbar .brand small{font-size:13px;font-weight:700;margin-top:3px}
+.topbar-actions{display:flex;align-items:center;gap:8px}
+.topbar .icon-btn{width:40px;height:40px;padding:0;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.1);color:#E2E8F0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:1.2rem;transition:background .2s,border-color .2s,color .2s,transform .2s}
+.topbar .icon-btn:hover{background:rgba(255,255,255,.2);border-color:#67E8F9;color:#fff;transform:translateY(-2px)}
+.topbar .sg-back{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);color:#E2E8F0}
+.topbar .sg-back:hover{color:#fff;border-color:#67E8F9}
+@media(max-width:620px){.topbar-inner{padding:0 18px}.topbar .brand small{display:none}}
+@media(max-width:620px){.sg-back span{font-size:12px}}
+</style>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-left">
+      <a class="sg-back" href="../index.html" title="返回 StoryGarden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span>StoryGarden</span></a>
+      <span class="topbar-divider" aria-hidden="true"></span>
+      <a class="brand" href="high-concurrency.html"><span><b>HIGH CONCURRENCY</b><small>高并发系统设计</small></span></a>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="theme-btn" type="button" onclick="toggleTheme()" title="切换明暗主题" aria-label="切换明暗主题">🌙</button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-grid"></div>
+  <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">⚡ HIGH CONCURRENCY WIKI</div>
+    <h1>高并发系统设计<span class="glow">深度剖析</span><br>从场景到选型</h1>
+    <p class="sub">用轻松的方式，讲透 7 大典型高并发场景：它们像什么、卡在哪、怎么救、如何选。每个场景一页，双击即读，离线可用。</p>
+    <div class="hero-stats">
+      <div class="hstat"><b>7</b><span>典型场景</span></div>
+      <div class="hstat"><b>35+</b><span>优化手段拆解</span></div>
+      <div class="hstat"><b>20+</b><span>方案横向对比</span></div>
+      <div class="hstat"><b>1</b><span>选型决策矩阵</span></div>
+    </div>
+    <!-- 流量曲线示意：脉冲 / 持续 / 潮汐 -->
+    <div class="pulse-wrap">
+      <svg viewBox="0 0 720 90" width="100%" style="max-width:720px" aria-label="三种典型流量曲线">
+        <polyline points="10,70 90,70 105,12 120,70 220,70" fill="none" stroke="#F87171" stroke-width="2.5" stroke-linejoin="round"/>
+        <text x="115" y="86" fill="rgba(255,255,255,.65)" font-size="11" text-anchor="middle">脉冲型（秒杀）</text>
+        <polyline points="260,45 300,40 340,46 380,38 420,44 460,40" fill="none" stroke="#FBBF24" stroke-width="2.5"/>
+        <text x="360" y="86" fill="rgba(255,255,255,.65)" font-size="11" text-anchor="middle">持续型（IoT写入）</text>
+        <path d="M500,70 Q540,10 580,55 Q620,88 660,30 L700,55" fill="none" stroke="#4ADE80" stroke-width="2.5"/>
+        <text x="600" y="86" fill="rgba(255,255,255,.65)" font-size="11" text-anchor="middle">潮汐型（Feed流）</text>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<!-- ============ 学习路径 ============ -->
+<section class="section" id="path">
+  <div class="container">
+    <div class="sec-head">
+      <span class="kicker">LEARNING PATH</span>
+      <h2>推荐学习路径</h2>
+      <p>三步走：先建立世界观，再逐个场景"下馆子"，最后带走一张选型速查表。</p>
+    </div>
+    <div class="path">
+      <a class="path-step" href="introduction.html">
+        <div class="stepnum">1</div>
+        <h3>🧭 打基础：什么是高并发</h3>
+        <p>什么才算"高"？QPS、P99、SLA 这些黑话怎么读？以及绕不开的"不可能三角"——性能、一致性、可用性为什么不能全都要。</p>
+        <span class="goto">进入引言 →</span>
+      </a>
+      <div class="path-step">
+        <div class="stepnum">2</div>
+        <h3>🍜 逐场景深潜（7 道主菜）</h3>
+        <p>每个场景一页，固定五小节：场景特征 → 运作流程 → 瓶颈挑战 → 优化与代价 → 方案选型。结构统一，方便横向对照着读。</p>
+        <span class="goto" style="cursor:default">↓ 从下方任意场景开吃</span>
+      </div>
+      <a class="path-step" href="cross-scenario-selection.html">
+        <div class="stepnum">3</div>
+        <h3>🎁 带走选型决策框架</h3>
+        <p>7 大场景横向对比、通用取舍原则、按 QPS 量级 × 一致性要求的"组件套餐"矩阵，以及初创→成熟的架构演进路线图。</p>
+        <span class="goto">进入总结篇 →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 场景卡片 ============ -->
+<section class="section alt" id="scenes">
+  <div class="container">
+    <div class="sec-head">
+      <span class="kicker">SCENARIOS</span>
+      <h2>七大典型场景</h2>
+      <p>每张卡片标注了流量类型与核心矛盾——高并发没有银弹，只有"对症下药"。</p>
+    </div>
+
+    <div class="scene-grid">
+      <a class="scene-card" href="flash-sale-ticket-grab.html">
+        <div class="sc-top"><div class="sc-icon">🎟️</div><div><div class="sc-no">SCENE 01</div><div class="sc-title">秒杀 / 抢票</div></div></div>
+        <span class="sc-tag" style="background:var(--tag-pulse)">瞬时脉冲型 · 强一致扣减</span>
+        <p class="sc-desc">整点开抢，流量瞬间放大几千倍。核心矛盾：<b>百万人抢一万件货，还一件都不能多卖</b>。</p>
+        <div class="sc-chips"><span class="chip">Redis 预扣减</span><span class="chip">MQ 削峰</span><span class="chip">库存防超卖</span><span class="chip">限流熔断</span></div>
+        <div class="sc-go"><span>开始阅读</span><span class="arrow">→</span></div>
+      </a>
+
+      <a class="scene-card" href="connected-vehicles-iot.html">
+        <div class="sc-top"><div class="sc-icon">🚗</div><div><div class="sc-no">SCENE 02</div><div class="sc-title">车联网 / IoT 数据平台</div></div></div>
+        <span class="sc-tag" style="background:var(--tag-write)">持续高压写入型 · 海量存储</span>
+        <p class="sc-desc">百万台车每秒上报，全年无休。核心矛盾：<b>写入洪流永不停歇，存储成本还得压得住</b>。</p>
+        <div class="sc-chips"><span class="chip">Kafka</span><span class="chip">时序数据库</span><span class="chip">乱序去重</span><span class="chip">冷热分层</span></div>
+        <div class="sc-go"><span>开始阅读</span><span class="arrow">→</span></div>
+      </a>
+
+      <a class="scene-card" href="feed-stream-recommendation.html">
+        <div class="sc-top"><div class="sc-icon">📱</div><div><div class="sc-no">SCENE 03</div><div class="sc-title">社交 Feed 流 / 短视频推荐</div></div></div>
+        <span class="sc-tag" style="background:var(--tag-read)">读多写少型 · 推拉结合</span>
+        <p class="sc-desc">发一条动态，千万粉丝要看到。核心矛盾：<b>大 V 一发帖，是写扩散累死自己，还是读扩散累死粉丝</b>。</p>
+        <div class="sc-chips"><span class="chip">推模式/拉模式</span><span class="chip">多级缓存</span><span class="chip">大V问题</span><span class="chip">收件箱</span></div>
+        <div class="sc-go"><span>开始阅读</span><span class="arrow">→</span></div>
+      </a>
+
+      <a class="scene-card" href="hot-search-ranking.html">
+        <div class="sc-top"><div class="sc-icon">🔥</div><div><div class="sc-no">SCENE 04</div><div class="sc-title">实时热搜榜 / 在线人数统计</div></div></div>
+        <span class="sc-tag" style="background:var(--tag-agg)">高并发读写 · 滑动窗口聚合</span>
+        <p class="sc-desc">全网都在写同一个计数器，又都在读同一个榜单。核心矛盾：<b>热 Key 被挤爆，窗口精度和成本互相打架</b>。</p>
+        <div class="sc-chips"><span class="chip">ZSet 榜单</span><span class="chip">热Key拆分</span><span class="chip">HyperLogLog</span><span class="chip">Flink 窗口</span></div>
+        <div class="sc-go"><span>开始阅读</span><span class="arrow">→</span></div>
+      </a>
+
+      <a class="scene-card" href="distributed-task-scheduling.html">
+        <div class="sc-top"><div class="sc-icon">⏰</div><div><div class="sc-no">SCENE 05</div><div class="sc-title">分布式定时任务调度</div></div></div>
+        <span class="sc-tag" style="background:var(--tag-sched)">海量任务并发触发</span>
+        <p class="sc-desc">凌晨一点，千万个任务同时到期。核心矛盾：<b>不能重复跑、不能漏跑，还得把任务均匀摊给一群机器</b>。</p>
+        <div class="sc-chips"><span class="chip">时间轮</span><span class="chip">分片广播</span><span class="chip">幂等</span><span class="chip">XXL-Job</span></div>
+        <div class="sc-go"><span>开始阅读</span><span class="arrow">→</span></div>
+      </a>
+
+      <a class="scene-card" href="financial-payment.html">
+        <div class="sc-top"><div class="sc-icon">💰</div><div><div class="sc-no">SCENE 06</div><div class="sc-title">金融支付</div></div></div>
+        <span class="sc-tag" style="background:var(--tag-fin)">极高一致性 · 高并发</span>
+        <p class="sc-desc">钱的事，错一分都不行。核心矛盾：<b>分布式事务天生慢，但账必须分毫不差、笔笔可查</b>。</p>
+        <div class="sc-chips"><span class="chip">TCC</span><span class="chip">本地消息表</span><span class="chip">对账</span><span class="chip">热点账户</span></div>
+        <div class="sc-go"><span>开始阅读</span><span class="arrow">→</span></div>
+      </a>
+
+      <a class="scene-card" href="live-danmaku-im.html" style="grid-column:2">
+        <div class="sc-top"><div class="sc-icon">💬</div><div><div class="sc-no">SCENE 07 · 补充</div><div class="sc-title">直播弹幕 / IM 长连接</div></div></div>
+        <span class="sc-tag" style="background:var(--tag-conn)">海量长连接 · 消息扇出</span>
+        <p class="sc-desc">千万人同时在线挂着连接，一条弹幕要广播给整个直播间。核心矛盾：<b>连接数吃内存，扇出量吃带宽</b>。</p>
+        <div class="sc-chips"><span class="chip">WebSocket 网关</span><span class="chip">扇出合并</span><span class="chip">弹幕降级</span><span class="chip">C10M</span></div>
+        <div class="sc-go"><span>开始阅读</span><span class="arrow">→</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 引言 & 总结 featured ============ -->
+<section class="section" id="frame">
+  <div class="container">
+    <div class="sec-head">
+      <span class="kicker">FRAMEWORK</span>
+      <h2>开胃菜与压轴菜</h2>
+      <p>场景之外的两块拼图：先建立共同语言，最后沉淀决策框架。</p>
+    </div>
+    <div class="feat-grid">
+      <a class="feat-card" href="introduction.html">
+        <div class="fc-orb"></div>
+        <div class="fc-kicker">CHAPTER 1 · 引言</div>
+        <h3>🧭 高并发的世界观</h3>
+        <p>高并发的定义、QPS / RT / P99 / 并发数 / SLA 五大核心指标怎么读，以及性能–一致性–可用性的"不可能三角"博弈——读懂它，后面 7 个场景的所有取舍都有了坐标系。</p>
+        <span class="fc-go">进入引言 →</span>
+      </a>
+      <a class="feat-card" href="cross-scenario-selection.html">
+        <div class="fc-orb"></div>
+        <div class="fc-kicker">CHAPTER 3 · 总结与选型</div>
+        <h3>🎯 跨场景选型决策框架</h3>
+        <p>7 大场景核心矛盾横向对比表、高并发优化的通用取舍原则、按 QPS 量级 × 一致性要求的组件套餐矩阵，以及初创 / 成长 / 成熟期的架构演进路径。</p>
+        <span class="fc-go">进入总结篇 →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 速查表 ============ -->
+<section class="section alt" id="cheat">
+  <div class="container">
+    <div class="sec-head">
+      <span class="kicker">CHEAT SHEET</span>
+      <h2>一张表看全七大场景</h2>
+      <p>核心矛盾一句话速查——读完全部页面后再回来看这张表，会有"一览众山小"的感觉。</p>
+    </div>
+    <div class="cheat">
+      <table>
+        <thead><tr><th>场景</th><th>流量类型</th><th>核心矛盾（一句话）</th><th>杀手锏</th></tr></thead>
+        <tbody>
+          <tr><td><a href="flash-sale-ticket-grab.html" style="color:var(--primary);font-weight:600">🎟️ 秒杀/抢票</a></td><td><span class="tt" style="background:var(--tag-pulse)">瞬时脉冲</span></td><td>流量放大千倍 vs 库存一件不能多卖</td><td>层层拦截 + Redis 预扣减 + MQ 削峰</td></tr>
+          <tr><td><a href="connected-vehicles-iot.html" style="color:var(--primary);font-weight:600">🚗 车联网/IoT</a></td><td><span class="tt" style="background:var(--tag-write)">持续高写</span></td><td>写入洪流不停歇 vs 存储成本要压住</td><td>Kafka 缓冲 + 时序库 + 冷热分层</td></tr>
+          <tr><td><a href="feed-stream-recommendation.html" style="color:var(--primary);font-weight:600">📱 Feed流/推荐</a></td><td><span class="tt" style="background:var(--tag-read)">读多写少</span></td><td>写扩散累死自己 vs 读扩散累死粉丝</td><td>推拉结合 + 多级缓存</td></tr>
+          <tr><td><a href="hot-search-ranking.html" style="color:var(--primary);font-weight:600">🔥 热搜榜/在线统计</a></td><td><span class="tt" style="background:var(--tag-agg)">读写双高</span></td><td>全网挤一个热 Key vs 窗口精度与成本</td><td>热Key拆分 + 概率计数 + 流式窗口</td></tr>
+          <tr><td><a href="distributed-task-scheduling.html" style="color:var(--primary);font-weight:600">⏰ 任务调度</a></td><td><span class="tt" style="background:var(--tag-sched)">定时并发</span></td><td>不重不漏 vs 海量任务均匀分摊</td><td>时间轮 + 分片广播 + 幂等兜底</td></tr>
+          <tr><td><a href="financial-payment.html" style="color:var(--primary);font-weight:600">💰 金融支付</a></td><td><span class="tt" style="background:var(--tag-fin)">强一致</span></td><td>分布式事务天生慢 vs 账目分毫不差</td><td>最终一致 + TCC + 对账兜底</td></tr>
+          <tr><td><a href="live-danmaku-im.html" style="color:var(--primary);font-weight:600">💬 弹幕/IM长连接</a></td><td><span class="tt" style="background:var(--tag-conn)">海量连接</span></td><td>连接数吃内存 vs 扇出量吃带宽</td><td>网关分层 + 扇出合并 + 分级降级</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fnav">
+    <a href="introduction.html">引言</a><a href="flash-sale-ticket-grab.html">秒杀</a><a href="connected-vehicles-iot.html">IoT</a><a href="feed-stream-recommendation.html">Feed流</a><a href="hot-search-ranking.html">热搜榜</a><a href="distributed-task-scheduling.html">任务调度</a><a href="financial-payment.html">支付</a><a href="live-danmaku-im.html">弹幕/IM</a><a href="cross-scenario-selection.html">总结选型</a>
+  </div>
+  <div>高并发系统设计深度剖析 · 从场景到选型 — 离线单文件知识库</div>
+</footer>
+
+<button class="fab" id="top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<script>
+(function(){
+  var t=localStorage.getItem('hk-theme')||'light';
+  document.documentElement.setAttribute('data-theme',t);
+  function sync(){var b=document.getElementById('theme-btn');if(b)b.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌙';}
+  window.toggleTheme=function(){
+    var c=document.documentElement.getAttribute('data-theme');
+    var n=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    localStorage.setItem('hk-theme',n);
+    sync();
+  };
+  window.addEventListener('DOMContentLoaded',sync);
+})();
+</script>
+</body>
+</html>

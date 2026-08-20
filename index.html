@@ -193,7 +193,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
     <span class="tag">The Knowledge Garden</span>
     <h1>StoryGarden</h1>
     <p class="subtitle">把每一次深潜、每一页笔记，种成一片会生长的花园</p>
-    <p class="hook">这里收藏我亲手做的知识页——目前聚焦<b>技术</b>，更多园地正在破土。走进下方，看每一颗种子如何生长。</p>
+    <p class="hook">这里收藏我亲手做的知识页——目前聚焦<b>技术</b>与<b>思维</b>，更多园地正在破土。走进下方，看每一颗种子如何生长。</p>
     <div class="meta">LAST TENDED · 2026-08-20</div>
   </div>
 </header>
@@ -217,24 +217,41 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
           <span class="tab-label">技术</span>
           <span class="tab-count">2</span>
         </button>
+        <button class="tab" data-tab="think" role="tab" aria-selected="false">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V18h6v-1.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z"/></svg>
+          <span class="tab-label">思维</span>
+          <span class="tab-count">1</span>
+        </button>
       </div>
     </div>
 
     <div class="panels">
-      <!-- 技术：仅保留已迁入 StoryGarden 的主题目录；卡片为可点击链接，目录 URL 自动落到 index.html -->
+      <!-- 技术：仅保留已迁入 StoryGarden 的主题目录；卡片为可点击链接，显式指向各目录的 index.html 入口（file:// 与 http:// 下均可正确跳转） -->
       <div class="panel is-active" data-panel="tech">
         <div class="cards">
-          <a class="card" href="artificial-intelligence/">
+          <a class="card" href="artificial-intelligence/index.html">
             <div class="card-top"><span class="card-badge">智</span><span class="card-date">2026-07-21</span></div>
             <h3 class="card-title">人工智能速览</h3>
             <p class="card-blurb">大模型与智能体，一图一页的快速入门。</p>
             <div class="card-foot"><span class="card-tag tag-tech">技术</span><span class="card-arrow">→</span></div>
           </a>
-          <a class="card" href="high-concurrency/">
+          <a class="card" href="high-concurrency/high-concurrency.html">
             <div class="card-top"><span class="card-badge">并</span><span class="card-date">2026-07-29</span></div>
             <h3 class="card-title">高并发系统设计</h3>
             <p class="card-blurb">漏斗拦截、削峰填谷、误差换性能，没有银弹的取舍。</p>
             <div class="card-foot"><span class="card-tag tag-tech">技术</span><span class="card-arrow">→</span></div>
+          </a>
+        </div>
+      </div>
+
+      <!-- 思维：长尾效应迁入后恢复的分类 -->
+      <div class="panel" data-panel="think">
+        <div class="cards">
+          <a class="card" href="Long-TailEffect/Long-TailEffect.html">
+            <div class="card-top"><span class="card-badge">长</span><span class="card-date">2026-08-20</span></div>
+            <h3 class="card-title">长尾效应</h3>
+            <p class="card-blurb">小众为什么反而赚大钱——一页读懂是什么、为什么、怎么用。</p>
+            <div class="card-foot"><span class="card-tag tag-think">思维</span><span class="card-arrow">→</span></div>
           </a>
         </div>
       </div>
