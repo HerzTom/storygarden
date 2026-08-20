@@ -113,6 +113,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .tag-think{color:#8A6A2F;background:#F4ECD9}
 .tag-mind{color:#8C4A3C;background:#F7E9E6}
 .tag-story{color:#4A5A78;background:#E8EDF5}
+.card-arrow{margin-left:auto;font-size:1.15rem;font-weight:700;color:var(--accent);transition:transform .2s}
+.card:hover .card-arrow{transform:translateX(4px)}
 [data-theme="dark"] .tag-tech{color:#8CBE8E;background:rgba(111,167,114,0.16)}
 [data-theme="dark"] .tag-think{color:#E0BD80;background:rgba(212,175,110,0.16)}
 [data-theme="dark"] .tag-mind{color:#E0A79A;background:rgba(224,167,154,0.14)}
@@ -191,8 +193,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
     <span class="tag">The Knowledge Garden</span>
     <h1>StoryGarden</h1>
     <p class="subtitle">把每一次深潜、每一页笔记，种成一片会生长的花园</p>
-    <p class="hook">这里收藏我亲手做的知识页——关于<b>技术、思维、心智与故事</b>。它们有的已经枝繁叶茂，有的刚刚破土。切换下方分类，走进每一片园地。</p>
-    <div class="meta">LAST TENDED · 2026-08-18</div>
+    <p class="hook">这里收藏我亲手做的知识页——目前聚焦<b>技术</b>，更多园地正在破土。走进下方，看每一颗种子如何生长。</p>
+    <div class="meta">LAST TENDED · 2026-08-20</div>
   </div>
 </header>
 
@@ -213,153 +215,30 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
         <button class="tab is-active" data-tab="tech" role="tab" aria-selected="true">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
           <span class="tab-label">技术</span>
-          <span class="tab-count">7</span>
-        </button>
-        <button class="tab" data-tab="think" role="tab" aria-selected="false">
-          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v6M12 9c0 4-4 4-4 8M12 9c0 4 4 4 4 8"/><circle cx="12" cy="20" r="1.2"/></svg>
-          <span class="tab-label">思维</span>
-          <span class="tab-count">4</span>
-        </button>
-        <button class="tab" data-tab="mind" role="tab" aria-selected="false">
-          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.2 4.2 0 0 1 12 8a4.2 4.2 0 0 1 7 2.5C19 15.4 12 20 12 20z"/></svg>
-          <span class="tab-label">心智</span>
-          <span class="tab-count">4</span>
-        </button>
-        <button class="tab" data-tab="story" role="tab" aria-selected="false">
-          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19c0-3 1.5-5 4-6 2.5 1 4 3 4 6z"/><path d="M4 19c2-1.5 4-2 6-1.5M16 4c0 2-1 3.5-2.5 4.5C15 10 16 11.5 16 13.5c0 3-2.5 5-6 5"/></svg>
-          <span class="tab-label">故事</span>
           <span class="tab-count">2</span>
         </button>
       </div>
     </div>
 
     <div class="panels">
-      <!-- 技术 -->
-      <!-- 补链接时：把 <div class="card"> 改回 <a class="card" href="../<目录>/<入口>.html">，并在 card-foot 里加回 <span class="card-arrow">→</span> -->
+      <!-- 技术：仅保留已迁入 StoryGarden 的主题目录；卡片为可点击链接，目录 URL 自动落到 index.html -->
       <div class="panel is-active" data-panel="tech">
         <div class="cards">
-          <div class="card">
-            <div class="card-top"><span class="card-badge">AI</span><span class="card-date">2026-07-22</span></div>
-            <h3 class="card-title">AI 原生服务</h3>
-            <p class="card-blurb">把 AI 当一等公民设计的产品架构，而不是事后补丁。</p>
-            <div class="card-foot"><span class="card-tag tag-tech">技术</span></div>
-          </div>
-          <div class="card">
-            <div class="card-top"><span class="card-badge">唠</span><span class="card-date">2026-07-31</span></div>
-            <h3 class="card-title">跟 AI 唠嗑</h3>
-            <p class="card-blurb">从蚰蜒到太极，一场关于生命、时间与意识的思维探险。</p>
-            <div class="card-foot"><span class="card-tag tag-tech">技术</span></div>
-          </div>
-          <div class="card">
+          <a class="card" href="artificial-intelligence/">
             <div class="card-top"><span class="card-badge">智</span><span class="card-date">2026-07-21</span></div>
             <h3 class="card-title">人工智能速览</h3>
             <p class="card-blurb">大模型与智能体，一图一页的快速入门。</p>
-            <div class="card-foot"><span class="card-tag tag-tech">技术</span></div>
-          </div>
-          <div class="card">
-            <div class="card-top"><span class="card-badge">E</span><span class="card-date">2026-08-04</span></div>
-            <h3 class="card-title">EntityBODTOVO</h3>
-            <p class="card-blurb">一个还没完全说清名字的实验田。</p>
-            <div class="card-foot"><span class="card-tag tag-tech">技术</span></div>
-          </div>
-          <div class="card">
-            <div class="card-top"><span class="card-badge">硬</span><span class="card-date">2026-07-29</span></div>
-            <h3 class="card-title">硬件通讯协议</h3>
-            <p class="card-blurb">芯片间通讯的实时、带宽、成本、公平跷跷板。</p>
-            <div class="card-foot"><span class="card-tag tag-tech">技术</span></div>
-          </div>
-          <div class="card">
+            <div class="card-foot"><span class="card-tag tag-tech">技术</span><span class="card-arrow">→</span></div>
+          </a>
+          <a class="card" href="high-concurrency/">
             <div class="card-top"><span class="card-badge">并</span><span class="card-date">2026-07-29</span></div>
             <h3 class="card-title">高并发系统设计</h3>
             <p class="card-blurb">漏斗拦截、削峰填谷、误差换性能，没有银弹的取舍。</p>
-            <div class="card-foot"><span class="card-tag tag-tech">技术</span></div>
-          </div>
-          <div class="card">
-            <div class="card-top"><span class="card-badge">陀</span><span class="card-date">2026-07-17</span></div>
-            <h3 class="card-title">陀螺仪与惯性</h3>
-            <p class="card-blurb">MEMS / 机械陀螺仪与 IMU 的实战解析。</p>
-            <div class="card-foot"><span class="card-tag tag-tech">技术</span></div>
-          </div>
+            <div class="card-foot"><span class="card-tag tag-tech">技术</span><span class="card-arrow">→</span></div>
+          </a>
         </div>
       </div>
 
-      <!-- 思维 -->
-      <div class="panel" data-panel="think">
-        <div class="cards">
-          <div class="card">
-            <div class="card-top"><span class="card-badge">元</span><span class="card-date">2026-08-05</span></div>
-            <h3 class="card-title">元认知</h3>
-            <p class="card-blurb">改变大脑的顽固思维，重新审视「思考」本身。</p>
-            <div class="card-foot"><span class="card-tag tag-think">思维</span></div>
-          </div>
-          <div class="card">
-            <div class="card-top"><span class="card-badge">织</span><span class="card-date">2026-07-22</span></div>
-            <h3 class="card-title">知识编织</h3>
-            <p class="card-blurb">把零散的笔记，织成一张可生长的知识图谱。</p>
-            <div class="card-foot"><span class="card-tag tag-think">思维</span></div>
-          </div>
-          <div class="card">
-            <div class="card-top"><span class="card-badge">长</span><span class="card-date">2026-07-21</span></div>
-            <h3 class="card-title">长尾效应</h3>
-            <p class="card-blurb">二八之外的沉默多数，如何悄悄改写规则。</p>
-            <div class="card-foot"><span class="card-tag tag-think">思维</span></div>
-          </div>
-          <div class="card">
-            <div class="card-top"><span class="card-badge">1%</span><span class="card-date">2026-08-18</span></div>
-            <h3 class="card-title">1% 改变</h3>
-            <p class="card-blurb">每天好 1%，运动计划与那些微小而持久的习惯。</p>
-            <div class="card-foot"><span class="card-tag tag-think">思维</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 心智 -->
-      <div class="panel" data-panel="mind">
-        <div class="cards">
-          <div class="card">
-            <div class="card-top"><span class="card-badge">塑</span><span class="card-date">2026-07-23</span></div>
-            <h3 class="card-title">重塑心灵</h3>
-            <p class="card-blurb">NLP 视角下的人格与情绪重构。</p>
-            <div class="card-foot"><span class="card-tag tag-mind">心智</span></div>
-          </div>
-          <div class="card">
-            <div class="card-top"><span class="card-badge">当</span><span class="card-date">2026-07-23</span></div>
-            <h3 class="card-title">当下的力量</h3>
-            <p class="card-blurb">把注意力请回此刻，这是一切改变的入口。</p>
-            <div class="card-foot"><span class="card-tag tag-mind">心智</span></div>
-          </div>
-          <div class="card">
-            <div class="card-top"><span class="card-badge">被</span><span class="card-date">2026-07-23</span></div>
-            <h3 class="card-title">被忽视的孩子</h3>
-            <p class="card-blurb">童年情感忽视的识别，与走向自我修复的路。</p>
-            <div class="card-foot"><span class="card-tag tag-mind">心智</span></div>
-          </div>
-          <div class="card">
-            <div class="card-top"><span class="card-badge">序</span><span class="card-date">2026-07-21</span></div>
-            <h3 class="card-title">对抗无序</h3>
-            <p class="card-blurb">用熵减对抗熵增，给生活建立秩序。</p>
-            <div class="card-foot"><span class="card-tag tag-mind">心智</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 故事 -->
-      <div class="panel" data-panel="story">
-        <div class="cards">
-          <div class="card placeholder" title="待播种">
-            <div class="card-top"><span class="card-badge">S</span><span class="card-seed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M12 9C12 9 5.5 9.5 4 13.5c2.2 0 6.3-1 8-4.5z"/><path d="M12 11c0 0 4.6-1.8 7-5.5-4 0-7 2.8-7 5.5z"/></svg>待播种</span></div>
-            <h3 class="card-title">StoryShot</h3>
-            <p class="card-blurb">影像里的故事切片，一张照片一段叙事。</p>
-            <div class="card-foot"><span class="card-tag tag-story">故事</span></div>
-          </div>
-          <div class="card placeholder" title="待播种">
-            <div class="card-top"><span class="card-badge">G</span><span class="card-seed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M12 9C12 9 5.5 9.5 4 13.5c2.2 0 6.3-1 8-4.5z"/><path d="M12 11c0 0 4.6-1.8 7-5.5-4 0-7 2.8-7 5.5z"/></svg>待播种</span></div>
-            <h3 class="card-title">Game &amp; Video</h3>
-            <p class="card-blurb">游戏与视频的另一种观察，还未落笔。</p>
-            <div class="card-foot"><span class="card-tag tag-story">故事</span></div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </section>
