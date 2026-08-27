@@ -152,8 +152,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   .hero .sprout,.hero .sprout.left{display:none}
 }
 </style>
+<link rel="stylesheet" href="assets/storygarden.css">
 </head>
-<body>
+<body data-sg-page data-sg-section="home" data-sg-title="StoryGarden" data-sg-root="." data-sg-home>
 
 <!-- Top nav -->
 <nav class="topnav">
@@ -220,7 +221,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
         <button class="tab" data-tab="think" role="tab" aria-selected="false">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V18h6v-1.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z"/></svg>
           <span class="tab-label">思维</span>
-          <span class="tab-count">1</span>
+          <span class="tab-count">2</span>
         </button>
       </div>
     </div>
@@ -229,7 +230,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
       <!-- 技术：仅保留已迁入 StoryGarden 的主题目录；卡片为可点击链接，显式指向各目录的 index.html 入口（file:// 与 http:// 下均可正确跳转） -->
       <div class="panel is-active" data-panel="tech">
         <div class="cards">
-          <a class="card" href="artificial-intelligence/index.html">
+          <a class="card" href="artificial-intelligence/ArtificialIntelligence.html">
             <div class="card-top"><span class="card-badge">智</span><span class="card-date">2026-07-21</span></div>
             <h3 class="card-title">人工智能速览</h3>
             <p class="card-blurb">大模型与智能体，一图一页的快速入门。</p>
@@ -251,6 +252,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
             <div class="card-top"><span class="card-badge">长</span><span class="card-date">2026-08-20</span></div>
             <h3 class="card-title">长尾效应</h3>
             <p class="card-blurb">小众为什么反而赚大钱——一页读懂是什么、为什么、怎么用。</p>
+            <div class="card-foot"><span class="card-tag tag-think">思维</span><span class="card-arrow">→</span></div>
+          </a>
+          <a class="card" href="netflix-culture/index.html">
+            <div class="card-top"><span class="card-badge">N</span><span class="card-date">2026-08-27</span></div>
+            <h3 class="card-title">奈飞文化手册</h3>
+            <p class="card-blurb">用极高的人才密度，换极致的自由与责任——16 章可读的「书」。</p>
             <div class="card-foot"><span class="card-tag tag-think">思维</span><span class="card-arrow">→</span></div>
           </a>
         </div>
@@ -323,5 +330,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   window.addEventListener('resize',initIndicator);
 })();
 </script>
+<script src="assets/search-index.js"></script>
+<script src="assets/storygarden.js"></script>
 </body>
 </html>
