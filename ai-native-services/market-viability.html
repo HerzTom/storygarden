@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="评估 AI 原生服务的市场适配、买方预算、竞争壁垒、单位经济与进入门槛。">
+<title>主题二 · 评估：值不值得做 | AI 原生服务</title>
+<style>
+:root{
+  --primary:#2d6a4f;
+  --primary-hover:#1b4332;
+  --primary-light:#e7f1ec;
+  --accent:#40916c;
+  --gold:#b08424;
+  --danger:#7f1d1d;
+  --danger-bg:#f8ecec;
+  --text-heading:#14261d;
+  --text-body:#2b3a32;
+  --text-secondary:#647067;
+  --text-disabled:#a8b2ab;
+  --bg-main:#fbfaf5;
+  --bg-secondary:#f3f1e8;
+  --bg-card:#ffffff;
+  --bg-code:#eef2ee;
+  --border:#e2ded0;
+  --divider:#ebe7db;
+  --banner-from:#1b4332;
+  --banner-to:#2d6a4f;
+  --shadow:rgba(27,67,50,0.08);
+  --shadow-hover:rgba(27,67,50,0.18);
+  --nav-bg:rgba(251,250,245,0.82);
+}
+[data-theme="dark"]{
+  --primary:#52b788;
+  --primary-hover:#74c69d;
+  --primary-light:rgba(82,183,136,0.14);
+  --accent:#40916c;
+  --gold:#d6a942;
+  --danger:#f08a8a;
+  --danger-bg:rgba(127,29,29,0.22);
+  --text-heading:#eaf3ee;
+  --text-body:#d3ddd6;
+  --text-secondary:#93a29a;
+  --text-disabled:#5c6b62;
+  --bg-main:#0c1712;
+  --bg-secondary:#111f18;
+  --bg-card:#16261e;
+  --bg-code:#0f1d16;
+  --border:#22362b;
+  --divider:rgba(147,162,154,0.16);
+  --banner-from:#050d09;
+  --banner-to:#14342a;
+  --shadow:rgba(0,0,0,0.4);
+  --shadow-hover:rgba(0,0,0,0.6);
+  --nav-bg:rgba(12,23,18,0.82);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{
+  font-family:'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;
+  background:var(--bg-main);color:var(--text-body);
+  line-height:1.75;-webkit-font-smoothing:antialiased;transition:background .4s,color .4s;
+}
+h1,h2,h3,h4{color:var(--text-heading);line-height:1.3;font-weight:700}
+a{color:inherit;text-decoration:none}
+button{font:inherit}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 32px}
+
+.nav{position:fixed;top:0;left:0;right:0;height:66px;z-index:100;background:var(--nav-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);transition:background .4s,border-color .4s}
+.nav-inner{max-width:1160px;margin:0 auto;height:100%;padding:0 32px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}.brand{justify-self:center;display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.08rem;color:var(--text-heading);white-space:nowrap}.brand .dot{width:12px;height:12px;border-radius:3px;background:var(--primary);box-shadow:0 0 0 4px var(--primary-light)}
+.nav-actions{justify-self:end;display:flex;align-items:center;gap:8px}.nav-icon{width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);color:var(--text-secondary);cursor:pointer;transition:.2s}.nav-icon:hover{color:var(--primary);border-color:var(--primary);background:var(--primary-light)}.nav-icon svg,.search-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}@media(max-width:560px){.nav-inner{padding:0 16px}.nav-actions{gap:5px}.nav-icon{width:38px;height:38px}.brand{font-size:.96rem}.brand .dot{width:10px;height:10px}}
+
+.hero{position:relative;overflow:hidden;padding:150px 0 80px;
+  background:linear-gradient(150deg,var(--banner-from),var(--banner-to));color:#eaf3ee}
+.hero .orb{position:absolute;border-radius:50%;filter:blur(10px);opacity:.5;pointer-events:none}
+.hero .orb1{width:340px;height:340px;background:radial-gradient(circle,#52b788,transparent 68%);top:-90px;right:-60px}
+.hero .orb2{width:280px;height:280px;background:radial-gradient(circle,#40916c,transparent 70%);bottom:-120px;left:-40px}
+.hero-inner{position:relative;z-index:2}
+.kicker{display:flex;gap:8px;align-items:center;margin-bottom:18px}
+.kicker .step{font-size:.78rem;font-weight:800;letter-spacing:.05em;color:#0c1712;background:#95d5b2;padding:3px 11px;border-radius:20px}
+.kicker .ask{font-size:.86rem;color:#95d5b2;font-weight:600}
+.hero h1{color:#fff;font-size:2.7rem;letter-spacing:.01em;margin-bottom:20px;max-width:16em}
+.hero .lead{font-size:1.18rem;max-width:36em;color:#d8ece0;margin-bottom:8px;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+.chip{background:rgba(255,255,255,.09);border:1px solid rgba(149,213,178,.28);border-radius:12px;
+  padding:13px 19px;backdrop-filter:blur(4px)}
+.chip .n{font-size:1.35rem;font-weight:800;color:#fff;display:block;line-height:1.15}
+.chip .t{font-size:.8rem;color:#a9cdb9;margin-top:4px}
+@media(max-width:700px){.hero{padding:120px 0 60px}.hero h1{font-size:1.9rem}.hero .lead{font-size:1.04rem}}
+
+.section{padding:76px 0}
+.section.alt{background:var(--bg-secondary)}
+.sec-head{max-width:46em;margin-bottom:40px}
+.sec-tag{display:inline-flex;align-items:center;gap:8px;font-size:.82rem;font-weight:700;
+  color:var(--primary);background:var(--primary-light);padding:5px 13px;border-radius:20px;margin-bottom:16px}
+.sec-tag .idx{font-family:'Georgia',serif;font-style:italic}
+.section h2{font-size:1.9rem;margin-bottom:14px}
+.section .desc{font-size:1.04rem;color:var(--text-secondary);max-width:44em}
+.q{color:var(--primary);font-weight:800}
+
+.grid{display:grid;gap:20px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:860px){.g3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;
+  box-shadow:0 2px 10px var(--shadow);transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 28px var(--shadow-hover)}
+.card h3{font-size:1.12rem;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.card p{font-size:.94rem;color:var(--text-body)}
+
+.lead-quote{border-left:4px solid var(--primary);background:var(--primary-light);
+  padding:20px 26px;border-radius:0 14px 14px 0;font-size:1.1rem;font-weight:600;color:var(--text-heading);margin:8px 0}
+
+.tbl{width:100%;border-collapse:collapse;background:var(--bg-card);border-radius:14px;overflow:hidden;
+  box-shadow:0 2px 10px var(--shadow);font-size:.92rem}
+.tbl th,.tbl td{padding:12px 15px;text-align:left;border-bottom:1px solid var(--divider);vertical-align:top}
+.tbl th{background:var(--primary);color:#fff;font-weight:700}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover{background:var(--primary-light)}
+.tbl .em{font-weight:700;color:var(--primary)}
+.tbl .bad{color:var(--danger);font-weight:600}
+.tbl-wrap{overflow-x:auto}
+
+.pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.pill{background:var(--bg-code);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:.86rem;font-weight:600;color:var(--text-body)}
+.pill.bad{background:var(--danger-bg);border-color:transparent;color:var(--danger)}
+.pill.good{background:var(--primary-light);border-color:transparent;color:var(--primary)}
+
+/* scorecard */
+.score{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:26px;box-shadow:0 2px 10px var(--shadow)}
+.bar-row{display:grid;grid-template-columns:150px 1fr 48px;align-items:center;gap:14px;margin-bottom:14px}
+.bar-row .lab{font-size:.92rem;font-weight:600;color:var(--text-heading)}
+.bar-track{height:14px;background:var(--bg-code);border-radius:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--primary));transition:width 1s}
+.bar-row .pct{font-size:.9rem;font-weight:700;color:var(--primary);text-align:right}
+@media(max-width:640px){.bar-row{grid-template-columns:110px 1fr 40px}}
+.thresholds{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+@media(max-width:640px){.thresholds{grid-template-columns:1fr}}
+.th{border-radius:12px;padding:16px;text-align:center;border:1px solid var(--border)}
+.th .s{font-size:1.3rem;font-weight:800;display:block}
+.th.go{background:var(--primary-light)}.th.go .s{color:var(--primary)}
+.th.mvp{background:rgba(176,132,36,.12)}.th.mvp .s{color:var(--gold)}
+.th.no{background:var(--danger-bg)}.th.no .s{color:var(--danger)}
+
+.formula{background:var(--bg-code);border:1px dashed var(--primary);border-radius:14px;padding:20px 24px;
+  font-family:'Georgia',serif;font-size:1.02rem;color:var(--text-heading);text-align:center;line-height:2}
+.formula .op{color:var(--primary);font-weight:800;margin:0 6px}
+.formula .neg{color:var(--danger)}
+
+.note{font-size:.85rem;color:var(--text-secondary);margin-top:14px}
+.diagram{margin:8px 0 4px;width:100%}
+.mt{margin-top:26px}.mt-l{margin-top:42px}
+h4.blk{font-size:1.04rem;color:var(--text-heading);margin:0 0 14px}
+
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:40px 0 8px}
+@media(max-width:560px){.pager{grid-template-columns:1fr}}
+.pg{display:block;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:18px 22px;transition:.25s}
+.pg:hover{border-color:var(--primary);box-shadow:0 8px 20px var(--shadow-hover);transform:translateY(-3px)}
+.pg .dir{font-size:.78rem;color:var(--text-secondary);font-weight:700}
+.pg .tt{font-size:1.05rem;font-weight:800;color:var(--primary);margin-top:5px}
+.pg.next{text-align:right}
+
+.footer{background:var(--banner-from);color:#a9cdb9;padding:52px 0 40px;text-align:center}
+.footer .big{color:#fff;font-size:1.25rem;font-weight:800;max-width:24em;margin:0 auto 14px}
+.footer .deep{display:inline-block;font-size:.9rem;color:#c9e8d6;border:1px solid rgba(149,213,178,.3);
+  border-radius:10px;padding:10px 18px;margin-top:8px}
+.footer .deep code{background:rgba(255,255,255,.08);padding:2px 7px;border-radius:5px;font-size:.86rem}
+.footer .src{font-size:.82rem;color:#7fa892;max-width:44em;margin:18px auto 0;line-height:1.8}
+
+.search-layer{position:fixed;inset:0;z-index:300;display:none;align-items:flex-start;justify-content:center;padding:92px 20px 20px;background:rgba(5,13,9,.5);backdrop-filter:blur(6px)}.search-layer.open{display:flex}.search-panel{width:min(640px,100%);background:var(--bg-card);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.22);padding:18px}.search-head{display:flex;align-items:center;gap:10px}.search-input{height:44px;flex:1;border:1px solid var(--border);border-radius:10px;background:var(--bg-main);color:var(--text-heading);padding:0 14px;font:inherit;outline:none}.search-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}.search-close{width:40px;height:40px;border:0;border-radius:9px;background:transparent;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center}.search-close:hover{color:var(--primary);background:var(--primary-light)}.search-status{margin:12px 2px 0;font-size:.86rem;color:var(--text-secondary)}.search-results{margin-top:10px;display:grid;gap:6px;max-height:50vh;overflow:auto}.search-result{display:block;width:100%;border:0;text-align:left;background:transparent;padding:11px 12px;border-radius:9px;color:var(--text-body);font-size:.92rem;line-height:1.5;cursor:pointer}.search-result:hover,.search-result:focus{background:var(--primary-light);color:var(--primary)}.search-focus{animation:searchPulse 1.6s ease}@keyframes searchPulse{0%,100%{outline:0 solid transparent}35%{outline:4px solid rgba(82,183,136,.45);outline-offset:6px}}@media(max-width:700px){.wrap{padding:0 20px}.search-layer{padding-top:78px}}
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="nav" aria-label="主题二页面导航">
+  <div class="nav-inner">
+    <button class="nav-icon" type="button" onclick="goBack()" title="返回上一页" aria-label="返回上一页"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><a class="brand" href="index.html" aria-label="AI 原生服务总览"><span class="dot"></span>AI 原生服务</a><div class="nav-actions"><a class="nav-icon" href="index.html" title="返回专题总览" aria-label="返回专题总览"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8M5 10v10h14V10M9 20v-6h6v6"/></svg></a><button class="nav-icon" type="button" onclick="openSearch()" title="搜索当前页面" aria-label="搜索当前页面"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button><button class="nav-icon" id="theme-btn" type="button" onclick="toggleTheme()" title="切换明暗主题" aria-label="切换明暗主题"><svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 15.2A9 9 0 0 1 8.8 3.2 9 9 0 1 0 20.8 15.2Z"/></svg><svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="orb orb1"></div><div class="orb orb2"></div>
+  <div class="wrap hero-inner">
+    <div class="kicker"><span class="step">主题二</span><span class="ask">赛道评估 · 回答「值不值得做」</span></div>
+    <h1>值不值得做？<br>先算账，别拍脑袋</h1>
+    <p class="lead">好物种放错场景照样死。用六条件适配、买方逻辑、壁垒可持续性与单位经济学，把「感觉」变成可比的分数。</p>
+    <div class="chips">
+      <div class="chip"><span class="n">六道闸门</span><span class="t">结果可定义性是一票否决</span></div>
+      <div class="chip"><span class="n">万亿 vs 十亿</span><span class="t">动人力预算 &gt; 动 IT 预算</span></div>
+      <div class="chip"><span class="n">打分 ≥ 4.0</span><span class="t">才值得深度进入</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 1 适配框架 ===== -->
+<section class="section" id="fit">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-tag"><span class="idx">01</span> 市场适配判定</span>
+      <h2>六个必答问题，<span class="q">先过闸门再谈机会</span></h2>
+      <p class="desc">前三条决定「能不能做出来」，后三条决定「做出来能不能活」。结果可定义性是一票否决项。</p>
+    </div>
+
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>维度</th><th>核心问题</th><th>适合的信号</th><th>不适合的信号</th></tr></thead>
+      <tbody>
+        <tr><td class="em">结果可定义性</td><td>成功能否被客观验收</td><td>工单解决 / 商机合格有明确标准</td><td class="bad">结果模糊、见仁见智</td></tr>
+        <tr><td>高频高痛</td><td>是否高频且痛到愿付费</td><td>天天发生、缺人、易错、贵</td><td class="bad">低频、可忍、无预算</td></tr>
+        <tr><td>数据可得性</td><td>所需数据能否拿到</td><td>有历史工单 / 案例 / 流程数据</td><td class="bad">数据稀缺、涉密、碎片化</td></tr>
+        <tr><td>容错成本</td><td>出错的代价高不高</td><td>单次错误可控、可回滚</td><td class="bad">单次错误致命</td></tr>
+        <tr><td>竞争空白度</td><td>是否被巨头占死</td><td>在位者反应慢、有结构性冲突</td><td class="bad">巨头卷入、同质化红海</td></tr>
+        <tr><td>合规风险</td><td>监管是否允许 AI 担责</td><td>无强监管禁入</td><td class="bad">明令禁止 / 需持牌</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h4 class="blk mt-l">适配光谱：结果可定义性 × 容错空间</h4>
+    <svg class="diagram" viewBox="0 0 1120 300" role="img" aria-label="场景适配光谱四象限">
+      <g font-family="PingFang SC,sans-serif" font-size="12.5">
+        <line x1="120" y1="150" x2="1000" y2="150" stroke="var(--border)" stroke-width="1.5"/>
+        <line x1="560" y1="30" x2="560" y2="270" stroke="var(--border)" stroke-width="1.5"/>
+        <text x="1010" y="154" fill="var(--text-secondary)" font-size="11">结果易定义 →</text>
+        <text x="500" y="24" fill="var(--text-secondary)" font-size="11">容错高 ↑</text>
+        <!-- Q黄金 右上 -->
+        <rect x="575" y="40" width="410" height="100" rx="10" fill="var(--primary-light)" stroke="var(--primary)"/>
+        <text x="600" y="66" fill="var(--primary)" font-weight="800">黄金区 · 优先进入</text>
+        <text x="600" y="90" fill="var(--text-body)">客服工单解决、AI SDR 约访、</text>
+        <text x="600" y="110" fill="var(--text-body)">代码 lint / 测试修复</text>
+        <!-- 谨慎 右下 -->
+        <rect x="575" y="160" width="410" height="100" rx="10" fill="rgba(176,132,36,.12)" stroke="var(--gold)"/>
+        <text x="600" y="186" fill="var(--gold)" font-weight="800">谨慎区 · 靠人兜底 + 合规</text>
+        <text x="600" y="210" fill="var(--text-body)">法律初审、财务对账、</text>
+        <text x="600" y="230" fill="var(--text-body)">安全告警处置</text>
+        <!-- 陷阱 左上 -->
+        <rect x="135" y="40" width="410" height="100" rx="10" fill="var(--danger-bg)" stroke="var(--danger)"/>
+        <text x="160" y="66" fill="var(--danger)" font-weight="800">陷阱区 · 远离</text>
+        <text x="160" y="90" fill="var(--text-body)">泛化「战略咨询」「创意生成」</text>
+        <text x="160" y="110" fill="var(--text-secondary)">看着能做，实则无法验收计费</text>
+        <!-- 高危 左下 -->
+        <rect x="135" y="160" width="410" height="100" rx="10" fill="var(--danger-bg)" stroke="var(--danger)"/>
+        <text x="160" y="186" fill="var(--danger)" font-weight="800">高危区 · 合规先行</text>
+        <text x="160" y="210" fill="var(--text-body)">医疗诊断、投资决策</text>
+        <text x="160" y="230" fill="var(--text-secondary)">除非持牌 + 强兜底，否则别碰</text>
+      </g>
+    </svg>
+
+    <h4 class="blk mt-l">四类陷阱：软・稀・脆・抄（中一条就要三思）</h4>
+    <div class="pills">
+      <span class="pill bad">软：结果无法客观验收（提升品牌 / 优化文化）</span>
+      <span class="pill bad">稀：低频长尾，喂不出数据飞轮</span>
+      <span class="pill bad">脆：容错为零，兜底成本极高</span>
+      <span class="pill bad">抄：巨头顺手加功能就能覆盖</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 2 买方逻辑 ===== -->
+<section class="section alt" id="buyer">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-tag"><span class="idx">02</span> 需求与买方逻辑</span>
+      <h2>动谁的钱包，<span class="q">决定客单价天花板</span></h2>
+      <p class="desc">搞错买方，产品再好也卖不动。最关键的一次战略选择：收费挂在 IT 预算，还是人力预算。</p>
+    </div>
+
+    <div class="grid g2">
+      <div class="card"><h3>动 IT / 软件预算（卖工具思维）</h3><p>价格锚点对标「一个软件 licence」，客单价低（几万~几十万）；决策人是 IT / 采购；对手是所有 SaaS，锚点低、易比价。<b>——十亿级池子</b>。</p></div>
+      <div class="card" style="border-color:var(--primary)"><h3>动人力 / 服务预算（卖结果思维）</h3><p>价格锚点对标「一个员工年薪 / 一支外包队」，客单价高（几十万~数百万）；决策人是业务负责人 / CFO；对手是招人难、留人贵、人会犯错。<b>——万亿级池子</b>。</p></div>
+    </div>
+    <p class="note">判断倾向：<b>尽量把收费挂到人力预算上</b>。Salesforce 350 亿 vs 销售营销薪资 1.1 万亿——池子大一个量级。若定价只能对标软件，说明还停留在卖工具，值得做的程度大打折扣。</p>
+
+    <div class="grid g2 mt-l">
+      <div>
+        <h4 class="blk">为什么「按成效付费」好签</h4>
+        <div class="card"><p>CFO 的语言是「确定的 ROI」。「解决一单收一单，没解决不收费」<b>把风险从买方转移到卖方</b>，签单阻力骤降；还能走「省下的人力 / 收入分成」入账，不占紧张的 IT capex。<br><br>真实注脚：Intercom Fin ≈ <b>0.99 美元/次</b>成功解决，CFO 一眼算得清 ROI；Sierra / Decagon 转人工免费。</p></div>
+      </div>
+      <div>
+        <h4 class="blk">真痛点 vs AI 故事：排雷三问</h4>
+        <div class="card">
+          <p><b>① 没有 AI 之前，客户就花钱解决这件事吗？</b> 之前就花大钱招人/外包 = 真痛点。</p>
+          <p class="mt"><b>② 客户要「结果」，还是被说服要「AI」？</b> 只关心结果 = 真；兴奋点是「这 AI 很酷」= 警惕。</p>
+          <p class="mt"><b>③ 停掉这个服务，客户会痛吗？</b> 业务停摆/成本飙升才是刚需。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3 竞争壁垒 ===== -->
+<section class="section" id="compete">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-tag"><span class="idx">03</span> 竞争格局与壁垒可持续性</span>
+      <h2>和谁竞争，<span class="q">壁垒撑不撑得住模型进步</span></h2>
+      <p class="desc">最好的赛道，是「在位者有结构性冲突、不敢或不愿全力做」的地方。</p>
+    </div>
+
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>对手</th><th>他们的软肋</th><th>你的机会</th></tr></thead>
+      <tbody>
+        <tr><td>传统服务商 / 外包</td><td>重人力、毛利低、转型有「自我革命」阻力</td><td class="em">用 AI 把其人力成本结构打穿</td></tr>
+        <tr><td>在位 SaaS</td><td class="bad">卖席位与「减少席位」天然冲突，转型自缚</td><td class="em">抢「结果层」这块他们不敢动的利润</td></tr>
+        <tr><td>模型公司</td><td>不做垂直交付、不担行业结果责任</td><td class="em">买其能力造车，在垂直场景担责</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="tbl-wrap mt-l">
+    <table class="tbl">
+      <thead><tr><th>壁垒类型</th><th>会被模型进步侵蚀吗</th><th>适合选的赛道特征</th></tr></thead>
+      <tbody>
+        <tr><td>数据量 / 标注量</td><td class="bad">会（通用能力追上就贬值）</td><td>不要当主壁垒</td></tr>
+        <tr><td>prompt / 调优技巧</td><td class="bad">会（下一代模型免费获得）</td><td>不要当主壁垒</td></tr>
+        <tr><td class="em">工作流嵌入深度</td><td class="em">不易（涉及组织流程改造）</td><td>深接 CRM / ERP / 工单 / 审批</td></tr>
+        <tr><td class="em">合规 / 信任 / 担责</td><td class="em">不易（模型不会签字担责）</td><td>法律、金融、医疗、安全</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h4 class="blk mt-l">市场时机：Why now，也要问 Why not too early</h4>
+    <svg class="diagram" viewBox="0 0 1120 120" role="img" aria-label="市场时机窗口">
+      <defs><marker id="a1" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--accent)"></path></marker></defs>
+      <g font-family="PingFang SC,sans-serif" font-size="12.5">
+        <rect x="40" y="42" width="300" height="52" rx="10" fill="var(--danger-bg)" stroke="var(--danger)"/>
+        <text x="190" y="64" text-anchor="middle" fill="var(--danger)" font-weight="700">太早</text>
+        <text x="190" y="82" text-anchor="middle" fill="var(--text-secondary)">能力/认知/监管未到位</text>
+        <line x1="346" y1="68" x2="398" y2="68" stroke="var(--accent)" stroke-width="2" marker-end="url(#a1)"/>
+        <rect x="406" y="42" width="308" height="52" rx="10" fill="var(--primary)"/>
+        <text x="560" y="64" text-anchor="middle" fill="#fff" font-weight="700">窗口期 · 理想入场</text>
+        <text x="560" y="82" text-anchor="middle" fill="#c9e8d6">能力够用 + 成本转正 + 客户被教育</text>
+        <line x1="720" y1="68" x2="772" y2="68" stroke="var(--accent)" stroke-width="2" marker-end="url(#a1)"/>
+        <rect x="780" y="42" width="300" height="52" rx="10" fill="var(--danger-bg)" stroke="var(--danger)"/>
+        <text x="930" y="64" text-anchor="middle" fill="var(--danger)" font-weight="700">太晚</text>
+        <text x="930" y="82" text-anchor="middle" fill="var(--text-secondary)">红海 / 巨头已占死</text>
+      </g>
+    </svg>
+    <p class="note">判断「是否太早」最硬的指标——<b>当前技术下的自主解决率能否让单位经济学转正</b>。若不能，宁可先做 MVP 验证、等窗口，而不是重资产 all-in。</p>
+  </div>
+</section>
+
+<!-- ===== 4 财务底线 ===== -->
+<section class="section alt" id="ue">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-tag"><span class="idx">04</span> 商业可行性与财务底线</span>
+      <h2>别急着讲估值，<span class="q">先把一单的账拆开</span></h2>
+      <p class="desc">算不过账的赛道，故事再动人也不值得做。自主解决率是单位经济学的命门。</p>
+    </div>
+
+    <div class="formula">
+      单次毛利 <span class="op">=</span> 单价
+      <span class="neg">− 推理成本</span>
+      <span class="neg">− (1−自主解决率)×人工单次成本</span>
+      <span class="neg">− 交付摊销</span>
+    </div>
+    <p class="note">盈亏平衡单量 ≈ 固定成本 ÷ 单次毛利。<b>自主解决率越高 → 兜底与摊销越低 → 单次毛利转正</b>。Sierra 客户约 70% 自主解决，意味着仅约 30% 需人工兜底。</p>
+
+    <div class="grid g2 mt-l">
+      <div>
+        <h4 class="blk">UE 三大成本项（区别于 SaaS 近零边际）</h4>
+        <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>成本项</th><th>改善杠杆</th></tr></thead>
+          <tbody>
+            <tr><td>推理成本</td><td>模型降价、蒸馏、缓存、路由到小模型</td></tr>
+            <tr><td class="em">人工兜底成本</td><td class="em">提升自主解决率（命门）</td></tr>
+            <tr><td>交付 / 集成摊销</td><td>产品化、模板化、复用</td></tr>
+            <tr><td>获客成本 CAC</td><td>口碑、按成效付费降低签单摩擦</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <div>
+        <h4 class="blk">简版估值参考（校准量级，别套 SaaS 倍数）</h4>
+        <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>公司</th><th>估值</th><th>启示</th></tr></thead>
+          <tbody>
+            <tr><td>Sierra</td><td class="em">约 45 亿$</td><td>顶级团队 + 范式定义者溢价</td></tr>
+            <tr><td>Harvey</td><td class="em">约 110 亿$</td><td>约 300M ARR 高速曲线支撑</td></tr>
+            <tr><td>KoBold</td><td class="em">约 29.6 亿$</td><td>L4 掌控资源，近资源估值逻辑</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="note">三原则：别直接套 SaaS 倍数；收入质量 &gt; 收入规模；看 L 层级定估值逻辑。</p>
+      </div>
+    </div>
+    <p class="note mt-l">判断倾向：<b>测算时用保守假设</b>——自主解决率、留存打折，推理和兜底成本打高。只有保守下也能在合理单量跨过盈亏平衡，赛道才算「财务上站得住」；只在乐观假设下成立的生意，本质是赌未来。</p>
+  </div>
+</section>
+
+<!-- ===== 5 打分卡 ===== -->
+<section class="section" id="score">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-tag"><span class="idx">05</span> 赛道打分卡</span>
+      <h2>把六维度量化成分数，<span class="q">对照阈值决定做 / MVP / 放弃</span></h2>
+      <p class="desc">每项 1–5 分，按权重加权求和得总分；权重可按自身情况调整。</p>
+    </div>
+
+    <div class="grid g2">
+      <div class="score">
+        <h4 class="blk">赛道吸引力打分卡 · 默认权重</h4>
+        <div class="bar-row"><span class="lab">结果可定义性</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="pct">25%</span></div>
+        <div class="bar-row"><span class="lab">高频高痛</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="pct">20%</span></div>
+        <div class="bar-row"><span class="lab">数据可得性</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="pct">20%</span></div>
+        <div class="bar-row"><span class="lab">容错成本</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span class="pct">15%</span></div>
+        <div class="bar-row"><span class="lab">竞争空白度</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span class="pct">10%</span></div>
+        <div class="bar-row"><span class="lab">合规风险</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span class="pct">10%</span></div>
+      </div>
+      <div>
+        <h4 class="blk">六个适配条件</h4>
+        <div class="pills">
+          <span class="pill good">结果可定义</span><span class="pill good">高频高痛</span><span class="pill good">数据可得</span>
+          <span class="pill good">容错空间足</span><span class="pill good">竞争有空白</span><span class="pill good">合规无禁入</span>
+        </div>
+        <h4 class="blk mt">两条铁律</h4>
+        <div class="card"><p>① 「结果可定义性」得分过低，总分再高也慎入（无法验收就无法计费）。<br><br>② 「合规风险」触及禁入区（无资质）直接一票否决。</p></div>
+      </div>
+    </div>
+
+    <div class="thresholds">
+      <div class="th go"><span class="s">≥ 4.0</span>深度进入，值得重注入</div>
+      <div class="th mvp"><span class="s">3.0 – 4.0</span>先做 MVP 验证再定</div>
+      <div class="th no"><span class="s">&lt; 3.0</span>放弃或等时机</div>
+    </div>
+
+    <!-- pager -->
+    <div class="pager">
+      <a href="definition-and-value.html" class="pg"><span class="dir">← 上一主题</span><span class="tt">主题一 · 是什么 / 为什么值钱</span></a>
+      <a href="entry-and-exit.html" class="pg next"><span class="dir">下一主题 →</span><span class="tt">主题三 · 怎么切入 / 何时撤</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="wrap">
+    <p class="big">用打分卡量化，别拍脑袋；打分 ≥ 4.0、保守 UE 为正，才值得深度进入。</p>
+    <div class="deep">深读提示：本页浓缩主题二的适配、买方、竞争、财务与打分卡。</div>
+    <p class="src">本页为「主题二」速览，浓缩自同目录三主题 Wiki。公司数据（融资、估值、计费、业绩）标注来源年份，随时间可能变化，决策前请以最新公开信息为准。</p>
+  </div>
+</footer>
+
+<div class="search-layer" id="search-layer" role="dialog" aria-modal="true" aria-label="搜索当前页面" onclick="closeSearch(event)">
+  <div class="search-panel"><div class="search-head"><input class="search-input" id="search-input" type="search" placeholder="搜索当前页面内容" autocomplete="off"><button class="search-close" type="button" onclick="closeSearch()" title="关闭搜索" aria-label="关闭搜索"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><p class="search-status" id="search-status">输入关键词后显示匹配段落</p><div class="search-results" id="search-results"></div></div>
+</div>
+
+<script>
+(function(){
+  var t=localStorage.getItem('hk-theme')||'light';
+  document.documentElement.setAttribute('data-theme',t);
+  function sync(){var b=document.getElementById('theme-btn');if(!b)return;var dark=document.documentElement.getAttribute('data-theme')==='dark';b.querySelector('.icon-moon').style.display=dark?'none':'block';b.querySelector('.icon-sun').style.display=dark?'block':'none';}
+  window.toggleTheme=function(){
+    var c=document.documentElement.getAttribute('data-theme');
+    var n=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    localStorage.setItem('hk-theme',n);
+    sync();
+  };
+  window.goBack=function(){if(history.length>1){history.back();}else{location.href='../index.html';}};
+  window.addEventListener('DOMContentLoaded',sync);
+})();
+(function(){
+  var layer=document.getElementById('search-layer'),input=document.getElementById('search-input'),results=document.getElementById('search-results'),status=document.getElementById('search-status');var nodes=[].slice.call(document.querySelectorAll('section h2,section h3,section h4,section p,section li')).filter(function(el){return el.textContent.trim().length>8;});function clearHits(){document.querySelectorAll('.search-focus').forEach(function(el){el.classList.remove('search-focus');});}window.openSearch=function(){layer.classList.add('open');document.body.style.overflow='hidden';setTimeout(function(){input.focus();},30);};window.closeSearch=function(event){if(event&&event.target!==layer)return;layer.classList.remove('open');document.body.style.overflow='';};input.addEventListener('input',function(){var q=input.value.trim().toLowerCase();results.innerHTML='';clearHits();if(!q){status.textContent='输入关键词后显示匹配段落';return;}var matches=nodes.filter(function(el){return el.textContent.toLowerCase().includes(q);}).slice(0,12);status.textContent=matches.length?'找到 '+matches.length+' 条相关内容':'没有找到相关内容';matches.forEach(function(el){var a=document.createElement('button');a.type='button';a.className='search-result';a.textContent=el.textContent.trim().slice(0,110);a.onclick=function(){closeSearch();el.scrollIntoView({behavior:'smooth',block:'center'});clearHits();el.classList.add('search-focus');};results.appendChild(a);});});window.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openSearch();}if(e.key==='Escape'&&layer.classList.contains('open'))closeSearch();});layer.querySelector('.search-panel').addEventListener('click',function(e){e.stopPropagation();});
+})();
+</script>
+</body>
+</html>
