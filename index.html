@@ -221,7 +221,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
         <button class="tab" data-tab="think" role="tab" aria-selected="false">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V18h6v-1.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z"/></svg>
           <span class="tab-label">思维</span>
-          <span class="tab-count">2</span>
+          <span class="tab-count">3</span>
         </button>
       </div>
     </div>
@@ -260,6 +260,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
             <p class="card-blurb">用极高的人才密度，换极致的自由与责任——16 章可读的「书」。</p>
             <div class="card-foot"><span class="card-tag tag-think">思维</span><span class="card-arrow">→</span></div>
           </a>
+          <a class="card" href="fighting-against-disorder/index.html">
+            <div class="card-top"><span class="card-badge">序</span><span class="card-date">2026-08-27</span></div>
+            <h3 class="card-title">对抗无序</h3>
+            <p class="card-blurb">混乱不是你的失败——用最小能耗，把秩序交给系统、默认值与小步维护。</p>
+            <div class="card-foot"><span class="card-tag tag-think">思维</span><span class="card-arrow">→</span></div>
+          </a>
         </div>
       </div>
 
@@ -294,6 +300,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   // Tab 切换
   var tabbar=document.getElementById('tabbar');
   var indicator=document.getElementById('tab-indicator');
+  var tabStateKey='sg-home-tab';
 
   function moveIndicator(id){
     var tab=tabbar.querySelector('.tab[data-tab="'+id+'"]');
@@ -305,6 +312,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   }
 
   function setTab(id){
+    if(!tabbar.querySelector('.tab[data-tab="'+id+'"]'))return;
     tabbar.querySelectorAll('.tab').forEach(function(t){
       t.classList.toggle('is-active',t.getAttribute('data-tab')===id);
       t.setAttribute('aria-selected',t.getAttribute('data-tab')===id?'true':'false');
@@ -313,6 +321,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
       p.classList.toggle('is-active',p.getAttribute('data-panel')===id);
     });
     moveIndicator(id);
+    try{sessionStorage.setItem(tabStateKey,id);}catch(error){}
   }
 
   tabbar.querySelectorAll('.tab').forEach(function(t){
@@ -320,6 +329,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
       setTab(t.getAttribute('data-tab'));
     });
   });
+
+  // 返回首页时恢复离开前所在的分类
+  var savedTab='';
+  try{savedTab=sessionStorage.getItem(tabStateKey)||'';}catch(error){}
+  if(savedTab)setTab(savedTab);
 
   // 初始化 indicator 位置
   function initIndicator(){
@@ -331,6 +345,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 })();
 </script>
 <script src="assets/search-index.js"></script>
-<script src="assets/storygarden.js"></script>
+<script src="assets/storygarden.js?v=20260827-disorder"></script>
 </body>
 </html>

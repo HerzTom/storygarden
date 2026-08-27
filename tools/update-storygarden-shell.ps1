@@ -58,6 +58,12 @@ function Get-PageConfig([string]$relative,[string]$title,[string]$h1){
     }
     return @{Section='netflix';Topic='奈飞文化手册';Title=$display;Root='..';Home=$false;Parent='index.html';ParentLabel='返回手册首页'}
   }
+  if($folder -eq 'fighting-against-disorder'){
+    if($file -eq 'index.html'){
+      return @{Section='disorder';Topic='对抗无序';Title='对抗无序';Root='..';Home=$false;Parent='../index.html';ParentLabel='返回 StoryGarden'}
+    }
+    return @{Section='disorder';Topic='对抗无序';Title=$display;Root='..';Home=$false;Parent='index.html';ParentLabel='返回对抗无序'}
+  }
   return @{Section='home';Topic='StoryGarden';Title=$display;Root='.';Home=$false;Parent='index.html';ParentLabel='返回 StoryGarden'}
 }
 

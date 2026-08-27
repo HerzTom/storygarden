@@ -61,6 +61,14 @@ body[data-sg-section="netflix"]{
 }
 [data-theme="dark"] body[data-sg-section="netflix"]{--sg-accent:hsl(357,94%,62%)}
 
+body[data-sg-section="disorder"]{
+  --sg-accent:hsl(35,67%,52%);
+  --sg-focus:hsla(35,67%,52%,.22);
+  --sg-hero-from:hsl(216,59%,16%);
+  --sg-hero-to:hsl(211,54%,28%);
+}
+[data-theme="dark"] body[data-sg-section="disorder"]{--sg-accent:hsl(38,82%,68%)}
+
 body[data-sg-page] > .topbar:not(.sg-global-header),
 body[data-sg-page] > .topnav{display:none!important}
 body[data-sg-page] > .search-overlay:not(.sg-search-overlay){display:none!important}
@@ -215,15 +223,15 @@ body[data-sg-section="longtail"] > header:not(.sg-global-header) .hero-tags .t{
   box-shadow:none!important;
 }
 
-body[data-sg-page] .hero-grid,
-body[data-sg-page] .hero .orb,
-body[data-sg-page] .hero .sprout,
-body[data-sg-page] .hero::before,
-body[data-sg-page] .hero::after,
-body[data-sg-page] .ch-hero::before,
-body[data-sg-page] .ch-hero::after,
-body[data-sg-page] .overview-hero::before,
-body[data-sg-page] .overview-hero::after{
+body[data-sg-page]:not([data-sg-home]) .hero-grid,
+body[data-sg-page]:not([data-sg-home]) .hero .orb,
+body[data-sg-page]:not([data-sg-home]) .hero .sprout,
+body[data-sg-page]:not([data-sg-home]) .hero::before,
+body[data-sg-page]:not([data-sg-home]) .hero::after,
+body[data-sg-page]:not([data-sg-home]) .ch-hero::before,
+body[data-sg-page]:not([data-sg-home]) .ch-hero::after,
+body[data-sg-page]:not([data-sg-home]) .overview-hero::before,
+body[data-sg-page]:not([data-sg-home]) .overview-hero::after{
   content:none!important;
   display:none!important;
   background:none!important;
