@@ -213,8 +213,9 @@ body{
 .work-frame{
   background:var(--bg-card);border:1px solid var(--frame);
   padding:24px;box-shadow:0 6px 28px var(--shadow);position:relative;overflow:hidden;
-  transition:box-shadow .35s,transform .35s;
+  cursor:zoom-in;transition:box-shadow .35s,transform .35s;
 }
+.work-frame:focus-visible{outline:3px solid var(--primary);outline-offset:5px}
 [data-theme="light"] body[data-sg-section="black-and-white"] .hero{
   color:var(--text-heading);
   background-color:var(--sg-hero-from)!important;
@@ -243,6 +244,20 @@ body{
 .image-fallback{display:none;min-height:180px;align-items:center;justify-content:center;color:var(--text-secondary);font-size:.85rem;letter-spacing:.08em;text-align:center;background:var(--bg-code)}
 .work-frame.is-error .image-fallback{display:flex}
 @keyframes image-shimmer{0%{background-position:200% 0}100%{background-position:-20% 0}}
+.photo-viewer[hidden]{display:none}
+.photo-viewer{position:fixed;inset:0;z-index:12000;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:rgba(5,5,6,.96);color:#F5F4F1;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.viewer-head{height:62px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.viewer-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:Georgia,'Songti SC','STSong',serif;letter-spacing:.12em}
+.viewer-close,.viewer-nav{width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.2);border-radius:50%;background:rgba(255,255,255,.08);color:#fff;font-size:1.35rem;transition:background .2s,border-color .2s}
+.viewer-close:hover,.viewer-nav:hover{background:rgba(255,255,255,.17);border-color:rgba(255,255,255,.4)}
+.viewer-stage{position:relative;min-height:0;display:grid;place-items:center;overflow:hidden;padding:18px 74px}
+.viewer-preview,.viewer-full{position:absolute;max-width:calc(100% - 148px);max-height:calc(100% - 36px);width:auto;height:auto;object-fit:contain;transition:opacity .4s ease}
+.viewer-preview{opacity:.58;filter:blur(1px)}
+.viewer-full{opacity:0}.photo-viewer.is-hd .viewer-full{opacity:1}.photo-viewer.is-hd .viewer-preview{opacity:0}
+.viewer-loading{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);padding:7px 14px;border-radius:999px;background:rgba(0,0,0,.55);font-size:.74rem;letter-spacing:.12em;color:rgba(255,255,255,.78)}
+.photo-viewer.is-hd .viewer-loading{display:none}
+.viewer-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2}.viewer-prev{left:16px}.viewer-next{right:16px}
+.viewer-foot{height:54px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.64);font-size:.78rem;letter-spacing:.18em;border-top:1px solid rgba(255,255,255,.08)}
 .work-cap{margin-top:30px;display:grid;grid-template-columns:300px 1fr;gap:40px;align-items:baseline}
 .work-id{display:flex;align-items:baseline;gap:16px}
 .work-num{
@@ -311,6 +326,9 @@ body{
   .container{padding:0 22px}
   .section{padding:76px 0}
   .work-frame{padding:14px}
+  .image-skeleton{inset:14px}
+  .viewer-stage{padding:12px 48px}.viewer-preview,.viewer-full{max-width:calc(100% - 96px);max-height:calc(100% - 24px)}
+  .viewer-nav{width:38px;height:38px}.viewer-prev{left:6px}.viewer-next{right:6px}.viewer-head{padding:0 12px}.viewer-title{font-size:.86rem}
 }
 </style>
 </head>
@@ -382,7 +400,7 @@ body{
     <!-- 01 -->
     <article class="work reveal">
       <div class="work-frame">
-        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/01-layered-facade.jpg" alt="层理：裁紧后的横向层叠立面细节" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+        <span class="image-skeleton" aria-hidden="true"></span><picture><source type="image/webp" data-srcset="../images/01-layered-facade-480.webp 480w, ../images/01-layered-facade-768.webp 768w, ../images/01-layered-facade-1200.webp 1200w" sizes="(max-width:700px) 92vw, 1060px"><img data-src="../images/01-layered-facade-1200.webp" data-full="../images/01-layered-facade-large.webp" alt="层理：裁紧后的横向层叠立面细节" loading="eager" fetchpriority="high" decoding="async"></picture><span class="image-fallback" role="status">图片暂时无法加载</span>
       </div>
       <div class="work-cap">
         <div class="work-id">
@@ -399,7 +417,7 @@ body{
     <!-- 02 -->
     <article class="work reveal">
       <div class="work-frame">
-        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/02-following-light.jpg" alt="追光：地面光斑与大面积暗场" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+        <span class="image-skeleton" aria-hidden="true"></span><picture><source type="image/webp" data-srcset="../images/02-following-light-480.webp 480w, ../images/02-following-light-768.webp 768w, ../images/02-following-light-1200.webp 1200w" sizes="(max-width:700px) 92vw, 1060px"><img data-src="../images/02-following-light-1200.webp" data-full="../images/02-following-light-large.webp" alt="追光：地面光斑与大面积暗场" loading="lazy" decoding="async"></picture><span class="image-fallback" role="status">图片暂时无法加载</span>
       </div>
       <div class="work-cap">
         <div class="work-id">
@@ -416,7 +434,7 @@ body{
     <!-- 03 -->
     <article class="work reveal">
       <div class="work-frame">
-        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/03-curve-and-line.jpg" alt="曲与直：两栋建筑的立面对话" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+        <span class="image-skeleton" aria-hidden="true"></span><picture><source type="image/webp" data-srcset="../images/03-curve-and-line-480.webp 480w, ../images/03-curve-and-line-768.webp 768w, ../images/03-curve-and-line-1200.webp 1200w" sizes="(max-width:700px) 92vw, 1060px"><img data-src="../images/03-curve-and-line-1200.webp" data-full="../images/03-curve-and-line-large.webp" alt="曲与直：两栋建筑的立面对话" loading="lazy" decoding="async"></picture><span class="image-fallback" role="status">图片暂时无法加载</span>
       </div>
       <div class="work-cap">
         <div class="work-id">
@@ -433,7 +451,7 @@ body{
     <!-- 04 -->
     <article class="work reveal">
       <div class="work-frame">
-        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/04-cloud-and-lamp.jpg" alt="云与灯：戏剧性云层下的灯柱" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+        <span class="image-skeleton" aria-hidden="true"></span><picture><source type="image/webp" data-srcset="../images/04-cloud-and-lamp-480.webp 480w, ../images/04-cloud-and-lamp-768.webp 768w, ../images/04-cloud-and-lamp-1200.webp 1200w" sizes="(max-width:700px) 92vw, 1060px"><img data-src="../images/04-cloud-and-lamp-1200.webp" data-full="../images/04-cloud-and-lamp-large.webp" alt="云与灯：戏剧性云层下的灯柱" loading="lazy" decoding="async"></picture><span class="image-fallback" role="status">图片暂时无法加载</span>
       </div>
       <div class="work-cap">
         <div class="work-id">
@@ -450,7 +468,7 @@ body{
     <!-- 05 -->
     <article class="work reveal">
       <div class="work-frame">
-        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/05-arc-roof.jpg" alt="弧线：顶着画面上沿的曲面屋檐与层叠台阶" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+        <span class="image-skeleton" aria-hidden="true"></span><picture><source type="image/webp" data-srcset="../images/05-arc-roof-480.webp 480w, ../images/05-arc-roof-768.webp 768w, ../images/05-arc-roof-1200.webp 1200w" sizes="(max-width:700px) 92vw, 1060px"><img data-src="../images/05-arc-roof-1200.webp" data-full="../images/05-arc-roof-large.webp" alt="弧线：顶着画面上沿的曲面屋檐与层叠台阶" loading="lazy" decoding="async"></picture><span class="image-fallback" role="status">图片暂时无法加载</span>
       </div>
       <div class="work-cap">
         <div class="work-id">
@@ -467,7 +485,7 @@ body{
     <!-- 06 -->
     <article class="work reveal">
       <div class="work-frame">
-        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/06-cross-sign.jpg" alt="十字：路口指示牌十字箭头的纯图形特写" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+        <span class="image-skeleton" aria-hidden="true"></span><picture><source type="image/webp" data-srcset="../images/06-cross-sign-480.webp 480w, ../images/06-cross-sign-768.webp 768w, ../images/06-cross-sign-1200.webp 1200w" sizes="(max-width:700px) 92vw, 1060px"><img data-src="../images/06-cross-sign-1200.webp" data-full="../images/06-cross-sign-large.webp" alt="十字：路口指示牌十字箭头的纯图形特写" loading="lazy" decoding="async"></picture><span class="image-fallback" role="status">图片暂时无法加载</span>
       </div>
       <div class="work-cap">
         <div class="work-id">
@@ -484,7 +502,7 @@ body{
     <!-- 07 -->
     <article class="work reveal">
       <div class="work-frame">
-        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/07-truss-silhouette.jpg" alt="桁架：塔吊桁架剪影与灰色天空" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+        <span class="image-skeleton" aria-hidden="true"></span><picture><source type="image/webp" data-srcset="../images/07-truss-silhouette-480.webp 480w, ../images/07-truss-silhouette-768.webp 768w, ../images/07-truss-silhouette-1200.webp 1200w" sizes="(max-width:700px) 92vw, 1060px"><img data-src="../images/07-truss-silhouette-1200.webp" data-full="../images/07-truss-silhouette-large.webp" alt="桁架：塔吊桁架剪影与灰色天空" loading="lazy" decoding="async"></picture><span class="image-fallback" role="status">图片暂时无法加载</span>
       </div>
       <div class="work-cap">
         <div class="work-id">
@@ -553,6 +571,11 @@ body{
 
 <script src="../assets/search-index.js"></script>
 <script src="../assets/storygarden.js"></script>
+<div class="photo-viewer" id="photo-viewer" hidden role="dialog" aria-modal="true" aria-label="照片查看器">
+  <div class="viewer-head"><span class="viewer-title" id="viewer-title">黑白集</span><button class="viewer-close" type="button" id="viewer-close" aria-label="关闭查看器">×</button></div>
+  <div class="viewer-stage"><button class="viewer-nav viewer-prev" type="button" id="viewer-prev" aria-label="上一张">‹</button><img class="viewer-preview" id="viewer-preview" alt=""><img class="viewer-full" id="viewer-full" alt=""><button class="viewer-nav viewer-next" type="button" id="viewer-next" aria-label="下一张">›</button><span class="viewer-loading" id="viewer-loading">正在加载高清图…</span></div>
+  <div class="viewer-foot" id="viewer-count">01 / 07</div>
+</div>
 <script>
 (function(){
   var frames=[].slice.call(document.querySelectorAll('.work-frame'));
@@ -560,15 +583,39 @@ body{
     if(frame.classList.contains('is-loaded')||frame.classList.contains('is-error'))return;
     var img=frame.querySelector('img[data-src]');
     if(!img)return;
+    var source=frame.querySelector('source[data-srcset]');
+    if(source){source.srcset=source.getAttribute('data-srcset');source.removeAttribute('data-srcset');}
     img.addEventListener('load',function(){frame.classList.add('is-loaded');},{once:true});
     img.addEventListener('error',function(){frame.classList.add('is-error');},{once:true});
     img.src=img.getAttribute('data-src');
     img.removeAttribute('data-src');
   }
   if('IntersectionObserver' in window){
-    var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){load(entry.target);observer.unobserve(entry.target);}});},{rootMargin:'240px 0px',threshold:.01});
+    var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){load(entry.target);observer.unobserve(entry.target);}});},{rootMargin:'500px 0px',threshold:.01});
     frames.forEach(function(frame){observer.observe(frame);});
   }else{frames.forEach(load);}
+})();
+</script>
+<script>
+(function(){
+  var frames=[].slice.call(document.querySelectorAll('.work-frame'));
+  var viewer=document.getElementById('photo-viewer'),preview=document.getElementById('viewer-preview'),full=document.getElementById('viewer-full'),title=document.getElementById('viewer-title'),count=document.getElementById('viewer-count'),loading=document.getElementById('viewer-loading');
+  var current=0;
+  function openAt(index){
+    current=(index+frames.length)%frames.length;
+    var img=frames[current].querySelector('img');
+    if(!img)return;
+    var source=frames[current].querySelector('source[data-srcset]');
+    if(source){source.srcset=source.getAttribute('data-srcset');source.removeAttribute('data-srcset');}
+    if(!img.src&&img.getAttribute('data-src')){img.src=img.getAttribute('data-src');img.removeAttribute('data-src');}
+    preview.src=img.currentSrc||img.src;preview.alt=img.alt;full.removeAttribute('src');viewer.classList.remove('is-hd');viewer.hidden=false;document.body.style.overflow='hidden';
+    title.textContent=img.alt.split('：')[0]||'黑白集';count.textContent=String(current+1).padStart(2,'0')+' / '+String(frames.length).padStart(2,'0');loading.textContent='正在加载高清图…';
+    var hd=new Image();hd.onload=function(){full.src=hd.src;full.alt=img.alt;viewer.classList.add('is-hd');};hd.onerror=function(){loading.textContent='高清图加载失败，当前显示预览图';};hd.src=img.getAttribute('data-full');
+  }
+  function close(){viewer.hidden=true;viewer.classList.remove('is-hd');document.body.style.overflow='';full.removeAttribute('src');}
+  frames.forEach(function(frame,i){frame.setAttribute('tabindex','0');frame.setAttribute('role','button');frame.setAttribute('aria-label','查看第 '+(i+1)+' 张照片');frame.addEventListener('click',function(){openAt(i);});frame.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();openAt(i);}});});
+  document.getElementById('viewer-close').addEventListener('click',close);document.getElementById('viewer-prev').addEventListener('click',function(){openAt(current-1);});document.getElementById('viewer-next').addEventListener('click',function(){openAt(current+1);});viewer.addEventListener('click',function(e){if(e.target===viewer)e.stopPropagation();});
+  window.addEventListener('keydown',function(e){if(viewer.hidden)return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')openAt(current-1);if(e.key==='ArrowRight')openAt(current+1);});
 })();
 </script>
 
