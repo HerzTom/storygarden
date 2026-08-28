@@ -13,8 +13,18 @@
   var disorderSearch=[
     ['entropy-basics.html','什么是熵与熵增定律','原理篇','混乱程度 概率 微观状态 热力学第二定律'],['why-order-breaks.html','有序为何总会崩坏','原理篇','概率碾压 扑克牌 自发衰减'],['information-entropy.html','信息熵与生活中的熵','原理篇','搜索成本 文件 信息 不确定性'],['open-systems.html','开放系统与负熵','原理篇','开放系统 耗散结构 负熵 供能'],['order-costs-energy.html','维持秩序必然耗能','原理篇','能量 一劳永逸 三个杠杆'],['entropy-signals.html','熵增在生活工作中的表现','认知篇','六大领域 体检 症状 预警'],['minimum-energy.html','最小能耗原则','认知篇','源头减量 系统默认 小步高频'],['common-mistakes.html','常见误区','认知篇','自律 收纳 完美 大扫除'],['messy-room.html','越来越乱的桌面与房间','案例篇','房间 桌面 暂放区 一物一家'],['digital-clutter.html','失控的文件与数字资料','案例篇','文件 相册 收件箱 Inbox'],['overloaded-calendar.html','被塞满的日程与时间','案例篇','日历 时间 缓冲 待办'],['team-entropy.html','团队协作与项目的熵增','案例篇','团队 项目 会议 Owner 信息源'],['habit-decay.html','退化的健康与习惯','案例篇','健康 习惯 衰减 触发'],['reduce-input.html','从源头减少熵产生','方法篇','减量 入口 一进一出'],['systems-not-willpower.html','建立系统而非依赖意志','方法篇','默认值 自动化 摩擦 清单'],['small-frequent-maintenance.html','定期小步清理机制','方法篇','每日维护 一分钟法则 习惯叠加'],['external-order.html','结构化与外部秩序','方法篇','一物一家 就近 分区 命名 可视化'],['personal-system.html','个人生活落地方案','落地篇','家居 数字 财务 衣橱'],['work-system.html','工作场景落地方案','落地篇','邮箱 任务 文档 协作'],['thirty-day-plan.html','30 天行动计划','落地篇','四周 每天15分钟 打卡'],['review-iterate.html','复盘与迭代','落地篇','每日 每周 每月 系统失效'],['templates.html','清单与模板合集','工具篇','体检表 维护清单 复制模板'],['tools.html','工具推荐','工具篇','工具栈 低摩擦 自动化']
   ];
+  var metacognitionSearch=[
+    ['index.html','元认知：改变大脑的顽固思维','从思维中退后一步，看见反馈回路、自动化思想与内在剧本如何塑造行动。','大卫迪绍夫 知 做 扩展 思维逆转'],
+    ['observer-feedback.html','冷静的观察者','理解元认知、意识空间与事实—联系—结果—行动反馈回路。','元认知觉察 反馈回路 内心记者'],
+    ['mentalizing-inner-voice.html','走进心智游戏','理解心理化、心理理论、意向性和内在心声。','心理化 心理理论 意向性 心声'],
+    ['adaptation-feedback.html','改变反馈，改变生活','理解适应、自稳态、应变稳态与自动化思想。','适应 自稳态 应变稳态 自动化思想'],
+    ['narrative-mind-map.html','重写你的内在剧本','发现叙述性线索、内化脚本与突显如何形成身份故事。','叙述性脚本 突显 自我对称'],
+    ['thinking-toolbox.html','想法箱：30种改善思维的工具','筛选、收藏并实验原书提出的30种思维工具。','意识楔 习惯 静心 韧性 想象力 工具箱'],
+    ['mind-library.html','心智图书馆','通过书籍、故事、电影、术语与科学帮助继续扩展心智。','小说 回忆录 电影 术语 科学帮助']
+  ];
   var knownPaths={};index.forEach(function(item){knownPaths[item.path]=true});
   disorderSearch.forEach(function(item){var path='fighting-against-disorder/'+item[0];if(!knownPaths[path])index.push({path:path,title:item[1],topic:'对抗无序 · '+item[2],summary:item[3],keywords:item[3]})});
+  metacognitionSearch.forEach(function(item){var path='metacognition/'+item[0];if(!knownPaths[path])index.push({path:path,title:item[1],topic:'元认知',summary:item[2],keywords:item[3]})});
 
   function icon(path){return '<svg viewBox="0 0 24 24" aria-hidden="true">'+path+'</svg>';}
   function escapeText(value){var node=document.createElement('div');node.textContent=value||'';return node.innerHTML;}
