@@ -39,7 +39,7 @@
     header.innerHTML='<div class="sg-global-inner"><div class="sg-global-left">'+left+'</div>'+
       (isHome?'':'<div class="sg-global-title" title="'+escapeText(pageTitle)+'">'+escapeText(pageTitle)+'</div>')+
       '<div class="sg-global-actions">'+
-        '<a class="sg-icon-button" href="'+fromRoot('index.html')+'" title="首页" aria-label="首页">'+icon('<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/>')+'</a>'+
+        (isHome?'':'<a class="sg-icon-button" href="'+fromRoot('index.html')+'" title="首页" aria-label="首页">'+icon('<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/>')+'</a>')+
         '<button class="sg-icon-button" type="button" data-sg-open-search title="搜索" aria-label="搜索">'+icon('<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>')+'</button>'+
         '<button class="sg-icon-button" type="button" data-sg-toggle-theme title="切换主题" aria-label="切换主题">'+
           '<svg class="sg-theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>'+
