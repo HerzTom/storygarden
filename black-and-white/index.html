@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>黑白集 · MONOCHROME</title>
+<link rel="stylesheet" href="../assets/storygarden.css">
+<style>
+:root{
+  --primary:#C8AD7F;
+  --primary-hover:#DAC49A;
+  --primary-light:rgba(200,173,127,0.14);
+  --text-heading:#F5F4F1;
+  --text-body:#D9D7D2;
+  --text-secondary:#94918B;
+  --text-disabled:#5C5A56;
+  --bg-main:#0B0B0C;
+  --bg-secondary:#121214;
+  --bg-card:#17171A;
+  --bg-code:#1E1E22;
+  --border:#26262A;
+  --divider:rgba(200,173,127,0.18);
+  --bg-disabled:#1A1A1D;
+  --bg-sidebar:#0B0B0C;
+  --text-sidebar:#D9D7D2;
+  --bg-sidebar-active:rgba(200,173,127,0.16);
+  --banner-from:#050506;
+  --banner-to:#1A1A1E;
+  --shadow:rgba(0,0,0,0.45);
+  --shadow-hover:rgba(0,0,0,0.7);
+  --success:#4ADE80;
+  --warning:#FBBF24;
+  --error:#F87171;
+  --info:#60A5FA;
+  --frame:#2E2E33;
+}
+[data-theme="light"]{
+  --primary:#8F7440;
+  --primary-hover:#A98B52;
+  --primary-light:rgba(143,116,64,0.10);
+  --text-heading:#161514;
+  --text-body:#33322F;
+  --text-secondary:#6E6B64;
+  --text-disabled:#B0ADA6;
+  --bg-main:#F4F2EE;
+  --bg-secondary:#EAE7E1;
+  --bg-card:#FFFFFF;
+  --bg-code:#EFECE6;
+  --border:#DDD8CF;
+  --divider:rgba(143,116,64,0.22);
+  --bg-disabled:#EDEAE4;
+  --bg-sidebar:#F4F2EE;
+  --text-sidebar:#33322F;
+  --bg-sidebar-active:rgba(143,116,64,0.12);
+  --banner-from:#EDEAE3;
+  --banner-to:#DCD7CC;
+  --shadow:rgba(22,21,20,0.10);
+  --shadow-hover:rgba(22,21,20,0.18);
+  --success:#16A34A;
+  --warning:#D97706;
+  --error:#DC2626;
+  --info:#2563EB;
+  --frame:#C9C3B8;
+}
+/* 浅色主题使用明亮的画廊底色，避免共享阅读壳层的深色英雄区与深色文字叠加。 */
+[data-theme="light"] body[data-sg-section="black-and-white"]{
+  --primary:#725B2E;
+  --primary-hover:#5F4B25;
+  --primary-light:rgba(114,91,46,.12);
+  --text-heading:#1D1C1A;
+  --text-body:#34322E;
+  --text-secondary:#5C5952;
+  --text-disabled:#77736B;
+  --bg-main:#F4F2EE;
+  --bg-secondary:#EAE7E1;
+  --bg-card:#FFFFFF;
+  --bg-code:#E8E5DF;
+  --border:#C9C3B8;
+  --divider:rgba(114,91,46,.28);
+  --frame:#AFA89C;
+  --sg-accent:hsl(35,48%,32%);
+  --sg-focus:hsla(35,48%,32%,.24);
+  --sg-hero-from:hsl(42,20%,94%);
+  --sg-hero-to:hsl(40,13%,84%);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:86px}
+body{
+  font-family:'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;
+  background:var(--bg-main);color:var(--text-body);
+  line-height:1.75;-webkit-font-smoothing:antialiased;
+}
+.serif{font-family:Georgia,'Songti SC','STSong','SimSun',serif}
+
+/* ---------- 顶部导航 ---------- */
+.topnav{
+  position:fixed;top:0;left:0;right:0;height:68px;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;
+  background:transparent;border-bottom:1px solid transparent;
+  transition:background .35s,box-shadow .35s,border-color .35s;
+}
+.topnav.scrolled{
+  background:color-mix(in srgb,var(--bg-main) 82%,transparent);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:0 2px 16px var(--shadow);border-bottom-color:var(--border);
+}
+.brand{
+  font-family:Georgia,'Songti SC','STSong',serif;
+  font-size:1.05rem;letter-spacing:.35em;color:var(--text-heading);
+  text-decoration:none;white-space:nowrap;
+}
+.brand em{font-style:normal;color:var(--primary)}
+.navlinks{display:flex;gap:34px}
+.navlinks a{
+  color:var(--text-secondary);text-decoration:none;font-size:.88rem;
+  letter-spacing:.2em;padding:6px 2px;position:relative;transition:color .25s;
+}
+.navlinks a::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:var(--primary);transform:scaleX(0);transition:transform .25s;
+}
+.navlinks a:hover,.navlinks a.active{color:var(--text-heading)}
+.navlinks a.active::after{transform:scaleX(1)}
+
+/* ---------- 主视觉 ---------- */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  position:relative;overflow:hidden;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%,rgba(200,173,127,0.10),transparent 60%),
+    linear-gradient(180deg,var(--banner-from) 0%,var(--banner-to) 70%,var(--bg-main) 100%);
+  padding:120px 24px 96px;
+}
+.hero-lines{position:absolute;inset:0;pointer-events:none;opacity:.5}
+.hero-kicker{
+  font-size:.78rem;letter-spacing:.55em;color:var(--primary);
+  text-transform:uppercase;margin-bottom:34px;
+}
+.hero h1{
+  font-family:Georgia,'Songti SC','STSong',serif;
+  font-size:clamp(2.8rem,7vw,5.2rem);font-weight:400;
+  letter-spacing:.28em;text-indent:.28em;
+  color:var(--text-heading);margin-bottom:26px;
+}
+.hero-rule{
+  width:72px;height:1px;background:var(--primary);
+  margin:0 auto 30px;opacity:.8;
+}
+.hero-sub{
+  font-size:1rem;color:var(--text-secondary);letter-spacing:.12em;
+  max-width:520px;
+}
+.hero-meta{
+  margin-top:56px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center;
+  font-size:.78rem;letter-spacing:.18em;color:var(--text-secondary);
+}
+.hero-meta span{
+  border:1px solid var(--border);border-radius:999px;padding:7px 18px;
+  background:color-mix(in srgb,var(--bg-card) 55%,transparent);
+}
+.hero-scroll{
+  position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
+  color:var(--text-secondary);font-size:.72rem;letter-spacing:.4em;
+  animation:drift 2.4s ease-in-out infinite;
+}
+@keyframes drift{0%,100%{transform:translate(-50%,0);opacity:.7}50%{transform:translate(-50%,8px);opacity:.35}}
+
+/* ---------- 通用区块 ---------- */
+.container{max-width:1160px;margin:0 auto;padding:0 40px}
+.section{padding:110px 0}
+.section.alt{background:var(--bg-secondary)}
+.sec-head{text-align:center;margin-bottom:72px}
+.sec-no{
+  font-size:.72rem;letter-spacing:.5em;color:var(--primary);
+  text-transform:uppercase;display:block;margin-bottom:16px;
+}
+.sec-head h2{
+  font-family:Georgia,'Songti SC','STSong',serif;
+  font-size:clamp(1.7rem,3.4vw,2.4rem);font-weight:400;
+  letter-spacing:.22em;text-indent:.22em;color:var(--text-heading);
+}
+.sec-head p{margin-top:16px;color:var(--text-secondary);font-size:.95rem;letter-spacing:.06em}
+
+/* ---------- 序言 ---------- */
+.statement{display:grid;grid-template-columns:280px 1fr;gap:64px;align-items:start}
+.state-side{
+  border-left:1px solid var(--divider);padding-left:32px;
+  position:sticky;top:110px;
+}
+.state-side .zh{
+  font-family:Georgia,'Songti SC','STSong',serif;
+  font-size:1.5rem;letter-spacing:.4em;color:var(--text-heading);
+  writing-mode:vertical-rl;height:210px;margin-bottom:28px;
+}
+.state-side .en{font-size:.7rem;letter-spacing:.35em;color:var(--text-secondary);text-transform:uppercase}
+.state-body p{margin-bottom:26px;font-size:1.02rem;color:var(--text-body)}
+.state-body p:first-of-type::first-letter{
+  font-family:Georgia,'Songti SC',serif;font-size:2.6em;float:left;
+  line-height:1;padding:.08em .14em 0 0;color:var(--primary);
+}
+.state-quote{
+  margin-top:40px;padding:28px 32px;border:1px solid var(--border);
+  border-left:2px solid var(--primary);background:var(--bg-card);
+  font-family:Georgia,'Songti SC','STSong',serif;
+  font-size:1.08rem;color:var(--text-heading);letter-spacing:.06em;
+}
+
+/* ---------- 作品 ---------- */
+.work{margin-bottom:120px}
+.work:last-child{margin-bottom:0}
+.work-frame{
+  background:var(--bg-card);border:1px solid var(--frame);
+  padding:24px;box-shadow:0 6px 28px var(--shadow);position:relative;overflow:hidden;
+  transition:box-shadow .35s,transform .35s;
+}
+[data-theme="light"] body[data-sg-section="black-and-white"] .hero{
+  color:var(--text-heading);
+  background-color:var(--sg-hero-from)!important;
+  background-image:linear-gradient(135deg,var(--sg-hero-from),var(--sg-hero-to))!important;
+}
+[data-theme="light"] body[data-sg-section="black-and-white"] .hero-kicker,
+[data-theme="light"] body[data-sg-section="black-and-white"] .hero-sub,
+[data-theme="light"] body[data-sg-section="black-and-white"] .hero-scroll{color:var(--text-secondary)}
+[data-theme="light"] body[data-sg-section="black-and-white"] .hero-meta span{color:var(--text-body);background:rgba(255,255,255,.68);border-color:var(--border)}
+[data-theme="light"] body[data-sg-section="black-and-white"] .hero-lines{opacity:.72}
+[data-theme="light"] body[data-sg-section="black-and-white"] .hero-scroll{opacity:.9}
+[data-theme="light"] body[data-sg-section="black-and-white"] .brand{color:var(--text-heading)}
+[data-theme="light"] body[data-sg-section="black-and-white"] .navlinks a{color:var(--text-secondary)}
+[data-theme="light"] body[data-sg-section="black-and-white"] .navlinks a:hover,
+[data-theme="light"] body[data-sg-section="black-and-white"] .navlinks a.active{color:var(--text-heading)}
+[data-theme="light"] body[data-sg-section="black-and-white"] .sg-global-header{--sg-text:hsl(30,8%,14%);--sg-muted:hsl(30,6%,34%);--sg-header-bg:hsla(42,33%,98%,.96);--sg-header-bg-scrolled:hsla(42,33%,98%,.98)}
+[data-theme="light"] body[data-sg-section="black-and-white"] .sg-global-header .sg-back-link,
+[data-theme="light"] body[data-sg-section="black-and-white"] .sg-global-header .sg-topic-name,
+[data-theme="light"] body[data-sg-section="black-and-white"] .sg-global-header .sg-current-title,
+[data-theme="light"] body[data-sg-section="black-and-white"] .sg-global-header .sg-icon-button{color:var(--sg-text)!important}
+.work-frame:hover{box-shadow:0 14px 44px var(--shadow-hover);transform:translateY(-3px)}
+.work-frame img{width:100%;height:auto;display:block;background:#000;opacity:0;transition:opacity .55s ease}
+.work-frame.is-loaded img{opacity:1}
+.image-skeleton{position:absolute;inset:24px;background:linear-gradient(100deg,var(--bg-code) 15%,color-mix(in srgb,var(--bg-card) 75%,white) 35%,var(--bg-code) 55%);background-size:220% 100%;animation:image-shimmer 1.35s ease-in-out infinite;pointer-events:none}
+.work-frame.is-loaded .image-skeleton,.work-frame.is-error .image-skeleton{display:none}
+.image-fallback{display:none;min-height:180px;align-items:center;justify-content:center;color:var(--text-secondary);font-size:.85rem;letter-spacing:.08em;text-align:center;background:var(--bg-code)}
+.work-frame.is-error .image-fallback{display:flex}
+@keyframes image-shimmer{0%{background-position:200% 0}100%{background-position:-20% 0}}
+.work-cap{margin-top:30px;display:grid;grid-template-columns:300px 1fr;gap:40px;align-items:baseline}
+.work-id{display:flex;align-items:baseline;gap:16px}
+.work-num{
+  font-family:Georgia,serif;font-size:.9rem;color:var(--primary);
+  letter-spacing:.2em;border-bottom:1px solid var(--divider);padding-bottom:4px;
+}
+.work-title{
+  font-family:Georgia,'Songti SC','STSong',serif;
+  font-size:1.5rem;letter-spacing:.18em;color:var(--text-heading);
+}
+.work-note{color:var(--text-secondary);font-size:.95rem;line-height:1.9}
+.work-note b{color:var(--text-body);font-weight:500}
+.work-tag{
+  display:inline-block;margin-top:14px;font-size:.7rem;letter-spacing:.25em;
+  color:var(--primary);border:1px solid var(--divider);border-radius:999px;
+  padding:4px 14px;
+}
+
+/* ---------- 手记 ---------- */
+.notes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.note-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:6px;
+  padding:36px 30px;transition:border-color .3s,transform .3s,box-shadow .3s;
+}
+.note-card:hover{border-color:var(--primary);transform:translateY(-4px);box-shadow:0 10px 30px var(--shadow)}
+.note-icon{width:40px;height:40px;margin-bottom:22px;color:var(--primary)}
+.note-card h3{
+  font-family:Georgia,'Songti SC','STSong',serif;font-weight:400;
+  font-size:1.18rem;letter-spacing:.14em;color:var(--text-heading);margin-bottom:14px;
+}
+.note-card p{font-size:.92rem;color:var(--text-secondary);line-height:1.9}
+.gear-row{
+  margin-top:56px;display:flex;flex-wrap:wrap;gap:14px;justify-content:center;
+}
+.gear-row span{
+  font-size:.82rem;letter-spacing:.14em;color:var(--text-secondary);
+  border:1px dashed var(--border);border-radius:4px;padding:10px 22px;
+  background:var(--bg-card);
+}
+
+/* ---------- 尾声 ---------- */
+.outro{text-align:center;padding:120px 24px 130px}
+.outro .serif{
+  font-size:clamp(1.3rem,2.6vw,1.8rem);letter-spacing:.2em;
+  color:var(--text-heading);margin-bottom:22px;
+}
+.outro p{color:var(--text-secondary);font-size:.85rem;letter-spacing:.15em}
+.outro-rule{width:48px;height:1px;background:var(--primary);margin:36px auto 0;opacity:.7}
+
+/* ---------- 入场动画 ---------- */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+@media(max-width:860px){
+  .statement{grid-template-columns:1fr;gap:36px}
+  .state-side{position:static;border-left:none;padding-left:0;display:flex;align-items:center;gap:20px}
+  .state-side .zh{writing-mode:horizontal-tb;height:auto;letter-spacing:.3em}
+  .notes-grid{grid-template-columns:1fr}
+  .work-cap{grid-template-columns:1fr;gap:12px}
+}
+@media(max-width:700px){
+  .topnav{padding:0 20px}
+  .navlinks{gap:16px}
+  .navlinks a{font-size:.78rem;letter-spacing:.1em}
+  .brand{font-size:.9rem;letter-spacing:.2em}
+  .container{padding:0 22px}
+  .section{padding:76px 0}
+  .work-frame{padding:14px}
+}
+</style>
+</head>
+<body data-sg-page data-sg-section="black-and-white" data-sg-title="黑白集 · MONOCHROME" data-sg-root=".." data-sg-parent="../index.html" data-sg-parent-label="返回 StoryGarden">
+
+<!-- 顶部导航 -->
+<nav class="topnav" id="topnav">
+  <a class="brand" href="#top">黑白集 <em>·</em> MONOCHROME</a>
+  <div class="navlinks">
+    <a href="#statement" data-sec="statement">序言</a>
+    <a href="#works" data-sec="works">作品</a>
+    <a href="#notes" data-sec="notes">手记</a>
+    <a href="#outro" data-sec="outro">尾声</a>
+  </div>
+</nav>
+
+<!-- 主视觉 -->
+<header class="hero" id="top">
+  <svg class="hero-lines" viewBox="0 0 1200 700" preserveAspectRatio="none" aria-hidden="true">
+    <line x1="0" y1="120" x2="1200" y2="120" stroke="var(--primary)" stroke-opacity="0.10" stroke-width="1"/>
+    <line x1="0" y1="560" x2="1200" y2="560" stroke="var(--primary)" stroke-opacity="0.10" stroke-width="1"/>
+    <line x1="180" y1="0" x2="180" y2="700" stroke="var(--text-secondary)" stroke-opacity="0.07" stroke-width="1"/>
+    <line x1="1020" y1="0" x2="1020" y2="700" stroke="var(--text-secondary)" stroke-opacity="0.07" stroke-width="1"/>
+    <circle cx="940" cy="180" r="130" fill="none" stroke="var(--primary)" stroke-opacity="0.12" stroke-width="1"/>
+    <circle cx="940" cy="180" r="170" fill="none" stroke="var(--primary)" stroke-opacity="0.06" stroke-width="1"/>
+  </svg>
+  <div class="hero-kicker serif">A STUDY IN GREYSCALE</div>
+  <h1 class="serif">黑 白 集</h1>
+  <div class="hero-rule"></div>
+  <p class="hero-sub">城市的几何与光的减法 —— 七张长焦黑白习作</p>
+  <div class="hero-meta">
+    <span>HUAWEI Mate 80</span>
+    <span>5.5× — 10× 长焦</span>
+    <span>七帧 · 二〇二六</span>
+  </div>
+  <div class="hero-scroll">SCROLL ↓</div>
+</header>
+
+<!-- 序言 -->
+<section class="section" id="statement">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="sec-no serif">Statement · 序</span>
+      <h2 class="serif">减去颜色，剩下构成</h2>
+    </div>
+    <div class="statement">
+      <div class="state-side reveal">
+        <div class="zh serif">光的减法</div>
+        <div class="en">Subtraction of Light</div>
+      </div>
+      <div class="state-body reveal">
+        <p>这组照片拍于城市街头，全部来自一台手机的长焦端。5.5 倍到 10 倍的变焦把空间压缩、把上下文剥离，熟悉的城市于是变成了陌生的块面与线条。黑白在这里不是滤镜，而是一次主动的减法：去掉颜色之后，剩下的只有构成关系——线与面的交叠、光与暗的切割、实与虚的呼吸。</p>
+        <p>我拍的其实不是建筑本身，而是建筑身上那些「线条、块面与光的构成关系」。大面积的留黑、果断的剪影、克制的反差，是这七张习作共同的语言。它们未必完美，但每一张都来自一次认真的观看。</p>
+        <div class="state-quote">「摄影是减法。减到最后，只剩一束光，和它落在哪里。」</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 作品 -->
+<section class="section alt" id="works">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="sec-no serif">Portfolio · 作品</span>
+      <h2 class="serif">七帧习作</h2>
+      <p>按快门顺序陈列 · 每帧附拍摄手记</p>
+    </div>
+
+    <!-- 01 -->
+    <article class="work reveal">
+      <div class="work-frame">
+        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/01-layered-facade.jpg" alt="层理：裁紧后的横向层叠立面细节" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+      </div>
+      <div class="work-cap">
+        <div class="work-id">
+          <span class="work-num serif">01</span>
+          <span class="work-title serif">层理</span>
+        </div>
+        <div>
+          <p class="work-note">横向条带在深黑的背景里层层堆叠，最亮的一条从暗色条带群里跳出来，成为明确的重音，左侧的纯黑留出一片呼吸区。原本均匀的节律，裁紧之后变成了有主次的陈述。</p>
+          <span class="work-tag">立面细节 · 视觉重音</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- 02 -->
+    <article class="work reveal">
+      <div class="work-frame">
+        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/02-following-light.jpg" alt="追光：地面光斑与大面积暗场" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+      </div>
+      <div class="work-cap">
+        <div class="work-id">
+          <span class="work-num serif">02</span>
+          <span class="work-title serif">追光</span>
+        </div>
+        <div>
+          <p class="work-note">一束光落在铺装地面上，四周三分之二的画面沉入纯黑，像舞台上无人应答的追光灯。明暗的切割足够果断，负空间用得很狠——这是全组情绪最足的一张。</p>
+          <span class="work-tag">光斑 · 负空间</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- 03 -->
+    <article class="work reveal">
+      <div class="work-frame">
+        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/03-curve-and-line.jpg" alt="曲与直：两栋建筑的立面对话" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+      </div>
+      <div class="work-cap">
+        <div class="work-id">
+          <span class="work-num serif">03</span>
+          <span class="work-title serif">曲与直</span>
+        </div>
+        <div>
+          <p class="work-note">左侧的圆弧立面与右侧的网格结构隔空对望，一柔一刚，是这张照片的灵魂。中间的浅色天空做成最安静的隔离带，让两种几何各自成立。高倍变焦下边缘略有涂抹，但不妨碍这场对话。</p>
+          <span class="work-tag">建筑对话 · 曲线与网格</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- 04 -->
+    <article class="work reveal">
+      <div class="work-frame">
+        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/04-cloud-and-lamp.jpg" alt="云与灯：戏剧性云层下的灯柱" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+      </div>
+      <div class="work-cap">
+        <div class="work-id">
+          <span class="work-num serif">04</span>
+          <span class="work-title serif">云与灯</span>
+        </div>
+        <div>
+          <p class="work-note">翻滚的云层之下，灯柱排成竖线的韵律，唯有一盏亮着，成为画面唯一的亮点。栏杆后隐约的人影，让抽象里多了一点人间。点、线、面三层结构齐备，是全组信息组织最完整的一张。</p>
+          <span class="work-tag">天光 · 点线面</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- 05 -->
+    <article class="work reveal">
+      <div class="work-frame">
+        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/05-arc-roof.jpg" alt="弧线：顶着画面上沿的曲面屋檐与层叠台阶" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+      </div>
+      <div class="work-cap">
+        <div class="work-id">
+          <span class="work-num serif">05</span>
+          <span class="work-title serif">弧线</span>
+        </div>
+        <div>
+          <p class="work-note">波浪般的屋檐顶着画面上沿走，层叠的台阶填满下方，低机位仰拍的尺度感仍在。裁掉空天之后，曲线成为构图的绝对主轴，动势比先前更足。</p>
+          <span class="work-tag">仰拍 · 曲线主轴</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- 06 -->
+    <article class="work reveal">
+      <div class="work-frame">
+        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/06-cross-sign.jpg" alt="十字：路口指示牌十字箭头的纯图形特写" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+      </div>
+      <div class="work-cap">
+        <div class="work-id">
+          <span class="work-num serif">06</span>
+          <span class="work-title serif">十字</span>
+        </div>
+        <div>
+          <p class="work-note">十字与双向箭头被单独隔离在纯黑底上，褪去指路的功能，成为纯粹的图形符号；下方一行拼音留住了街头的出处。贴得够近、取得够少，图形感自然成立。</p>
+          <span class="work-tag">街头偶遇 · 纯图形</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- 07 -->
+    <article class="work reveal">
+      <div class="work-frame">
+        <span class="image-skeleton" aria-hidden="true"></span><img data-src="../images/07-truss-silhouette.jpg" alt="桁架：塔吊桁架剪影与灰色天空" loading="lazy"><span class="image-fallback" role="status">图片暂时无法加载</span>
+      </div>
+      <div class="work-cap">
+        <div class="work-id">
+          <span class="work-num serif">07</span>
+          <span class="work-title serif">桁架</span>
+        </div>
+        <div>
+          <p class="work-note">塔吊的桁架剪影斜穿灰色的天空，一条钢索在下方若隐若现，做了安静的副线。留白与主体的比例、倾斜的动势都恰到好处——工业极简最安静的一刻，也是全组技术完成度最高的一张。</p>
+          <span class="work-tag">剪影 · 工业极简</span>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- 手记 -->
+<section class="section" id="notes">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="sec-no serif">Notes · 手记</span>
+      <h2 class="serif">三条拍摄心得</h2>
+    </div>
+    <div class="notes-grid">
+      <div class="note-card reveal">
+        <svg class="note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/>
+          <path d="M12 1v3M12 20v3M1 12h3M20 12h3"/>
+        </svg>
+        <h3 class="serif">长焦的减法</h3>
+        <p>5.5 倍到 10 倍的长焦压缩了空间，也剥离了上下文：建筑不再是建筑，而是块面与线条。想放大输出时，尽量守在 5.5 倍原生焦段，靠后期裁切代替数码变焦，换更干净的边缘。</p>
+      </div>
+      <div class="note-card reveal">
+        <svg class="note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="1"/>
+          <path d="M3 15h8V3"/>
+        </svg>
+        <h3 class="serif">留白的勇气</h3>
+        <p>三分之二的暗场不是浪费，是让负空间说话。很多初学者不敢大面积留黑，但黑白摄影里，空的地方往往比满的地方更有力量。</p>
+      </div>
+      <div class="note-card reveal">
+        <svg class="note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <path d="M3 17c3-8 6 6 9-4s6 2 9-6"/>
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.5"/>
+        </svg>
+        <h3 class="serif">反差的克制</h3>
+        <p>高反差有冲击力，但别一味拉高。适当保留一点中间灰，画面才有层次、才耐看。两极之间的那段灰，才是黑白摄影的呼吸所在。</p>
+      </div>
+    </div>
+    <div class="gear-row reveal">
+      <span>机身 · HUAWEI Mate 80</span>
+      <span>焦段 · 5.5× / 10× 长焦</span>
+      <span>模式 · 黑白</span>
+      <span>后期 · 轻调反差</span>
+    </div>
+  </div>
+</section>
+
+<!-- 尾声 -->
+<footer class="outro" id="outro">
+  <div class="reveal">
+    <p class="serif">「继续这个方向拍下去，会很有意思。」</p>
+    <p>黑白集 · 七帧长焦习作 · 二〇二六</p>
+    <div class="outro-rule"></div>
+  </div>
+</footer>
+
+<script src="../assets/search-index.js"></script>
+<script src="../assets/storygarden.js"></script>
+<script>
+(function(){
+  var frames=[].slice.call(document.querySelectorAll('.work-frame'));
+  function load(frame){
+    if(frame.classList.contains('is-loaded')||frame.classList.contains('is-error'))return;
+    var img=frame.querySelector('img[data-src]');
+    if(!img)return;
+    img.addEventListener('load',function(){frame.classList.add('is-loaded');},{once:true});
+    img.addEventListener('error',function(){frame.classList.add('is-error');},{once:true});
+    img.src=img.getAttribute('data-src');
+    img.removeAttribute('data-src');
+  }
+  if('IntersectionObserver' in window){
+    var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){load(entry.target);observer.unobserve(entry.target);}});},{rootMargin:'240px 0px',threshold:.01});
+    frames.forEach(function(frame){observer.observe(frame);});
+  }else{frames.forEach(load);}
+})();
+</script>
+
+<script>
+(function(){
+  /* 主题切换：本页以暗调画廊为默认 */
+  var t=localStorage.getItem('hk-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+  window.toggleTheme=function(){
+    var c=document.documentElement.getAttribute('data-theme');
+    var n=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    localStorage.setItem('hk-theme',n);
+  };
+
+  /* 导航触顶变实 */
+  var nav=document.getElementById('topnav');
+  function onScroll(){
+    nav.classList.toggle('scrolled',window.scrollY>40);
+    spy();
+  }
+
+  /* 滚动高亮当前章节 */
+  var links=[].slice.call(document.querySelectorAll('.navlinks a'));
+  var secs=links.map(function(a){return document.getElementById(a.dataset.sec);});
+  function spy(){
+    var pos=window.scrollY+window.innerHeight*0.38,idx=-1;
+    for(var i=0;i<secs.length;i++){if(secs[i]&&secs[i].offsetTop<=pos)idx=i;}
+    links.forEach(function(a,i){a.classList.toggle('active',i===idx);});
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();
+
+  /* 入场动画 */
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+  },{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+})();
+</script>
+</body>
+</html>

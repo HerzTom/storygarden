@@ -85,6 +85,7 @@ body[data-sg-home] > .footer{display:none!important}
 .home-topic-card[data-topic="netflix"]{--card-accent:hsl(357,82%,49%);--card-soft:hsl(356,44%,94%)}
 .home-topic-card[data-topic="disorder"]{--card-accent:hsl(35,67%,46%);--card-soft:hsl(39,55%,92%)}
 .home-topic-card[data-topic="meta"]{--card-accent:hsl(268,39%,48%);--card-soft:hsl(267,35%,94%)}
+.home-topic-card[data-topic="black-and-white"]{--card-accent:hsl(0,0%,24%);--card-soft:hsl(40,8%,92%)}
 [data-theme="dark"] .home-topic-card{--card-soft:hsla(122,29%,63%,.1)}
 [data-theme="dark"] .home-topic-card[data-topic="ai"]{--card-accent:hsl(169,54%,51%);--card-soft:hsla(169,54%,51%,.1)}
 [data-theme="dark"] .home-topic-card[data-topic="concurrency"]{--card-accent:hsl(190,75%,58%);--card-soft:hsla(190,75%,58%,.1)}

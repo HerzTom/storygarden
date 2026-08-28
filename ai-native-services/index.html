@@ -266,8 +266,9 @@ h4.blk{font-size:1.05rem;color:var(--text-heading);margin:0 0 14px}
 @keyframes searchPulse{0%,100%{outline:0 solid transparent}35%{outline:4px solid rgba(82,183,136,.45);outline-offset:6px}}
 @media(max-width:700px){.wrap{padding:0 20px}.search-layer{padding-top:78px}}
 </style>
+<link rel="stylesheet" href="../assets/storygarden.css">
 </head>
-<body>
+<body data-sg-page data-sg-section="ai-native" data-sg-title="AI 原生服务" data-sg-root=".." data-sg-parent="../index.html" data-sg-parent-label="返回 StoryGarden">
 
 <!-- ===== NAV ===== -->
 <nav class="nav" aria-label="AI 原生服务页面导航">
@@ -704,5 +705,7 @@ h4.blk{font-size:1.05rem;color:var(--text-heading);margin:0 0 14px}
   var params=new URLSearchParams(location.search);if(params.get('search')==='1')openSearch();
 })();
 </script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/storygarden.js?v=20260828-reader"></script>
 </body>
 </html>

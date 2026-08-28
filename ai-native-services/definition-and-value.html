@@ -196,8 +196,9 @@ h4.blk{font-size:1.04rem;color:var(--text-heading);margin:0 0 14px}
 .search-result{display:block;width:100%;border:0;text-align:left;background:transparent;padding:11px 12px;border-radius:9px;color:var(--text-body);font-size:.92rem;line-height:1.5;cursor:pointer}.search-result:hover,.search-result:focus{background:var(--primary-light);color:var(--primary)}
 .search-focus{animation:searchPulse 1.6s ease}@keyframes searchPulse{0%,100%{outline:0 solid transparent}35%{outline:4px solid rgba(82,183,136,.45);outline-offset:6px}}@media(max-width:700px){.wrap{padding:0 20px}.search-layer{padding-top:78px}}
 </style>
+<link rel="stylesheet" href="../assets/storygarden.css">
 </head>
-<body>
+<body data-sg-page data-sg-section="ai-native" data-sg-title="认知：这是什么，为什么值钱" data-sg-root=".." data-sg-parent="index.html" data-sg-parent-label="返回 AI 原生服务">
 
 <!-- ===== NAV ===== -->
 <nav class="nav" aria-label="主题一页面导航">
@@ -477,5 +478,7 @@ h4.blk{font-size:1.04rem;color:var(--text-heading);margin:0 0 14px}
   input.addEventListener('input',function(){var q=input.value.trim().toLowerCase();results.innerHTML='';clearHits();if(!q){status.textContent='输入关键词后显示匹配段落';return;}var matches=nodes.filter(function(el){return el.textContent.toLowerCase().includes(q);}).slice(0,12);status.textContent=matches.length?'找到 '+matches.length+' 条相关内容':'没有找到相关内容';matches.forEach(function(el){var a=document.createElement('button');a.type='button';a.className='search-result';a.textContent=el.textContent.trim().slice(0,110);a.onclick=function(){closeSearch();el.scrollIntoView({behavior:'smooth',block:'center'});clearHits();el.classList.add('search-focus');};results.appendChild(a);});});window.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openSearch();}if(e.key==='Escape'&&layer.classList.contains('open'))closeSearch();});layer.querySelector('.search-panel').addEventListener('click',function(e){e.stopPropagation();});
 })();
 </script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/storygarden.js?v=20260828-reader"></script>
 </body>
 </html>
