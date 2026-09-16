@@ -86,6 +86,7 @@ body[data-sg-home] > .footer{display:none!important}
 .home-topic-card[data-topic="disorder"]{--card-accent:hsl(35,67%,46%);--card-soft:hsl(39,55%,92%)}
 .home-topic-card[data-topic="meta"]{--card-accent:hsl(268,39%,48%);--card-soft:hsl(267,35%,94%)}
 .home-topic-card[data-topic="black-and-white"]{--card-accent:hsl(0,0%,24%);--card-soft:hsl(40,8%,92%)}
+.home-topic-card[data-topic="english"]{--card-accent:hsl(36,42%,50%);--card-soft:hsl(38,50%,92%)}
 [data-theme="dark"] .home-topic-card{--card-soft:hsla(122,29%,63%,.1)}
 [data-theme="dark"] .home-topic-card[data-topic="ai"]{--card-accent:hsl(169,54%,51%);--card-soft:hsla(169,54%,51%,.1)}
 [data-theme="dark"] .home-topic-card[data-topic="concurrency"]{--card-accent:hsl(190,75%,58%);--card-soft:hsla(190,75%,58%,.1)}
@@ -94,6 +95,7 @@ body[data-sg-home] > .footer{display:none!important}
 [data-theme="dark"] .home-topic-card[data-topic="netflix"]{--card-accent:hsl(357,94%,62%);--card-soft:hsla(357,94%,62%,.1)}
 [data-theme="dark"] .home-topic-card[data-topic="disorder"]{--card-accent:hsl(38,82%,68%);--card-soft:hsla(38,82%,68%,.1)}
 [data-theme="dark"] .home-topic-card[data-topic="meta"]{--card-accent:hsl(269,57%,70%);--card-soft:hsla(269,57%,70%,.1)}
+[data-theme="dark"] .home-topic-card[data-topic="english"]{--card-accent:hsl(38,58%,64%);--card-soft:hsla(38,58%,64%,.1)}
 .home-mobile-menu{display:none}
 .home-nav-backdrop{display:none}
 .home-footer{grid-column:2;padding:32px 42px 42px;border-top:1px solid var(--home-divider);color:var(--home-faint);font-size:.78rem;text-align:center}

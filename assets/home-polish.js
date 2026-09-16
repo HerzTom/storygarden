@@ -12,9 +12,9 @@
   var oldNote=sidebarInner.querySelector('.home-nav-note');
   // Home stats reflect the newly added photography topic.
   
-  oldNote.insertAdjacentHTML('afterend','<div class="home-sidebar-stats"><div class="home-stat-line"><span>Topics</span><strong>7</strong></div><div class="home-stat-line"><span>Pages</span><strong>100+</strong></div><div class="home-stat-line"><span>Last tended</span><strong>08.28</strong></div><button class="home-side-theme" type="button" data-sg-toggle-theme>'+icon('<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>','home-theme-moon')+icon('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>','home-theme-sun')+'<span>切换主题</span></button></div>');
+  oldNote.insertAdjacentHTML('afterend','<div class="home-sidebar-stats"><div class="home-stat-line"><span>Topics</span><strong>7</strong></div><div class="home-stat-line"><span>Pages</span><strong>100+</strong></div><div class="home-stat-line"><span>Last tended</span><strong>09.15</strong></div><button class="home-side-theme" type="button" data-sg-toggle-theme>'+icon('<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>','home-theme-moon')+icon('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>','home-theme-sun')+'<span>切换主题</span></button></div>');
   var statTopics=sidebarInner.querySelector('.home-sidebar-stats .home-stat-line strong');
-  if(statTopics)statTopics.textContent='8';
+  if(statTopics)statTopics.textContent='9';
 
   shell.insertAdjacentHTML('afterbegin','<div class="home-actions"><button class="home-action" type="button" data-sg-open-search aria-label="搜索">'+icon('<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>')+'</button><button class="home-action" type="button" data-sg-toggle-theme aria-label="切换主题">'+icon('<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>','home-theme-moon')+icon('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>','home-theme-sun')+'</button></div>');
 
@@ -31,12 +31,13 @@
     native:{main:'BUILD',sub:['TEST','LEARN','EXIT'],graphic:'<circle cx="33" cy="62" r="22"/><circle cx="99" cy="62" r="22"/><circle cx="165" cy="62" r="22"/><path d="M55 62h22m44 0h22"/><path d="m70 56 7 6-7 6m66-12 7 6-7 6"/>'},
     longtail:{main:'TAIL',sub:['HEAD','NICHE','AGGREGATE'],graphic:'<path d="M8 104h184M8 18v86" opacity=".35"/><path d="M12 22c25 1 37 12 49 33 18 32 35 45 75 48 22 2 39 2 56 2" stroke-width="4"/><path d="M13 23h48v80H13z" fill="currentColor" opacity=".08" stroke="none"/>'}
     ,'black-and-white':{main:'B&W',sub:['LIGHT','FORM','SILENCE'],graphic:'<circle cx="148" cy="60" r="39"/><circle cx="148" cy="60" r="16"/><path d="M14 102 64 36l34 36 48-56 43 54"/>'}
+    ,'english':{main:'ABC',sub:['ANIMALS','LISTEN','MATCH'],graphic:'<g fill="none"><rect x="14" y="20" width="76" height="46" rx="13"/><path d="m30 66-7 20 22-20"/><rect x="116" y="42" width="60" height="36" rx="11"/><path d="m156 78 6 16-16-16"/></g><g fill="currentColor" stroke="none"><circle cx="38" cy="43" r="4"/><circle cx="54" cy="43" r="4"/><circle cx="70" cy="43" r="4"/><circle cx="133" cy="60" r="3"/><circle cx="145" cy="60" r="3"/><circle cx="157" cy="60" r="3"/></g>'}
   };
   shell.querySelectorAll('.home-topic-card').forEach(function(card){
     var data=posters[card.getAttribute('data-topic')];
     if(!data)return;
     var art=card.querySelector('.home-topic-art');
-    art.innerHTML='<div class="home-poster"><span class="poster-index">0'+card.getAttribute('data-order')+' / 07</span><strong class="poster-main">'+data.main+'</strong><div class="poster-sub">'+data.sub.map(function(item){return '<span>'+item+'</span>';}).join('')+'</div><div class="poster-graphic"><svg viewBox="0 0 200 120" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'+data.graphic+'</svg></div></div>';
+    art.innerHTML='<div class="home-poster"><span class="poster-index">0'+card.getAttribute('data-order')+' / 0'+Object.keys(posters).length+'</span><strong class="poster-main">'+data.main+'</strong><div class="poster-sub">'+data.sub.map(function(item){return '<span>'+item+'</span>';}).join('')+'</div><div class="poster-graphic"><svg viewBox="0 0 200 120" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'+data.graphic+'</svg></div></div>';
   });
 
   var grid=shell.querySelector('.home-topic-grid');

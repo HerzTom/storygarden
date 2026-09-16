@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>English Garden · 英语花园 | StoryGarden</title>
+<link rel="stylesheet" href="../assets/storygarden.css">
+<style>
+:root{
+  --bg:#FAF7F0;
+  --ink:#35432F;
+  --ink-soft:#8A8776;
+  --accent:#B89048;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;
+  background:var(--bg);color:var(--ink);
+  min-height:100vh;overflow-x:hidden;
+}
+.blob{position:fixed;border-radius:50%;filter:blur(70px);opacity:.45;pointer-events:none;z-index:0}
+.blob1{width:380px;height:380px;background:#CFE3C4;top:-120px;left:-100px}
+.blob2{width:320px;height:320px;background:#F4E3C2;bottom:-120px;right:-80px}
+
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:calc(var(--sg-header-h,58px) + 14px) 20px 48px}
+
+h1{font-size:clamp(1.9rem,4.5vw,2.6rem);font-weight:900;text-align:center;letter-spacing:.01em;margin:12px 0 22px}
+h1 .en{color:var(--accent)}
+
+/* 主题卡：图标+名称+一句有趣的说明；彩色=能玩了（整卡直达），灰色=正在长大 */
+.themes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:860px){.themes{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.themes{grid-template-columns:1fr}}
+.theme{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  padding:24px 18px;text-align:center;text-decoration:none;color:var(--ink);
+  background:var(--tc,#E4EFD5);border-radius:24px;
+  box-shadow:0 4px 14px rgba(90,70,30,.10);
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+a.theme:hover{transform:translateY(-4px);box-shadow:0 10px 22px rgba(90,70,30,.16)}
+a.theme:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.theme-icon{font-size:44px;line-height:1.15}
+.theme-zh{font-size:1.2rem;font-weight:900}
+.theme-en{font-size:.74rem;font-weight:700;color:var(--ink-soft);letter-spacing:.06em}
+.theme-desc{margin-top:4px;font-size:.78rem;line-height:1.55;color:var(--ink-soft)}
+
+/* 没长大的主题：同一张卡，先灰着 */
+.theme.soon{background:#F0EDE4;box-shadow:0 4px 12px rgba(90,70,30,.06);cursor:default}
+.soon .theme-icon{filter:grayscale(1);opacity:.55}
+.soon .theme-zh{color:#8F8C7F}
+.soon .theme-en{color:#B0AC9B}
+.soon .theme-desc{color:#A6A290}
+
+.foot{margin-top:32px;text-align:center;color:var(--ink-soft);font-size:.8rem;line-height:1.7}
+</style>
+</head>
+<body data-sg-page data-sg-section="english" data-sg-root=".." data-sg-title="英语花园 · English Garden" data-sg-parent="../index.html" data-sg-parent-label="返回 StoryGarden">
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="wrap">
+  <h1>英语花园<span class="en"> · English Garden</span></h1>
+  <div class="themes">
+    <a class="theme" href="animals.html" style="--tc:#E4EFD5" aria-label="动物 Animals，点一点听一听">
+      <span class="theme-icon" aria-hidden="true">🚜</span>
+      <span class="theme-zh">动物</span>
+      <span class="theme-en">ANIMALS</span>
+      <p class="theme-desc">农场、海洋、森林、草原，38 只小动物等你来点名</p>
+    </a>
+    <div class="theme soon">
+      <span class="theme-icon" aria-hidden="true">🍎</span>
+      <span class="theme-zh">水果</span>
+      <span class="theme-en">FRUITS</span>
+      <p class="theme-desc">甜甜的水果咬一口，红黄绿都会说英语</p>
+    </div>
+    <div class="theme soon">
+      <span class="theme-icon" aria-hidden="true">🎨</span>
+      <span class="theme-zh">颜色</span>
+      <span class="theme-en">COLORS</span>
+      <p class="theme-desc">世界是一张白纸，红黄蓝绿等你来涂</p>
+    </div>
+    <div class="theme soon">
+      <span class="theme-icon" aria-hidden="true">🚌</span>
+      <span class="theme-zh">交通</span>
+      <span class="theme-en">VEHICLES</span>
+      <p class="theme-desc">嘀嘀——是谁在路上响？汽车火车都认识</p>
+    </div>
+    <div class="theme soon">
+      <span class="theme-icon" aria-hidden="true">✋</span>
+      <span class="theme-zh">身体</span>
+      <span class="theme-en">BODY</span>
+      <p class="theme-desc">拍拍手、跺跺脚，眼睛鼻子都会说英语</p>
+    </div>
+    <div class="theme soon">
+      <span class="theme-icon" aria-hidden="true">🔢</span>
+      <span class="theme-zh">数字</span>
+      <span class="theme-en">NUMBERS</span>
+      <p class="theme-desc">1、2、3……数一数身边的小东西</p>
+    </div>
+    <div class="theme soon">
+      <span class="theme-icon" aria-hidden="true">⛅</span>
+      <span class="theme-zh">天气</span>
+      <span class="theme-en">WEATHER</span>
+      <p class="theme-desc">今天太阳公公在吗？听听天空说什么</p>
+    </div>
+    <div class="theme soon">
+      <span class="theme-icon" aria-hidden="true">🤗</span>
+      <span class="theme-zh">打招呼</span>
+      <span class="theme-en">GREETINGS</span>
+      <p class="theme-desc">Hello、Bye-bye，见人就会问个好</p>
+    </div>
+    <div class="theme soon">
+      <span class="theme-icon" aria-hidden="true">🏃</span>
+      <span class="theme-zh">动作</span>
+      <span class="theme-en">ACTIONS</span>
+      <p class="theme-desc">跳一跳、睡一睡，边动边说记得牢</p>
+    </div>
+  </div>
+
+  <div class="foot">StoryGarden · 用思考种下的花园 —— 这一颗，种给三岁的小朋友 🌱</div>
+</div>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/storygarden.js"></script>
+</body>
+</html>

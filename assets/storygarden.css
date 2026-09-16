@@ -431,3 +431,19 @@ body[data-sg-section="netflix"] .hero::after{
 @media(prefers-reduced-motion:reduce){
   .sg-icon-button,.sg-global-header,.sg-back-link,.sg-home-brand{transition:none!important}
 }
+
+/* 英语花园（english/）：金色主题色 + 暖浅色顶栏（亲子页保持浅色，不受暗色影响） */
+body[data-sg-section="english"]{
+  --sg-accent:hsl(36,42%,42%);
+  --sg-focus:hsla(36,52%,45%,.2);
+}
+[data-theme="dark"] body[data-sg-section="english"]{--sg-accent:hsl(36,52%,55%);--sg-focus:hsla(36,52%,55%,.22)}
+body[data-sg-section="english"] .sg-global-header{
+  --sg-text:#35432F;
+  --sg-muted:#8A8776;
+  --sg-header-bg:hsla(40,44%,97%,.92);
+  --sg-header-bg-scrolled:hsla(40,44%,96%,.97);
+  --sg-header-border:hsla(36,30%,60%,.18);
+}
+/* 亲子页标题保持居中（覆盖通用阅读页左对齐规则，同特异性靠后者胜） */
+body[data-sg-page][data-sg-section="english"] h1{text-align:center!important}

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Farm Animals · 农场动物 第 3 集 | StoryGarden</title>
+<link rel="stylesheet" href="../assets/storygarden.css">
+<style>
+:root{
+  --bg:#FAF7F0;
+  --ink:#35432F;
+  --ink-soft:#8A8776;
+  --accent:#B89048;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:-apple-system,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;
+  background:var(--bg);color:var(--ink);
+  overflow:hidden;overscroll-behavior:none;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+}
+
+/* 世界：小动物藏在模糊的原野里，只有镜头能看清 */
+#field{
+  position:fixed;left:0;right:0;top:var(--sg-header-h,58px);bottom:0;
+  overflow:hidden;touch-action:none;
+  background:var(--sc-color,#E4EFD5);
+}
+#world,#screenWorld{position:absolute;left:0;top:0}
+.ani{position:absolute;transform:translate(-50%,-50%);line-height:1}
+.ani.soft{filter:blur(6px) saturate(1.05)}
+.ani.scenery{opacity:.55}
+.ani.shot{filter:none!important;animation:snapPop .55s cubic-bezier(.34,1.56,.64,1)}
+@keyframes snapPop{
+  0%{transform:translate(-50%,-50%) scale(1.6) rotate(-8deg)}
+  60%{transform:translate(-50%,-50%) scale(.92) rotate(2deg)}
+  100%{transform:translate(-50%,-50%) scale(1) rotate(0)}
+}
+.ani.hint::after{
+  content:'';position:absolute;left:50%;top:50%;
+  width:64px;height:64px;margin:-32px 0 0 -32px;
+  border:4px solid rgba(184,144,72,.9);border-radius:50%;
+  animation:hintPulse 1s ease-out infinite;pointer-events:none;
+}
+@keyframes hintPulse{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.5);opacity:0}}
+
+/* 拖动层：手指按住哪里，镜头就浮到哪里（镜头略高于指尖） */
+#aim{
+  position:fixed;left:0;right:0;top:var(--sg-header-h,58px);bottom:0;
+  z-index:10;touch-action:none;cursor:grab;
+}
+#aim:active{cursor:grabbing}
+
+/* 可爱手机相机：竖屏取景，机身中心=定位点 */
+#phone{
+  position:fixed;left:0;top:0;z-index:20;pointer-events:none;
+  border-radius:38px;
+  background:linear-gradient(160deg,#F8ECCF,#EBD49F);
+  border:3px solid rgba(184,144,72,.5);
+  box-shadow:0 18px 42px rgba(90,70,30,.35),inset 0 2px 6px rgba(255,255,255,.7);
+  will-change:transform;
+}
+#screen{
+  position:absolute;overflow:hidden;border-radius:26px;background:#fff;
+  box-shadow:inset 0 0 0 3px rgba(53,67,47,.14);
+}
+#screenWorld{position:absolute;left:0;top:0;transform-origin:0 0}
+.notch{
+  position:absolute;left:50%;top:7px;transform:translateX(-50%);
+  width:34%;height:13px;border-radius:999px;
+  background:rgba(53,67,47,.8);z-index:3;
+}
+.cam-ui{
+  position:absolute;left:0;right:0;bottom:0;height:var(--cam-h,86px);z-index:3;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--cam-pad,16px);
+  background:linear-gradient(rgba(53,67,47,0),rgba(53,67,47,.30));
+}
+.gallery{
+  width:var(--thumb-s,38px);height:var(--thumb-s,38px);flex:none;
+  border-radius:18%;
+  background:rgba(255,255,255,.92);box-shadow:0 3px 8px rgba(90,70,30,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:calc(var(--thumb-s,38px)*.55);line-height:1;
+}
+.gallery:empty::before{content:'🐾';opacity:.4;font-size:calc(var(--thumb-s,38px)*.47)}
+.gallery.pop{animation:gpop .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes gpop{0%{transform:scale(.4) rotate(-10deg)}100%{transform:scale(1) rotate(0)}}
+.cam-shutter{
+  width:var(--shutter-s,60px);height:var(--shutter-s,60px);flex:none;
+  border-radius:50%;border:none;cursor:pointer;
+  background:#fff;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 calc(var(--shutter-s,60px)*.083) rgba(184,144,72,.9),0 6px 16px rgba(53,67,47,.35);
+  transition:transform .12s ease;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;pointer-events:auto;
+}
+.cam-shutter::before{content:'';display:block;width:60%;height:60%;border-radius:50%;background:var(--accent)}
+.cam-shutter:active{transform:scale(.88)}
+.cam-shutter:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+/* 点一下滑动跟手，拖动时 1:1 即时跟踪 */
+#phone.glide{transition:transform .22s ease}
+#phone.glide #screenWorld{transition:transform .22s ease}
+
+/* 快门闪光 */
+#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:60}
+#flash.on{animation:flashA .5s ease}
+@keyframes flashA{0%{opacity:0}10%{opacity:.95}100%{opacity:0}}
+
+/* 顶部工具栏：居中一整条 */
+.hud{
+  position:fixed;top:calc(var(--sg-header-h,58px) + 10px);left:0;right:0;
+  z-index:30;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:10px;pointer-events:none;padding:0 16px;
+}
+.hud>*{pointer-events:auto}
+
+.scene-banner{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  display:flex;align-items:center;gap:10px;
+  padding:8px 18px;border:none;border-radius:18px;cursor:pointer;
+  font-family:inherit;text-align:left;
+  background:var(--sc-color,#E4EFD5);
+  box-shadow:0 4px 14px rgba(90,70,30,.12);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.scene-banner:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(90,70,30,.18)}
+.scene-banner:active{transform:scale(.97)}
+.scene-banner:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.sb-icon{font-size:26px;line-height:1}
+.sb-name{display:flex;align-items:baseline;gap:8px;color:var(--ink)}
+.sb-name b{font-size:1.05rem;font-weight:900}
+.sb-name i{font-style:normal;font-size:.78rem;font-weight:700;color:var(--ink-soft);letter-spacing:.04em}
+.sb-hint{font-size:.72rem;color:var(--ink-soft)}
+
+.mission{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(255,255,255,.94);border-radius:22px;
+  padding:10px 16px;
+  box-shadow:0 6px 20px rgba(90,70,30,.16);
+}
+.mission .cam{font-size:22px;line-height:1}
+.slots{display:flex;gap:8px}
+.slot{
+  width:46px;height:56px;border-radius:12px;background:#F1EBDC;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  transition:background .3s,box-shadow .3s;
+}
+.s-emoji{font-size:24px;line-height:1.15;filter:grayscale(1);opacity:.45;transition:filter .3s,opacity .3s}
+.s-word{font-size:.58rem;font-weight:800;color:#A9A696;letter-spacing:.02em;transition:color .3s}
+.slot.done{background:#fff;box-shadow:inset 0 0 0 2px var(--accent);transform:rotate(-3deg);animation:slotPop .4s cubic-bezier(.34,1.56,.64,1)}
+.slot.done .s-emoji{filter:none;opacity:1}
+.slot.done .s-word{color:var(--accent)}
+@keyframes slotPop{0%{transform:scale(.4) rotate(-14deg)}100%{transform:scale(1) rotate(-3deg)}}
+.slot.now{animation:slotGlow 1.3s ease-in-out infinite}
+@keyframes slotGlow{0%,100%{box-shadow:0 0 0 3px rgba(184,144,72,.6)}50%{box-shadow:0 0 0 8px rgba(184,144,72,0)}}
+.reshoot{
+  width:38px;height:56px;border-radius:12px;border:none;cursor:pointer;padding:0;
+  background:#F1EBDC;display:flex;align-items:center;justify-content:center;
+  font-size:20px;line-height:1;
+  transition:transform .12s ease,background .15s ease;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.reshoot:hover{background:#E8DFC8;transform:scale(1.06)}
+.reshoot:active{transform:scale(.9)}
+.reshoot:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* 场景选择弹窗 */
+.picker{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
+.picker.show{display:flex}
+.picker-mask{position:absolute;inset:0;background:rgba(53,67,47,.35);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.picker-box{position:relative;z-index:1;background:var(--bg);border-radius:32px;padding:34px 34px 26px;box-shadow:0 24px 60px rgba(30,40,25,.3);animation:popin .25s cubic-bezier(.34,1.56,.64,1);max-width:720px;width:100%}
+@keyframes popin{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.picker-title{text-align:center;font-size:1.35rem;font-weight:900;margin-bottom:24px}
+.picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:640px){.picker-grid{grid-template-columns:repeat(2,1fr)}}
+.pick{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  border:none;cursor:pointer;font-family:inherit;
+  background:var(--pc,#fff);border-radius:26px;
+  padding:22px 8px 16px;display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:transform .15s ease,box-shadow .15s ease;position:relative;
+  box-shadow:0 4px 12px rgba(90,70,30,.10);
+}
+.pick:hover{transform:translateY(-4px);box-shadow:0 10px 22px rgba(90,70,30,.16)}
+.pick:active{transform:scale(.96)}
+.pick:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.pick-icon{font-size:52px;line-height:1.15}
+.pick-zh{font-size:1.15rem;font-weight:900}
+.pick-en{font-size:.78rem;font-weight:700;color:var(--ink-soft);letter-spacing:.05em}
+.pick-here{position:absolute;top:10px;right:10px;background:var(--accent);color:#fff;font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:999px;display:none}
+.pick.current .pick-here{display:block}
+.pick.current{transform:scale(1.02)}
+.picker-close{display:block;margin:24px auto 0;font-size:.9rem;font-weight:700;color:var(--ink-soft);background:none;border:none;cursor:pointer;font-family:inherit;padding:8px 18px;border-radius:12px;transition:all .2s}
+.picker-close:hover{color:var(--accent);background:#F1EBDC}
+
+/* 集数翻页标签：上一集在左、下一集在右 */
+.ep-tab{
+  position:fixed;top:50%;transform:translateY(-50%);z-index:40;
+  display:flex;align-items:center;gap:10px;
+  padding:20px 16px;text-decoration:none;
+  box-shadow:0 8px 22px rgba(90,70,30,.22);
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.ep-tab .arrow{font-size:28px;line-height:1;color:#fff}
+.ep-tab .t{display:flex;flex-direction:column;gap:2px;line-height:1.2}
+.ep-tab .ep-no{font-size:.95rem;font-weight:900;color:#fff;white-space:nowrap}
+.ep-tab .ep-name{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.92);white-space:nowrap}
+.ep-tab.next{right:0;border-radius:22px 0 0 22px;background:var(--accent);padding-right:20px}
+.ep-tab.prev{left:0;border-radius:0 22px 22px 0;background:#6B8F5E;padding-left:20px}
+@media (hover:hover) and (pointer:fine) and (min-width:761px){
+  .ep-tab.next:hover{transform:translateY(-50%) translateX(-3px)}
+  .ep-tab.prev:hover{transform:translateY(-50%) translateX(3px)}
+}
+.ep-tab:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+@media (max-width:760px){
+  .ep-tab{top:auto;bottom:18px;transform:none;width:64px;height:64px;padding:0;justify-content:center;border-radius:50%}
+  .ep-tab .t{display:none}
+  .ep-tab.next{right:16px}
+  .ep-tab.prev{left:16px}
+}
+
+.confetti{position:fixed;top:-24px;z-index:55;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(720deg)}}
+
+@media (max-width:560px){
+  .slot{width:40px;height:50px}
+  .s-emoji{font-size:21px}
+}
+</style>
+</head>
+<body data-sg-page data-sg-section="english" data-sg-root=".." data-sg-title="农场动物 · 第 3 集" data-sg-parent="index.html" data-sg-parent-label="英语花园">
+
+<div id="field" aria-hidden="true"><div id="world"></div></div>
+<div id="aim" aria-hidden="true"></div>
+<div id="phone" aria-hidden="true">
+  <div id="screen">
+    <div id="screenWorld"></div>
+    <span class="notch"></span>
+    <div class="cam-ui">
+      <span class="gallery" id="galleryThumb"></span>
+      <button class="cam-shutter" id="shutterBtn" type="button" aria-label="拍照"></button>
+      <span class="gallery" style="visibility:hidden" aria-hidden="true"></span>
+    </div>
+  </div>
+</div>
+<div id="flash" aria-hidden="true"></div>
+
+<div class="hud" id="hud">
+  <button class="scene-banner" id="sceneBanner" aria-label="点击切换场景">
+    <span class="sb-icon" id="sbIcon">🚜</span>
+    <span class="sb-name"><b id="sbZh">农场</b><i id="sbEn">Farm</i></span>
+    <span class="sb-hint">换地方玩 ⌄</span>
+  </button>
+  <div class="mission" role="status" aria-live="polite">
+    <span class="cam" aria-hidden="true">📷</span>
+    <span class="slots" id="missionSlots"></span>
+    <button class="reshoot" id="reshoot" type="button" title="换一批小动物" aria-label="换一批小动物">🔄</button>
+  </div>
+</div>
+
+<div class="picker" id="picker">
+  <div class="picker-mask" id="pickerMask"></div>
+  <div class="picker-box" role="dialog" aria-label="选择场景">
+    <p class="picker-title">你想去哪儿玩？</p>
+    <div class="picker-grid" id="pickerGrid"></div>
+    <button class="picker-close" id="pickerClose">先不换 · Close</button>
+  </div>
+</div>
+
+<script src="data-animals.js"></script>
+<script>
+const field=document.getElementById('field');
+const world=document.getElementById('world');
+const aim=document.getElementById('aim');
+const flashEl=document.getElementById('flash');
+const hud=document.getElementById('hud');
+const phone=document.getElementById('phone');
+const screenEl=document.getElementById('screen');
+const screenWorld=document.getElementById('screenWorld');
+const shutterBtn=document.getElementById('shutterBtn');
+const galleryThumb=document.getElementById('galleryThumb');
+const missionSlots=document.getElementById('missionSlots');
+
+const HEADER=58,Z=2.5;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+/* ---------- voice ---------- */
+let voice=null;
+function pickVoice(){
+  const vs=window.speechSynthesis?speechSynthesis.getVoices():[];
+  voice=
+    vs.find(v=>/emma/i.test(v.name)&&/en[-_]US/i.test(v.lang))||
+    vs.find(v=>/en[-_]US/i.test(v.lang)&&/natural|online/i.test(v.name))||
+    vs.find(v=>/en[-_]US/i.test(v.lang))||
+    vs.find(v=>/^en([-_]|$)/i.test(v.lang))||
+    null;
+}
+if('speechSynthesis' in window){
+  pickVoice();
+  speechSynthesis.onvoiceschanged=pickVoice;
+}
+function speak(text){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=0.8;u.pitch=1.05;
+  if(voice)u.voice=voice;
+  speechSynthesis.speak(u);
+}
+
+/* ---------- sound effects ---------- */
+let audioCtx=null;
+function tone(freq,delay,dur,vol){
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const t=audioCtx.currentTime+delay;
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type='sine';o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(vol,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(t);o.stop(t+dur+0.02);
+  }catch(e){}
+}
+const sClick=()=>{tone(2100,0,.04,.10);tone(650,.07,.06,.10);};
+const sCheer=()=>{tone(523,0,.12,.08);tone(659,.09,.12,.08);tone(784,.18,.24,.08);};
+
+function confettiBurst(){
+  const colors=['#B89048','#2D5530','#E8B04B','#7FA86B','#E58FA2','#7EB3D8'];
+  for(let i=0;i<70;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.width=(6+Math.random()*8)+'px';
+    c.style.height=(8+Math.random()*10)+'px';
+    c.style.background=colors[i%colors.length];
+    c.style.borderRadius=Math.random()>.5?'50%':'2px';
+    c.style.animationDuration=(2.2+Math.random()*2.2)+'s';
+    c.style.animationDelay=(Math.random()*.6)+'s';
+    document.body.appendChild(c);
+    c.addEventListener('animationend',()=>c.remove());
+  }
+}
+function doFlash(){
+  flashEl.classList.remove('on');
+  void flashEl.offsetWidth;
+  flashEl.classList.add('on');
+}
+
+/* ---------- game state ---------- */
+let sceneId=null,batch=[],pending=new Set(),mission=null,misses=0,announced=false,lastBatch=[],round=0;
+let phoneX=0,phoneY=0,phW=210,phH=430,scrW=185,scrH=360,dragging=false;
+const sceneAnimals=()=>ANIMALS.filter(a=>a.group===sceneId);
+
+/* ---------- scene picker ---------- */
+const pickerGrid=document.getElementById('pickerGrid');
+SCENES.forEach(s=>{
+  const b=document.createElement('button');
+  b.className='pick';
+  b.dataset.scene=s.id;
+  b.style.setProperty('--pc',s.color);
+  b.innerHTML='<span class="pick-icon" aria-hidden="true">'+s.icon+'</span>'
+    +'<span class="pick-zh">'+s.zh+'</span>'
+    +'<span class="pick-en">'+s.en+'</span>'
+    +'<span class="pick-here">✓ 在这里</span>';
+  b.setAttribute('aria-label','去'+s.zh+s.en);
+  b.addEventListener('click',()=>{
+    closePicker();
+    if(s.id!==sceneId)setScene(s.id);
+  });
+  pickerGrid.appendChild(b);
+});
+const picker=document.getElementById('picker');
+function openPicker(){
+  document.querySelectorAll('.pick').forEach(b=>b.classList.toggle('current',b.dataset.scene===sceneId));
+  picker.classList.add('show');
+}
+function closePicker(){picker.classList.remove('show');}
+document.getElementById('sceneBanner').addEventListener('click',openPicker);
+document.getElementById('pickerMask').addEventListener('click',closePicker);
+document.getElementById('pickerClose').addEventListener('click',closePicker);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePicker();});
+
+/* ---------- world ---------- */
+function scatter(count,mL,mR,mT,mB,minDist,taken){
+  const fw=field.clientWidth,fh=field.clientHeight;
+  const pts=[];
+  for(let i=0;i<count;i++){
+    let best={x:mL,y:mT},bd=-1;
+    for(let t=0;t<90;t++){
+      const x=mL+Math.random()*Math.max(1,fw-mL-mR);
+      const y=mT+Math.random()*Math.max(1,fh-mT-mB);
+      let d=1e9;
+      for(const p of pts.concat(taken))d=Math.min(d,Math.hypot(p.x-x,p.y-y));
+      if(d>bd){bd=d;best={x,y};}
+      if(bd>=minDist)break;
+    }
+    pts.push(best);
+  }
+  return pts;
+}
+
+function layoutWorld(){
+  const fw=field.clientWidth||window.innerWidth;
+  const fh=field.clientHeight||(window.innerHeight-HEADER);
+  [world,screenWorld].forEach(w=>{w.style.width=fw+'px';w.style.height=fh+'px';});
+  phW=Math.round(clamp(Math.min(fw*0.30,fh*0.36),150,200));
+  phH=Math.round(phW*1.9);
+  if(phH>fh-70){phH=fh-70;phW=Math.round(phH/1.9);}
+  if(phW>fw-24){phW=fw-24;phH=Math.round(phW*1.9);}
+  scrW=phW-Math.round(phW*0.11);
+  scrH=phH-Math.round(phW*0.17);
+  phone.style.width=phW+'px';phone.style.height=phH+'px';
+  phone.style.borderRadius=Math.round(phW*0.19)+'px';
+  screenEl.style.left=Math.round(phW*0.055)+'px';
+  screenEl.style.top=Math.round(phW*0.085)+'px';
+  screenEl.style.width=scrW+'px';screenEl.style.height=scrH+'px';
+  screenEl.style.borderRadius=Math.round(phW*0.13)+'px';
+  const shutterS=Math.min(60,Math.round(scrW*0.36));
+  phone.style.setProperty('--shutter-s',shutterS+'px');
+  phone.style.setProperty('--thumb-s',Math.round(shutterS*0.64)+'px');
+  phone.style.setProperty('--cam-pad',Math.max(8,Math.round(phW*0.045))+'px');
+  phone.style.setProperty('--cam-h',(shutterS+28)+'px');
+  const mT=(hud.offsetHeight||150)+24;
+  /* 边距按取景框实际可达范围算，保证每只小动物都能被完整拍进屏幕 */
+  const mB=Math.max(40,Math.round(phH/2-(scrH/(2*Z)-34)));
+  const mL=Math.max(50,Math.round(phW/2-(scrW/(2*Z)-34)));
+  const SCENERY=['🌳','🌲','🌻','🌼','🍄','🌿','🍀','🪨','🦋','☁️'];
+  const scPos=scatter(9,40,40,20,90,140,[]);
+  const aMin=Math.min(230,(fw-2*mL)*0.6,(fh-mT-mB)*0.6);
+  const aPos=scatter(batch.length,mL,mL,mT,mB,aMin,scPos);
+  const items=[];
+  scPos.forEach(p=>items.push({x:p.x,y:p.y,emoji:SCENERY[Math.floor(Math.random()*SCENERY.length)],size:Math.round(30+Math.random()*22),scenery:true}));
+  batch.forEach((a,i)=>{a.x=aPos[i].x;a.y=aPos[i].y;items.push({x:a.x,y:a.y,emoji:a.emoji,size:48,en:a.en});});
+  let wHtml='',lHtml='';
+  items.forEach(it=>{
+    const st='left:'+Math.round(it.x)+'px;top:'+Math.round(it.y)+'px;font-size:'+it.size+'px';
+    const isShot=it.en&&!pending.has(it.en);
+    const en=it.en?' data-en="'+it.en+'"':'';
+    wHtml+='<span class="ani soft'+(it.scenery?' scenery':(isShot?' shot':''))+'"'+en+' style="'+st+'">'+it.emoji+'</span>';
+    lHtml+='<span class="ani'+(it.scenery?' scenery':(isShot?' shot':''))+'"'+en+' style="'+st+'">'+it.emoji+'</span>';
+  });
+  world.innerHTML=wHtml;
+  screenWorld.innerHTML=lHtml;
+  phoneX=fw/2;
+  phoneY=fh/2;
+  updatePhone();
+}
+
+function updatePhone(){
+  phone.style.transform='translate3d('+(phoneX-phW/2)+'px,'+(phoneY-phH/2)+'px,0)';
+  screenWorld.style.transform='translate('+(scrW/2-phoneX*Z)+'px,'+(scrH/2-phoneY*Z)+'px) scale('+Z+')';
+}
+
+/* ---------- aim（手机中心=定位点；点一下滑过去，拖动 1:1 跟手） ---------- */
+function aimAt(cx,cy){
+  const r=field.getBoundingClientRect();
+  const dipB=Math.round(phW*0.085),dipS=Math.round(phW*0.055);
+  phoneX=clamp(cx-r.left,phW/2-dipS,Math.max(phW/2-dipS,r.width-phW/2+dipS));
+  phoneY=clamp(cy-r.top,phH/2-dipB,Math.max(phH/2-dipB,r.height-phH/2+dipB));
+  updatePhone();
+  announceMission();
+}
+aim.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  try{aim.setPointerCapture(e.pointerId);}catch(err){}
+  dragging=true;
+  phone.classList.add('glide');
+  aimAt(e.clientX,e.clientY);
+});
+aim.addEventListener('pointermove',e=>{
+  if(!dragging)return;
+  phone.classList.remove('glide');
+  aimAt(e.clientX,e.clientY);
+});
+aim.addEventListener('pointerup',()=>{dragging=false;});
+aim.addEventListener('pointercancel',()=>{dragging=false;});
+field.addEventListener('contextmenu',e=>e.preventDefault());
+
+function announceMission(){
+  if(announced||!mission)return;
+  announced=true;
+  speak('Where is the '+mission.en+'?');
+}
+
+/* ---------- slots ---------- */
+function buildSlots(){
+  missionSlots.innerHTML='';
+  batch.forEach(a=>{
+    const s=document.createElement('span');
+    s.className='slot';
+    s.dataset.en=a.en;
+    s.innerHTML='<span class="s-emoji" aria-hidden="true">'+a.emoji+'</span><span class="s-word" lang="en">'+a.en+'</span>';
+    missionSlots.appendChild(s);
+  });
+}
+function syncSlots(){
+  missionSlots.querySelectorAll('.slot').forEach(s=>{
+    const done=!pending.has(s.dataset.en);
+    s.classList.toggle('done',done);
+    s.classList.toggle('now',!!mission&&!done&&s.dataset.en===mission.en);
+  });
+}
+
+/* ---------- shoot ---------- */
+function showHint(){
+  if(!mission)return;
+  document.querySelectorAll('#world .ani[data-en="'+mission.en+'"],#screenWorld .ani[data-en="'+mission.en+'"]')
+    .forEach(el=>el.classList.add('hint'));
+}
+function clearHint(){
+  document.querySelectorAll('.ani.hint').forEach(el=>el.classList.remove('hint'));
+}
+function nextMission(announceNow){
+  clearHint();misses=0;
+  const remaining=batch.filter(a=>pending.has(a.en));
+  mission=remaining.length?remaining[Math.floor(Math.random()*remaining.length)]:null;
+  if(mission){
+    announced=false;
+    if(announceNow)announceMission();
+  }
+  syncSlots();
+}
+function batchDone(){
+  mission=null;misses=0;clearHint();
+  syncSlots();
+  sCheer();
+  speak('Great job!');
+  confettiBurst();
+  const r=round;
+  setTimeout(()=>{if(r===round)newBatch(false);},2400);
+}
+function shoot(){
+  if(!pending.size)return;
+  sClick();
+  const hw=scrW/Z*0.75,hh=scrH/Z*0.7;
+  const hit=batch.find(a=>pending.has(a.en)&&Math.abs(a.x-phoneX)<hw&&Math.abs(a.y-phoneY)<hh);
+  if(!hit){
+    misses++;
+    if(misses>=2&&mission)showHint();
+    return;
+  }
+  doFlash();
+  pending.delete(hit.en);
+  misses=0;
+  clearHint();
+  document.querySelectorAll('#world .ani[data-en="'+hit.en+'"],#screenWorld .ani[data-en="'+hit.en+'"]')
+    .forEach(el=>{el.classList.remove('soft','hint');el.classList.add('shot');});
+  syncSlots();
+  galleryThumb.textContent=hit.emoji;
+  galleryThumb.classList.remove('pop');
+  void galleryThumb.offsetWidth;
+  galleryThumb.classList.add('pop');
+  speak(hit.en[0].toUpperCase()+hit.en.slice(1)+'!');
+  if(pending.size){
+    const r=round;
+    setTimeout(()=>{if(r===round)nextMission(true);},800);
+  }else{
+    batchDone();
+  }
+}
+shutterBtn.addEventListener('click',shoot);
+
+/* ---------- batch / scene ---------- */
+function newBatch(announceNow){
+  round++;
+  clearHint();
+  const all=sceneAnimals();
+  const rest=all.filter(a=>!lastBatch.includes(a.en));
+  batch=shuffle(rest.length>=4?rest:shuffle([...all])).slice(0,4);
+  lastBatch=batch.map(a=>a.en);
+  pending=new Set(batch.map(a=>a.en));
+  galleryThumb.textContent='';
+  layoutWorld();
+  buildSlots();
+  nextMission(!!announceNow);
+}
+function setScene(id){
+  sceneId=id;
+  const scene=SCENES.find(s=>s.id===id);
+  document.getElementById('sbIcon').textContent=scene.icon;
+  document.getElementById('sbZh').textContent=scene.zh;
+  document.getElementById('sbEn').textContent=scene.en;
+  document.getElementById('sceneBanner').style.setProperty('--sc-color',scene.color);
+  field.style.setProperty('--sc-color',scene.color);
+  document.title=scene.en+' Animals · '+scene.zh+'动物 第 3 集 | StoryGarden';
+  var ctx=document.querySelector('.sg-current-title');
+  if(ctx)ctx.textContent=scene.zh+'动物 · 第 3 集';
+  syncEpisodeNav(id);
+  lastBatch=[];
+  newBatch(false);
+}
+document.getElementById('reshoot').addEventListener('click',()=>newBatch(true));
+window.addEventListener('resize',()=>{if(batch.length)layoutWorld();});
+
+/* ---------- start ---------- */
+const params=()=>new URLSearchParams(location.hash.slice(1)||location.search);
+const initial=SCENES.some(s=>s.id===params().get('set'))?params().get('set'):'farm';
+renderEpisodeNav(2);
+setScene(initial);
+</script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/storygarden.js"></script>
+</body>
+</html>

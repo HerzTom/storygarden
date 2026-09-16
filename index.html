@@ -114,12 +114,14 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .tag-mind{color:#8C4A3C;background:#F7E9E6}
 .tag-story{color:#4A5A78;background:#E8EDF5}
 .tag-photo{color:#3F3F46;background:#E4E4E7}
+.tag-en{color:#6B5A8C;background:#EEEBF5}
 .card-arrow{margin-left:auto;font-size:1.15rem;font-weight:700;color:var(--accent);transition:transform .2s}
 .card:hover .card-arrow{transform:translateX(4px)}
 [data-theme="dark"] .tag-tech{color:#8CBE8E;background:rgba(111,167,114,0.16)}
 [data-theme="dark"] .tag-think{color:#E0BD80;background:rgba(212,175,110,0.16)}
 [data-theme="dark"] .tag-mind{color:#E0A79A;background:rgba(224,167,154,0.14)}
 [data-theme="dark"] .tag-story{color:#9FB2D4;background:rgba(159,178,212,0.14)}
+[data-theme="dark"] .tag-en{color:#B4A6D4;background:rgba(180,166,212,0.14)}
 
 /* Placeholder card */
 .card.placeholder{opacity:.55;filter:grayscale(.4);cursor:not-allowed;border-style:dashed}
@@ -197,8 +199,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
     <span class="tag">The Knowledge Garden</span>
     <h1>StoryGarden</h1>
     <p class="subtitle">把每一次深潜、每一页笔记，种成一片会生长的花园</p>
-    <p class="hook">这里收藏我亲手做的知识页——目前聚焦<b>技术</b>与<b>思维</b>，更多园地正在破土。走进下方，看每一颗种子如何生长。</p>
-    <div class="meta">LAST TENDED · 2026-08-28</div>
+    <p class="hook">这里收藏我亲手做的知识页——目前聚焦<b>技术</b>、<b>思维</b>与<b>英语</b>，更多园地正在破土。走进下方，看每一颗种子如何生长。</p>
+    <div class="meta">LAST TENDED · 2026-09-15</div>
   </div>
 </header>
 
@@ -216,7 +218,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
     <div class="tabbar-wrap">
       <div class="tabbar" id="tabbar" role="tablist" aria-label="知识分类">
         <div class="tab-indicator" id="tab-indicator"></div>
-        <button class="tab is-active" data-tab="tech" role="tab" aria-selected="true">
+        <button class="tab is-active" data-tab="english" role="tab" aria-selected="true">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span class="tab-label">英语</span>
+          <span class="tab-count">1</span>
+        </button>
+        <button class="tab" data-tab="tech" role="tab" aria-selected="false">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
           <span class="tab-label">技术</span>
           <span class="tab-count">3</span>
@@ -235,8 +242,20 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
     </div>
 
     <div class="panels">
+      <!-- 英语：启蒙英语专题（亲子共玩），入口 english/index.html，大卡直达 -->
+      <div class="panel is-active" data-panel="english">
+        <div class="cards">
+          <a class="card" href="english/index.html">
+            <div class="card-top"><span class="card-badge">En</span><span class="card-date">2026-09-15</span></div>
+            <h3 class="card-title">启蒙英语</h3>
+            <p class="card-blurb">给孩子的英语花园：点一点、听一听，送彩色小动物回家。亲子共玩，每次 10–15 分钟。</p>
+            <div class="card-foot"><span class="card-tag tag-en">英语</span><span class="card-arrow">→</span></div>
+          </a>
+        </div>
+      </div>
+
       <!-- 技术：仅保留已迁入 StoryGarden 的主题目录；卡片为可点击链接，显式指向各目录的 index.html 入口（file:// 与 http:// 下均可正确跳转） -->
-      <div class="panel is-active" data-panel="tech">
+      <div class="panel" data-panel="tech">
         <div class="cards">
           <a class="card" href="artificial-intelligence/ArtificialIntelligence.html">
             <div class="card-top"><span class="card-badge">智</span><span class="card-date">2026-07-21</span></div>

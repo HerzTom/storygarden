@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Farm Animals · 农场动物 第 4 集 | StoryGarden</title>
+<link rel="stylesheet" href="../assets/storygarden.css">
+<style>
+:root{
+  --bg:#FAF7F0;
+  --ink:#35432F;
+  --ink-soft:#8A8776;
+  --accent:#B89048;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:-apple-system,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;
+  background:var(--bg);color:var(--ink);
+  overflow:hidden;overscroll-behavior:none;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+}
+
+/* 世界：场景原野 + 一个送到门口的快递箱 */
+#field{
+  position:fixed;left:0;right:0;top:var(--sg-header-h,58px);bottom:0;
+  overflow:hidden;touch-action:none;
+  background:var(--sc-color,#E4EFD5);
+}
+.decor{position:absolute;transform:translate(-50%,-50%);line-height:1;opacity:.5;filter:blur(1.5px) saturate(1.05);pointer-events:none}
+
+/* 舞台：箱子进场 / 退场 */
+#stage{
+  position:absolute;left:50%;top:56%;
+  transform:translate(-50%,-50%);
+  transition:transform .55s cubic-bezier(.34,1.45,.64,1),opacity .4s ease;
+}
+#stage.out{transform:translate(-50%,95%);opacity:0}
+#stage.noanim{transition:none}
+#shadow{
+  position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);
+  width:130%;height:28px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(60,45,20,.22),transparent 68%);
+}
+
+/* 快递箱：前脸 + 顶口 + 两片盖 + 胶带 */
+#box{position:relative;width:var(--bw,220px);height:var(--bh,200px)}
+#box.wiggle{animation:wig .5s ease}
+@keyframes wig{0%,100%{transform:rotate(0)}22%{transform:rotate(-3.5deg)}48%{transform:rotate(3deg)}74%{transform:rotate(-2deg)}}
+.box-front{
+  position:absolute;left:0;bottom:0;width:100%;height:72%;z-index:2;
+  border-radius:16px;
+  background:linear-gradient(160deg,#EBC08A,#D3A267);
+  box-shadow:inset 0 -12px 0 rgba(96,66,32,.14),inset 0 3px 0 rgba(255,255,255,.28),0 16px 30px rgba(90,70,30,.22);
+}
+.box-top{
+  position:absolute;left:3.5%;top:0;width:93%;height:36%;z-index:1;
+  border-radius:10px 10px 0 0;
+  background:linear-gradient(#6E5233,#83633F);
+  box-shadow:inset 0 6px 14px rgba(30,20,8,.5);
+}
+/* 可爱箱脸 */
+.face{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);z-index:3;width:46%;height:34%}
+.eye{position:absolute;top:0;width:16%;height:34%;border-radius:50%;background:#4A3826}
+.eye.l{left:12%}.eye.r{right:12%}
+.mouth{
+  position:absolute;left:50%;top:52%;transform:translateX(-50%);
+  width:30%;height:30%;
+  border:calc(var(--bw,220px)*.018) solid transparent;border-bottom-color:#4A3826;border-radius:0 0 60px 60px;
+}
+.blush{position:absolute;top:22%;width:18%;height:22%;border-radius:50%;background:rgba(229,143,162,.55)}
+.blush.l{left:-16%}.blush.r{right:-16%}
+.sticker{
+  position:absolute;left:9%;top:16%;z-index:3;
+  width:26%;height:24%;border-radius:8px;background:rgba(255,255,255,.92);
+  transform:rotate(-7deg);box-shadow:0 2px 6px rgba(90,70,30,.18);
+  display:flex;align-items:center;justify-content:center;font-size:calc(var(--bw,220px)*.09);
+}
+/* 盖子：左右两片，绕外缘翻开 */
+.flaps{position:absolute;left:3.5%;top:0;width:93%;height:38%;z-index:4;perspective:520px}
+.flap{
+  position:absolute;top:0;width:52%;height:100%;
+  border-radius:8px;
+  background:linear-gradient(#F2CDA0,#DFAF77);
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.3),0 4px 10px rgba(90,70,30,.18);
+  transition:transform .55s cubic-bezier(.5,-.25,.35,1.15);
+}
+.flap.l{left:0;transform-origin:left center}
+.flap.r{right:0;transform-origin:right center}
+#box.open .flap.l{transform:rotateY(-118deg)}
+#box.open .flap.r{transform:rotateY(118deg)}
+
+/* 胶带：中间竖条，划开后左右两半撕走 */
+.tape{
+  position:absolute;left:50%;top:-5%;width:17%;height:66%;z-index:5;
+  transform:translateX(-50%);
+}
+.tape i{
+  position:absolute;top:0;width:50%;height:100%;display:block;
+  background:linear-gradient(rgba(240,205,145,.94),rgba(215,175,112,.94));
+  box-shadow:0 1px 3px rgba(90,70,30,.25),inset 0 0 0 1px rgba(255,255,255,.35);
+  transition:transform .5s ease-in,opacity .5s ease-in;
+}
+.tape i.l{left:0;border-radius:3px 0 0 3px;transform-origin:top left}
+.tape i.r{right:0;border-radius:0 3px 3px 0;transform-origin:top right}
+.tape.ready{animation:tapeGlow 1.2s ease-in-out infinite}
+@keyframes tapeGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3) drop-shadow(0 0 12px rgba(255,214,120,.95))}}
+.tape.cut i.l{transform:translateX(-46%) rotate(-13deg);opacity:0}
+.tape.cut i.r{transform:translateX(46%) rotate(13deg);opacity:0}
+
+/* 揭晓的小动物：藏在箱内（箱脸后面），从箱口冒出来→上色→蹦走 */
+#star{
+  position:absolute;left:50%;top:30%;z-index:1;
+  transform:translate(-50%,-10%) scale(.2);
+  font-size:calc(var(--bw,220px)*.44);line-height:1;
+  opacity:0;filter:grayscale(1);pointer-events:none;
+  transition:filter .45s ease;
+}
+#star.free{z-index:25}
+#star.show{opacity:1}
+#star.rise{animation:rise .6s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes rise{
+  0%{transform:translate(-50%,-10%) scale(.2)}
+  55%{transform:translate(-50%,-125%) scale(1.14)}
+  100%{transform:translate(-50%,-95%) scale(1)}
+}
+#star.colored{filter:none}
+
+/* 顶部工具栏：场景横幅 */
+.hud{
+  position:fixed;top:calc(var(--sg-header-h,58px) + 10px);left:0;right:0;
+  z-index:30;display:flex;justify-content:center;pointer-events:none;padding:0 16px;
+}
+.hud>*{pointer-events:auto}
+.scene-banner{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  display:flex;align-items:center;gap:10px;
+  padding:8px 18px;border:none;border-radius:18px;cursor:pointer;
+  font-family:inherit;text-align:left;
+  background:var(--sc-color,#E4EFD5);
+  box-shadow:0 4px 14px rgba(90,70,30,.12);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.scene-banner:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(90,70,30,.18)}
+.scene-banner:active{transform:scale(.97)}
+.scene-banner:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.sb-icon{font-size:26px;line-height:1}
+.sb-name{display:flex;align-items:baseline;gap:8px;color:var(--ink)}
+.sb-name b{font-size:1.05rem;font-weight:900}
+.sb-name i{font-style:normal;font-size:.78rem;font-weight:700;color:var(--ink-soft);letter-spacing:.04em}
+.sb-hint{font-size:.72rem;color:var(--ink-soft)}
+
+/* 场景选择弹窗 */
+.picker{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
+.picker.show{display:flex}
+.picker-mask{position:absolute;inset:0;background:rgba(53,67,47,.35);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.picker-box{position:relative;z-index:1;background:var(--bg);border-radius:32px;padding:34px 34px 26px;box-shadow:0 24px 60px rgba(30,40,25,.3);animation:popin .25s cubic-bezier(.34,1.56,.64,1);max-width:720px;width:100%}
+@keyframes popin{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.picker-title{text-align:center;font-size:1.35rem;font-weight:900;margin-bottom:24px}
+.picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:640px){.picker-grid{grid-template-columns:repeat(2,1fr)}}
+.pick{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  border:none;cursor:pointer;font-family:inherit;
+  background:var(--pc,#fff);border-radius:26px;
+  padding:22px 8px 16px;display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:transform .15s ease,box-shadow .15s ease;position:relative;
+  box-shadow:0 4px 12px rgba(90,70,30,.10);
+}
+.pick:hover{transform:translateY(-4px);box-shadow:0 10px 22px rgba(90,70,30,.16)}
+.pick:active{transform:scale(.96)}
+.pick:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.pick-icon{font-size:52px;line-height:1.15}
+.pick-zh{font-size:1.15rem;font-weight:900}
+.pick-en{font-size:.78rem;font-weight:700;color:var(--ink-soft);letter-spacing:.05em}
+.pick-here{position:absolute;top:10px;right:10px;background:var(--accent);color:#fff;font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:999px;display:none}
+.pick.current .pick-here{display:block}
+.pick.current{transform:scale(1.02)}
+.picker-close{display:block;margin:24px auto 0;font-size:.9rem;font-weight:700;color:var(--ink-soft);background:none;border:none;cursor:pointer;font-family:inherit;padding:8px 18px;border-radius:12px;transition:all .2s}
+.picker-close:hover{color:var(--accent);background:#F1EBDC}
+
+/* 集数翻页标签：上一集在左、下一集在右 */
+.ep-tab{
+  position:fixed;top:50%;transform:translateY(-50%);z-index:40;
+  display:flex;align-items:center;gap:10px;
+  padding:20px 16px;text-decoration:none;
+  box-shadow:0 8px 22px rgba(90,70,30,.22);
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.ep-tab .arrow{font-size:28px;line-height:1;color:#fff}
+.ep-tab .t{display:flex;flex-direction:column;gap:2px;line-height:1.2}
+.ep-tab .ep-no{font-size:.95rem;font-weight:900;color:#fff;white-space:nowrap}
+.ep-tab .ep-name{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.92);white-space:nowrap}
+.ep-tab.next{right:0;border-radius:22px 0 0 22px;background:var(--accent);padding-right:20px}
+.ep-tab.prev{left:0;border-radius:0 22px 22px 0;background:#6B8F5E;padding-left:20px}
+@media (hover:hover) and (pointer:fine) and (min-width:761px){
+  .ep-tab.next:hover{transform:translateY(-50%) translateX(-3px)}
+  .ep-tab.prev:hover{transform:translateY(-50%) translateX(3px)}
+}
+.ep-tab:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+@media (max-width:760px){
+  .ep-tab{top:auto;bottom:18px;transform:none;width:64px;height:64px;padding:0;justify-content:center;border-radius:50%}
+  .ep-tab .t{display:none}
+  .ep-tab.next{right:16px}
+  .ep-tab.prev{left:16px}
+}
+</style>
+</head>
+<body data-sg-page data-sg-section="english" data-sg-root=".." data-sg-title="农场动物 · 第 4 集" data-sg-parent="index.html" data-sg-parent-label="英语花园">
+
+<div id="field" aria-hidden="true">
+  <div id="stage">
+    <div id="shadow"></div>
+    <div id="box">
+      <div class="box-top"></div>
+      <div id="star">🐶</div>
+      <div class="box-front">
+        <div class="face"><span class="eye l"></span><span class="eye r"></span><span class="mouth"></span><span class="blush l"></span><span class="blush r"></span></div>
+        <div class="sticker">❤️</div>
+      </div>
+      <div class="flaps"><div class="flap l"></div><div class="flap r"></div></div>
+      <div class="tape" id="tape"><i class="l"></i><i class="r"></i></div>
+    </div>
+  </div>
+</div>
+
+<div class="hud" id="hud">
+  <button class="scene-banner" id="sceneBanner" aria-label="点击切换场景">
+    <span class="sb-icon" id="sbIcon">🚜</span>
+    <span class="sb-name"><b id="sbZh">农场</b><i id="sbEn">Farm</i></span>
+    <span class="sb-hint">换地方玩 ⌄</span>
+  </button>
+</div>
+
+<div class="picker" id="picker">
+  <div class="picker-mask" id="pickerMask"></div>
+  <div class="picker-box" role="dialog" aria-label="选择场景">
+    <p class="picker-title">你想去哪儿玩？</p>
+    <div class="picker-grid" id="pickerGrid"></div>
+    <button class="picker-close" id="pickerClose">先不换 · Close</button>
+  </div>
+</div>
+
+<script src="data-animals.js"></script>
+<script>
+const field=document.getElementById('field');
+const stage=document.getElementById('stage');
+const box=document.getElementById('box');
+const tape=document.getElementById('tape');
+const star=document.getElementById('star');
+
+const HEADER=58;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+/* ---------- voice ---------- */
+let voice=null;
+function pickVoice(){
+  const vs=window.speechSynthesis?speechSynthesis.getVoices():[];
+  voice=
+    vs.find(v=>/emma/i.test(v.name)&&/en[-_]US/i.test(v.lang))||
+    vs.find(v=>/en[-_]US/i.test(v.lang)&&/natural|online/i.test(v.name))||
+    vs.find(v=>/en[-_]US/i.test(v.lang))||
+    vs.find(v=>/^en([-_]|$)/i.test(v.lang))||
+    null;
+}
+if('speechSynthesis' in window){
+  pickVoice();
+  speechSynthesis.onvoiceschanged=pickVoice;
+}
+function speak(text){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=0.8;u.pitch=1.05;
+  if(voice)u.voice=voice;
+  speechSynthesis.speak(u);
+}
+
+/* ---------- sound effects ---------- */
+let audioCtx=null;
+function ensureCtx(){
+  try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();}catch(e){}
+  return audioCtx;
+}
+function tone(freq,delay,dur,vol,type,fEnd){
+  const ctx=ensureCtx();if(!ctx)return;
+  try{
+    const t=ctx.currentTime+delay;
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=type||'sine';
+    o.frequency.setValueAtTime(freq,t);
+    if(fEnd)o.frequency.exponentialRampToValueAtTime(fEnd,t+dur);
+    g.gain.setValueAtTime(vol,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    o.connect(g).connect(ctx.destination);
+    o.start(t);o.stop(t+dur+0.02);
+  }catch(e){}
+}
+function noiseBurst(dur,vol,center){
+  const ctx=ensureCtx();if(!ctx)return;
+  try{
+    const t=ctx.currentTime;
+    const len=Math.floor(ctx.sampleRate*dur);
+    const buf=ctx.createBuffer(1,len,ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
+    const src=ctx.createBufferSource();src.buffer=buf;
+    const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=center;bp.Q.value=0.8;
+    const g=ctx.createGain();
+    g.gain.setValueAtTime(vol,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    src.connect(bp).connect(g).connect(ctx.destination);
+    src.start(t);src.stop(t+dur+0.02);
+  }catch(e){}
+}
+const sKnock=()=>{tone(130,0,.1,.3);tone(118,.17,.1,.26);};
+const sRip=()=>noiseBurst(.38,.2,1700);
+const sOpen=()=>tone(300,0,.18,.09,'triangle',560);
+const sBoing=()=>tone(360,0,.16,.12,'triangle',90);
+const sCheer=()=>{tone(523,0,.12,.08);tone(659,.09,.12,.08);tone(784,.18,.24,.08);};
+
+/* ---------- scene picker ---------- */
+const pickerGrid=document.getElementById('pickerGrid');
+SCENES.forEach(s=>{
+  const b=document.createElement('button');
+  b.className='pick';
+  b.dataset.scene=s.id;
+  b.style.setProperty('--pc',s.color);
+  b.innerHTML='<span class="pick-icon" aria-hidden="true">'+s.icon+'</span>'
+    +'<span class="pick-zh">'+s.zh+'</span>'
+    +'<span class="pick-en">'+s.en+'</span>'
+    +'<span class="pick-here">✓ 在这里</span>';
+  b.setAttribute('aria-label','去'+s.zh+s.en);
+  b.addEventListener('click',()=>{
+    closePicker();
+    if(s.id!==sceneId)setScene(s.id);
+  });
+  pickerGrid.appendChild(b);
+});
+const picker=document.getElementById('picker');
+function openPicker(){
+  document.querySelectorAll('.pick').forEach(b=>b.classList.toggle('current',b.dataset.scene===sceneId));
+  picker.classList.add('show');
+}
+function closePicker(){picker.classList.remove('show');}
+document.getElementById('sceneBanner').addEventListener('click',openPicker);
+document.getElementById('pickerMask').addEventListener('click',closePicker);
+document.getElementById('pickerClose').addEventListener('click',closePicker);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePicker();});
+field.addEventListener('contextmenu',e=>e.preventDefault());
+
+/* ---------- world ---------- */
+let boxW=220,boxH=200;
+function layout(){
+  const fw=field.clientWidth||window.innerWidth;
+  const fh=field.clientHeight||window.innerHeight-HEADER;
+  boxW=Math.round(clamp(Math.min(fw*0.46,fh*0.5),160,280));
+  boxH=Math.round(boxW*0.9);
+  field.style.setProperty('--bw',boxW+'px');
+  field.style.setProperty('--bh',boxH+'px');
+}
+function scatterDecor(){
+  document.querySelectorAll('.decor').forEach(d=>d.remove());
+  const fw=field.clientWidth||window.innerWidth;
+  const fh=field.clientHeight||window.innerHeight-HEADER;
+  const SCENERY=['🌳','🌲','🌻','🌼','🍄','🌿','🍀','🪨','🦋','☁️','🌱','🐞'];
+  const cx=fw/2,cy=fh*0.56;
+  let n=0;
+  for(let i=0;i<60&&n<9;i++){
+    const x=Math.random()*fw,y=Math.random()*fh;
+    if(Math.abs(x-cx)<boxW*1.1&&Math.abs(y-cy)<boxH*1.05)continue;
+    const s=document.createElement('span');
+    s.className='decor';
+    s.textContent=SCENERY[Math.floor(Math.random()*SCENERY.length)];
+    const size=Math.round(26+Math.random()*26);
+    s.style.cssText='left:'+Math.round(x)+'px;top:'+Math.round(y)+'px;font-size:'+size+'px';
+    field.appendChild(s);
+    n++;
+  }
+}
+const sceneAnimals=()=>ANIMALS.filter(a=>a.group===sceneId);
+
+/* ---------- game state ---------- */
+let sceneId=null,phase='idle',boxRound=0,lastShown=[];
+let lastAsk=0;
+
+function pickAnimal(){
+  const all=sceneAnimals();
+  const rest=all.filter(a=>!lastShown.includes(a.en));
+  const pool=rest.length?rest:all;
+  const a=pool[Math.floor(Math.random()*pool.length)];
+  lastShown.push(a.en);
+  if(lastShown.length>10)lastShown.shift();
+  return a;
+}
+
+/* ---------- 一只箱子的生命周期 ---------- */
+function newBox(){
+  boxRound++;
+  const r=boxRound;
+  phase='knock';
+  star.classList.remove('show','rise','colored','free');
+  star.style.left='';
+  star.style.top='';
+  box.classList.remove('open','wiggle');
+  tape.classList.remove('cut','ready');
+  stage.classList.add('noanim','out');
+  void stage.offsetWidth;
+  stage.classList.remove('noanim');
+  requestAnimationFrame(()=>stage.classList.remove('out'));
+  setTimeout(()=>stage.classList.remove('out'),40);
+  setTimeout(()=>{if(r!==boxRound)return;sKnock();},520);
+  setTimeout(()=>{if(r!==boxRound)return;speak("Knock knock! What's inside?");},620);
+  setTimeout(()=>{if(r!==boxRound||phase!=='knock')return;phase='tape';tape.classList.add('ready');},2200);
+}
+
+function cutTape(){
+  if(phase!=='tape'&&phase!=='knock')return;
+  phase='cutting';
+  const r=boxRound;
+  tape.classList.remove('ready');
+  tape.classList.add('cut');
+  sRip();
+  setTimeout(()=>{if(r!==boxRound)return;openFlaps(r);},620);
+}
+function openFlaps(r){
+  phase='open';
+  box.classList.add('open');
+  sOpen();
+  setTimeout(()=>{if(r!==boxRound)return;reveal(r);},600);
+}
+function reveal(r){
+  phase='reveal';
+  const a=currentAnimal;
+  star.classList.add('show','rise');
+  setTimeout(()=>{
+    if(r!==boxRound)return;
+    star.classList.add('colored');
+    sCheer();
+    speak("It's a "+a.en+"!");
+  },560);
+  setTimeout(()=>{if(r!==boxRound)return;hopAway(r);},2000);
+}
+let currentAnimal=null;
+function hopAway(r){
+  phase='hop';
+  speak('Bye bye!');
+  const dir=Math.random()<.5?-1:1;
+  const fw=field.clientWidth||window.innerWidth;
+  star.classList.remove('rise');
+  star.classList.add('free');
+  const br=star.getBoundingClientRect(),boxR=box.getBoundingClientRect();
+  const x0=br.width?br.left+br.width/2-boxR.left:boxW/2;
+  const y0=br.width?br.top+br.height/2-boxR.top:boxH*0.3-boxW*0.44;
+  const travel=(fw*0.58+boxW)*dir;
+  const hops=4,dur=1600,hopH=boxH*0.5;
+  const t0=performance.now();
+  let lastHop=0;
+  function frame(now){
+    if(r!==boxRound)return;
+    const t=Math.min(1,(now-t0)/dur);
+    const e=t*t*(3-2*t);
+    const x=x0+travel*e;
+    const y=y0-hopH*Math.abs(Math.sin(t*Math.PI*hops));
+    star.style.left=x+'px';
+    star.style.top=y+'px';
+    star.style.transform='translate(-50%,-50%) rotate('+(dir*e*26)+'deg) scale(1)';
+    const hi=Math.floor(t*hops);
+    if(hi>lastHop){lastHop=hi;sBoing();}
+    if(t<1){requestAnimationFrame(frame);}
+    else{
+      star.classList.remove('show');
+      boxExit(r);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+function boxExit(r){
+  stage.classList.add('out');
+  setTimeout(()=>{if(r!==boxRound)return;spawn();},560);
+}
+function spawn(){
+  currentAnimal=pickAnimal();
+  star.textContent=currentAnimal.emoji;
+  newBox();
+}
+
+/* ---------- 划动撕胶带（连划任意方向，够长即撕开） ---------- */
+function cutNeed(){return Math.max(70,boxW*0.55);}
+let down=false,lastPt=null,pathLen=0;
+field.addEventListener('pointerdown',e=>{
+  if(phase!=='knock'&&phase!=='tape')return;
+  e.preventDefault();
+  try{field.setPointerCapture(e.pointerId);}catch(err){}
+  down=true;lastPt=[e.clientX,e.clientY];pathLen=0;
+});
+field.addEventListener('pointermove',e=>{
+  if(!down)return;
+  const dx=e.clientX-lastPt[0],dy=e.clientY-lastPt[1];
+  lastPt=[e.clientX,e.clientY];
+  pathLen+=Math.hypot(dx,dy);
+  if(pathLen>=cutNeed())cutTape();
+});
+field.addEventListener('pointerup',()=>{
+  if(!down)return;
+  down=false;
+  if(pathLen>=12)return;
+  if(phase!=='knock'&&phase!=='tape')return;
+  box.classList.remove('wiggle');
+  void box.offsetWidth;
+  box.classList.add('wiggle');
+  sKnock();
+  if(phase==='tape'&&Date.now()-lastAsk>2500){
+    lastAsk=Date.now();
+    speak("What's inside?");
+  }
+});
+field.addEventListener('pointercancel',()=>{down=false;});
+
+/* ---------- scene ---------- */
+function setScene(id){
+  sceneId=id;
+  const scene=SCENES.find(s=>s.id===id);
+  document.getElementById('sbIcon').textContent=scene.icon;
+  document.getElementById('sbZh').textContent=scene.zh;
+  document.getElementById('sbEn').textContent=scene.en;
+  document.getElementById('sceneBanner').style.setProperty('--sc-color',scene.color);
+  field.style.setProperty('--sc-color',scene.color);
+  document.title=scene.en+' Animals · '+scene.zh+'动物 第 4 集 | StoryGarden';
+  var ctx=document.querySelector('.sg-current-title');
+  if(ctx)ctx.textContent=scene.zh+'动物 · 第 4 集';
+  syncEpisodeNav(id);
+  lastShown=[];
+  layout();
+  scatterDecor();
+  spawn();
+}
+window.addEventListener('resize',()=>{layout();scatterDecor();});
+
+/* ---------- start ---------- */
+const params=()=>new URLSearchParams(location.hash.slice(1)||location.search);
+const initial=SCENES.some(s=>s.id===params().get('set'))?params().get('set'):'farm';
+renderEpisodeNav(3);
+setScene(initial);
+</script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/storygarden.js"></script>
+</body>
+</html>

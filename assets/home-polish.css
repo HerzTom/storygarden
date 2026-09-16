@@ -124,12 +124,12 @@ body[data-sg-home]{background:var(--home-page);overflow-x:hidden}
 /* Featured composition: 7-column lead + 5-column stack */
 .home-topic-grid[data-layout="featured"]{grid-template-rows:repeat(2,minmax(238px,auto));grid-auto-flow:dense}
 .home-topic-grid[data-layout="featured"] .home-topic-card{min-height:326px}
-.home-topic-grid[data-layout="featured"] .home-topic-card[data-order="1"]{grid-column:1/8;grid-row:1/3;min-height:494px}
+.home-topic-grid[data-layout="featured"] .home-topic-card[data-order="1"]{grid-column:1/8;grid-row:2/4;min-height:494px}
 .home-topic-grid[data-layout="featured"] .home-topic-card[data-order="1"] .home-topic-art{min-height:316px}
 .home-topic-grid[data-layout="featured"] .home-topic-card[data-topic="black-and-white"],
 .home-topic-grid[data-layout="featured"] .home-topic-card[data-order="4"]{grid-column:8/13;min-height:238px;display:grid;grid-template-columns:42% 58%}
-.home-topic-grid[data-layout="featured"] .home-topic-card[data-topic="black-and-white"]{grid-row:1}
-.home-topic-grid[data-layout="featured"] .home-topic-card[data-order="4"]{grid-row:2}
+.home-topic-grid[data-layout="featured"] .home-topic-card[data-topic="black-and-white"]{grid-row:2}
+.home-topic-grid[data-layout="featured"] .home-topic-card[data-order="4"]{grid-row:3}
 .home-topic-grid[data-layout="featured"] .home-topic-card[data-topic="black-and-white"] .home-topic-art,
 .home-topic-grid[data-layout="featured"] .home-topic-card[data-order="4"] .home-topic-art{min-height:238px}
 .home-topic-grid[data-layout="featured"] .home-topic-card[data-topic="black-and-white"] .home-topic-copy,
@@ -142,6 +142,11 @@ body[data-sg-home]{background:var(--home-page);overflow-x:hidden}
 .home-topic-grid[data-layout="featured"] .home-topic-card[data-order="7"]{grid-column:span 12;min-height:230px;display:grid;grid-template-columns:58% 42%}
 .home-topic-grid[data-layout="featured"] .home-topic-card[data-order="7"] .home-topic-art{min-height:230px}
 .home-topic-grid[data-layout="featured"] .home-topic-card[data-order="7"] .home-topic-copy{border-radius:0 20px 20px 0;padding:28px}
+/* 精选置顶横幅：启蒙英语（order 9），通栏第一行 */
+.home-topic-grid[data-layout="featured"] .home-topic-card[data-order="9"]{grid-column:1/13;grid-row:1;min-height:238px;display:grid;grid-template-columns:58% 42%}
+.home-topic-grid[data-layout="featured"] .home-topic-card[data-order="9"] .home-topic-art{min-height:238px}
+.home-topic-grid[data-layout="featured"] .home-topic-card[data-order="9"] .home-topic-copy{border-radius:0 20px 20px 0;padding:24px 26px}
+.home-topic-grid[data-layout="featured"] .home-topic-card[data-order="9"] .poster-main{font-size:clamp(2.25rem,3.2vw,3.65rem)}
 
 @media(max-width:1120px){
   .home-topic-grid[data-layout="featured"] .home-topic-card[data-order]{grid-column:span 6;grid-row:auto;display:flex;min-height:350px}

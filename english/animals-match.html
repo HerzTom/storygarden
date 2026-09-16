@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Farm Animals · 农场动物 第 2 集 | StoryGarden</title>
+<link rel="stylesheet" href="../assets/storygarden.css">
+<style>
+:root{
+  --bg:#FAF7F0;
+  --ink:#35432F;
+  --ink-soft:#8A8776;
+  --accent:#B89048;
+  --radius:26px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;
+  background:var(--bg);color:var(--ink);
+  min-height:100vh;overflow-x:hidden;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+}
+.blob{position:fixed;border-radius:50%;filter:blur(70px);opacity:.45;pointer-events:none;z-index:0}
+.blob1{width:380px;height:380px;background:#CFE3C4;top:-120px;left:-100px}
+.blob2{width:320px;height:320px;background:#F4E3C2;bottom:-120px;right:-80px}
+
+.wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:calc(var(--sg-header-h,58px) + 18px) 24px 60px}
+
+h1{font-size:clamp(1.8rem,4vw,2.4rem);font-weight:900;text-align:center;letter-spacing:.01em}
+h1 .en{color:var(--accent)}
+.ep{display:inline-block;font-size:.42em;font-weight:800;letter-spacing:.08em;background:var(--accent);color:#fff;border-radius:999px;padding:.25em .85em;vertical-align:.55em;margin-left:.45em}
+.sub{text-align:center;color:var(--ink-soft);font-size:.95rem;margin:6px 0 20px}
+
+/* 场景横幅：点击弹出场景选择 */
+.scene-banner{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  display:flex;align-items:center;gap:16px;width:100%;max-width:560px;
+  margin:0 auto 26px;padding:14px 22px;
+  border:none;border-radius:22px;cursor:pointer;font-family:inherit;text-align:left;
+  background:var(--sc-color,#E4EFD5);
+  box-shadow:0 4px 14px rgba(90,70,30,.10);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.scene-banner:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(90,70,30,.16)}
+.scene-banner:active{transform:scale(.98)}
+.scene-banner:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.sb-icon{font-size:38px;line-height:1}
+.sb-name{display:flex;align-items:baseline;gap:10px;color:var(--ink)}
+.sb-name b{font-size:1.25rem;font-weight:900}
+.sb-name i{font-style:normal;font-size:.85rem;font-weight:700;color:var(--ink-soft);letter-spacing:.04em}
+.sb-hint{margin-left:auto;font-size:.78rem;color:var(--ink-soft)}
+
+/* 场景选择弹窗 */
+.picker{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
+.picker.show{display:flex}
+.picker-mask{position:absolute;inset:0;background:rgba(53,67,47,.35);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.picker-box{position:relative;z-index:1;background:var(--bg);border-radius:32px;padding:34px 34px 26px;box-shadow:0 24px 60px rgba(30,40,25,.3);animation:popin .25s cubic-bezier(.34,1.56,.64,1);max-width:720px;width:100%}
+@keyframes popin{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.picker-title{text-align:center;font-size:1.35rem;font-weight:900;margin-bottom:24px}
+.picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:640px){.picker-grid{grid-template-columns:repeat(2,1fr)}}
+.pick{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  border:none;cursor:pointer;font-family:inherit;
+  background:var(--pc,#fff);border-radius:26px;
+  padding:22px 8px 16px;display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:transform .15s ease,box-shadow .15s ease;position:relative;
+  box-shadow:0 4px 12px rgba(90,70,30,.10);
+}
+.pick:hover{transform:translateY(-4px);box-shadow:0 10px 22px rgba(90,70,30,.16)}
+.pick:active{transform:scale(.96)}
+.pick:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.pick-icon{font-size:52px;line-height:1.15}
+.pick-zh{font-size:1.15rem;font-weight:900}
+.pick-en{font-size:.78rem;font-weight:700;color:var(--ink-soft);letter-spacing:.05em}
+.pick-here{position:absolute;top:10px;right:10px;background:var(--accent);color:#fff;font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:999px;display:none}
+.pick.current .pick-here{display:block}
+.pick.current{transform:scale(1.02)}
+.picker-close{display:block;margin:24px auto 0;font-size:.9rem;font-weight:700;color:var(--ink-soft);background:none;border:none;cursor:pointer;font-family:inherit;padding:8px 18px;border-radius:12px;transition:all .2s}
+.picker-close:hover{color:var(--accent);background:#F1EBDC}
+
+.panel-cap{font-size:.8rem;color:var(--ink-soft);margin-bottom:12px;text-align:center;letter-spacing:.1em}
+
+/* 彩色动物：纯 emoji 头像，无底无文字 */
+.pool{display:flex;justify-content:center;align-items:center;gap:clamp(14px,5vw,52px);flex-wrap:wrap;margin-bottom:38px}
+.avatar{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:none;
+  border:none;background:none;cursor:pointer;
+  font-size:clamp(56px,9vw,90px);line-height:1;
+  padding:4px;
+  transition:transform .15s ease,opacity .45s ease;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+}
+.avatar:hover{transform:scale(1.12) rotate(-4deg)}
+.avatar:focus-visible{outline:none;transform:scale(1.15);filter:drop-shadow(0 8px 12px rgba(90,70,30,.28))}
+.avatar.pick{opacity:.18;transform:scale(.8)}
+.avatar.gone{opacity:0;transform:scale(.35);pointer-events:none}
+
+/* 灰色动物区：全套卡片，配对成功才上色 */
+.field{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:780px;margin:0 auto}
+@media (max-width:640px){.field{grid-template-columns:repeat(2,1fr)}}
+.card{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:none;
+  position:relative;border:none;cursor:pointer;
+  background:#EFEDE6;
+  border-radius:var(--radius);
+  padding:20px 8px 14px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  box-shadow:0 4px 14px rgba(90,70,30,.10);
+  transition:transform .15s ease,box-shadow .15s ease,background-color .7s ease;
+}
+.card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.card .pic{font-size:clamp(44px,7vw,62px);line-height:1.15;font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif;filter:grayscale(1) brightness(1.06);transition:filter .7s ease}
+.card .word{font-size:clamp(1.1rem,2.2vw,1.35rem);font-weight:800;letter-spacing:.02em;color:#9A978A;transition:color .7s ease}
+.card .zh{font-size:.8rem;color:#A9A696;transition:color .7s ease}
+.card.alive{background:var(--card-bg)}
+.card.alive .pic{filter:none}
+.card.alive .word{color:var(--ink)}
+.card.alive .zh{color:var(--ink-soft)}
+.card.boing{animation:boing .45s cubic-bezier(.34,1.56,.64,1)}
+.card.boing .pic{animation:wiggle .45s ease}
+@keyframes boing{0%{transform:scale(1)}30%{transform:scale(1.07)}55%{transform:scale(.96)}100%{transform:scale(1)}}
+@keyframes wiggle{0%{transform:scale(1) rotate(0)}35%{transform:scale(1.25) rotate(-8deg)}70%{transform:scale(1.1) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
+
+/* 跟手飞行的彩色头像：无描边大圆角气泡 */
+.ghost{
+  position:fixed;left:0;top:0;z-index:60;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(56px,9vw,90px);line-height:1;
+  background:rgba(255,255,255,.92);
+  border:none;border-radius:32px;
+  box-shadow:0 16px 30px rgba(90,70,30,.25);
+  will-change:transform;transform:translate(0,0);
+}
+
+/* 大刷新按钮 */
+.refresh{
+  display:block;margin:34px auto 0;
+  font-size:1.1rem;font-weight:800;font-family:inherit;
+  padding:15px 42px;border-radius:999px;
+  background:var(--accent);color:#fff;border:none;cursor:pointer;
+  box-shadow:0 6px 16px rgba(184,144,72,.35);
+  transition:all .2s;touch-action:manipulation;
+}
+.refresh:hover{background:#9A7838;transform:translateY(-2px)}
+.refresh:active{transform:scale(.96)}
+.refresh:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+
+/* 集数翻页标签：上一集在左、下一集在右 */
+.ep-tab{
+  position:fixed;top:50%;transform:translateY(-50%);z-index:40;
+  display:flex;align-items:center;gap:10px;
+  padding:20px 16px;text-decoration:none;
+  box-shadow:0 8px 22px rgba(90,70,30,.22);
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.ep-tab .arrow{font-size:28px;line-height:1;color:#fff}
+.ep-tab .t{display:flex;flex-direction:column;gap:2px;line-height:1.2}
+.ep-tab .ep-no{font-size:.95rem;font-weight:900;color:#fff;white-space:nowrap}
+.ep-tab .ep-name{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.92);white-space:nowrap}
+.ep-tab.next{right:0;border-radius:22px 0 0 22px;background:var(--accent);padding-right:20px}
+.ep-tab.prev{left:0;border-radius:0 22px 22px 0;background:#6B8F5E;padding-left:20px}
+@media (hover:hover) and (pointer:fine) and (min-width:761px){
+  .ep-tab.next:hover{transform:translateY(-50%) translateX(-3px)}
+  .ep-tab.prev:hover{transform:translateY(-50%) translateX(3px)}
+}
+.ep-tab:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+@media (max-width:760px){
+  .ep-tab{top:auto;bottom:18px;transform:none;width:64px;height:64px;padding:0;justify-content:center;border-radius:50%}
+  .ep-tab .t{display:none}
+  .ep-tab.next{right:16px}
+  .ep-tab.prev{left:16px}
+  .wrap{padding-bottom:100px}
+}
+
+.confetti{position:fixed;top:-24px;z-index:50;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(720deg)}}
+
+.foot{margin-top:34px;text-align:center;color:var(--ink-soft);font-size:.8rem;line-height:1.7}
+.foot .voice{color:var(--accent);font-weight:600}
+</style>
+</head>
+<body data-sg-page data-sg-section="english" data-sg-root=".." data-sg-title="农场动物 · 第 2 集" data-sg-parent="index.html" data-sg-parent-label="英语花园">
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="wrap">
+  <h1><span id="tEn">Farm</span> Animals <span class="en">·</span> <span id="tZh">农场</span>动物<span class="ep">第 2 集</span></h1>
+  <p class="sub">把上面的彩色小动物，送到下面它的灰色朋友身边</p>
+
+  <button class="scene-banner" id="sceneBanner" aria-label="点击切换场景">
+    <span class="sb-icon" id="sbIcon">🚜</span>
+    <span class="sb-name"><b id="sbZh">农场</b><i id="sbEn">Farm</i></span>
+    <span class="sb-hint">换地方玩 ⌄</span>
+  </button>
+
+  <p class="panel-cap">彩色动物</p>
+  <div class="pool" id="pool"></div>
+
+  <p class="panel-cap">灰色动物区 · 它在等它的颜色</p>
+  <div class="field" id="field"></div>
+
+  <button class="refresh" id="refresh">&#8635; 换一批动物 · New Animals</button>
+
+  <div class="foot">
+    <p>语音 <span class="voice" id="voiceName">加载中…</span> · 建议用 Microsoft Edge 打开，Emma 语音效果最佳</p>
+  </div>
+</div>
+
+<div class="picker" id="picker">
+  <div class="picker-mask" id="pickerMask"></div>
+  <div class="picker-box" role="dialog" aria-label="选择场景">
+    <p class="picker-title">你想去哪儿玩？</p>
+    <div class="picker-grid" id="pickerGrid"></div>
+    <button class="picker-close" id="pickerClose">先不换 · Close</button>
+  </div>
+</div>
+
+<script src="data-animals.js"></script>
+<script>
+const pool=document.getElementById('pool');
+const field=document.getElementById('field');
+const voiceName=document.getElementById('voiceName');
+
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+/* ---------- voice ---------- */
+let voice=null;
+function pickVoice(){
+  const vs=window.speechSynthesis?speechSynthesis.getVoices():[];
+  voice=
+    vs.find(v=>/emma/i.test(v.name)&&/en[-_]US/i.test(v.lang))||
+    vs.find(v=>/en[-_]US/i.test(v.lang)&&/natural|online/i.test(v.name))||
+    vs.find(v=>/en[-_]US/i.test(v.lang))||
+    vs.find(v=>/^en([-_]|$)/i.test(v.lang))||
+    null;
+  voiceName.textContent=voice?voice.name:'未检测到英语语音';
+}
+if('speechSynthesis' in window){
+  pickVoice();
+  speechSynthesis.onvoiceschanged=pickVoice;
+}else{
+  voiceName.textContent='当前浏览器不支持语音合成';
+}
+function speak(text){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=0.8;u.pitch=1.05;
+  if(voice)u.voice=voice;
+  speechSynthesis.speak(u);
+}
+
+/* ---------- sound effects ---------- */
+let audioCtx=null;
+function tone(freq,delay,dur,vol){
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const t=audioCtx.currentTime+delay;
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type='sine';o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(vol,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(t);o.stop(t+dur+0.02);
+  }catch(e){}
+}
+const sPick =()=>{tone(440,0,.07,.06);tone(660,.05,.08,.06);};
+const sGood =()=>{tone(523,0,.12,.08);tone(659,.09,.12,.08);tone(784,.18,.22,.08);};
+const sBad  =()=>{tone(300,0,.14,.05);tone(230,.1,.18,.05);};
+const sRound=()=>{tone(523,0,.1,.08);tone(659,.08,.1,.08);tone(784,.16,.1,.08);tone(1047,.24,.26,.08);};
+
+/* ---------- game state ---------- */
+let sceneId=null,lastBatch=[],matchedInRound=0;
+let state='idle',pickedCard=null,ghost=null,gw=0,gh=0,moved=false,sX=0,sY=0;
+
+const sceneAnimals=()=>ANIMALS.filter(a=>a.group===sceneId);
+
+/* ---------- scene picker ---------- */
+const pickerGrid=document.getElementById('pickerGrid');
+SCENES.forEach(s=>{
+  const b=document.createElement('button');
+  b.className='pick';
+  b.dataset.scene=s.id;
+  b.style.setProperty('--pc',s.color);
+  b.innerHTML='<span class="pick-icon" aria-hidden="true">'+s.icon+'</span>'
+    +'<span class="pick-zh">'+s.zh+'</span>'
+    +'<span class="pick-en">'+s.en+'</span>'
+    +'<span class="pick-here">✓ 在这里</span>';
+  b.setAttribute('aria-label','去'+s.zh+s.en);
+  b.addEventListener('click',()=>{
+    closePicker();
+    if(s.id!==sceneId)setScene(s.id);
+  });
+  pickerGrid.appendChild(b);
+});
+
+const picker=document.getElementById('picker');
+function openPicker(){
+  document.querySelectorAll('.pick').forEach(b=>b.classList.toggle('current',b.dataset.scene===sceneId));
+  picker.classList.add('show');
+}
+function closePicker(){picker.classList.remove('show');}
+document.getElementById('sceneBanner').addEventListener('click',openPicker);
+document.getElementById('pickerMask').addEventListener('click',closePicker);
+document.getElementById('pickerClose').addEventListener('click',closePicker);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePicker();});
+
+function setScene(id){
+  sceneId=id;
+  const scene=SCENES.find(s=>s.id===id);
+  document.getElementById('tEn').textContent=scene.en;
+  document.getElementById('tZh').textContent=scene.zh;
+  document.getElementById('sbIcon').textContent=scene.icon;
+  document.getElementById('sbZh').textContent=scene.zh;
+  document.getElementById('sbEn').textContent=scene.en;
+  document.getElementById('sceneBanner').style.setProperty('--sc-color',scene.color);
+  document.title=scene.en+' Animals · '+scene.zh+'动物 第 2 集 | StoryGarden';
+  var ctx=document.querySelector('.sg-current-title');
+  if(ctx)ctx.textContent=scene.zh+'动物 · 第 2 集';
+  syncEpisodeNav(id);
+  newBatch();
+}
+
+function makeAvatar(a){
+  const b=document.createElement('button');
+  b.className='avatar';
+  b.dataset.en=a.en;
+  b.setAttribute('aria-label',a.en+'，'+a.zh);
+  b.textContent=a.emoji;
+  b.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    if(state==='sticky')stickyDrop(e.clientX,e.clientY);
+    if(state!=='idle')return;
+    if(b.classList.contains('gone'))return;
+    startPick(b,e);
+  });
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+  return b;
+}
+function makeFieldCard(a){
+  const b=document.createElement('button');
+  b.className='card';
+  b.style.setProperty('--card-bg',a.bg);
+  b.dataset.en=a.en;
+  b.setAttribute('aria-label',a.en+'，'+a.zh);
+  b.innerHTML='<span class="pic" aria-hidden="true">'+a.emoji+'</span>'
+    +'<span class="word" lang="en">'+a.en+'</span>'
+    +'<span class="zh">'+a.zh+'</span>';
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+  return b;
+}
+
+function newBatch(){
+  killGhost();
+  state='idle';pickedCard=null;matchedInRound=0;
+  const all=sceneAnimals();
+  const rest=shuffle(all.filter(a=>!lastBatch.includes(a.en)));
+  const batch=(rest.length>=4?rest:shuffle([...all])).slice(0,4);
+  lastBatch=batch.map(a=>a.en);
+  pool.innerHTML='';field.innerHTML='';
+  shuffle([...batch]).forEach(a=>pool.appendChild(makeAvatar(a)));
+  shuffle([...batch]).forEach(a=>field.appendChild(makeFieldCard(a)));
+}
+
+/* ---------- pick & drop ---------- */
+function startPick(card,e){
+  state='drag';pickedCard=card;moved=false;
+  sX=e.clientX;sY=e.clientY;
+  card.classList.add('pick');
+  const r=card.getBoundingClientRect();
+  gw=r.width;gh=r.height;
+  ghost=card.cloneNode(true);
+  ghost.className='ghost';
+  ghost.removeAttribute('id');
+  ghost.style.width=gw+'px';ghost.style.height=gh+'px';
+  document.body.appendChild(ghost);
+  moveGhost(e.clientX,e.clientY);
+  sPick();
+  speak('Where is the '+card.dataset.en+'?');
+}
+function moveGhost(x,y){
+  if(ghost)ghost.style.transform='translate('+(x-gw/2)+'px,'+(y-gh/2)+'px)';
+}
+function flyGhost(x,y,dur,cb){
+  if(!ghost){cb&&cb();return;}
+  ghost.style.transition='transform '+dur+'ms ease';
+  moveGhost(x,y);
+  setTimeout(()=>{if(ghost)ghost.style.transition='';cb&&cb();},dur+30);
+}
+function killGhost(){if(ghost){ghost.remove();ghost=null;}}
+
+function nearestField(x,y){
+  let best=null,bd=1e9;
+  field.querySelectorAll('.card:not(.alive)').forEach(c=>{
+    const r=c.getBoundingClientRect();
+    const d=Math.hypot(x-(r.left+r.width/2),y-(r.top+r.height/2));
+    if(d<bd){bd=d;best=c;}
+  });
+  if(!best)return null;
+  const R=Math.min(200,best.getBoundingClientRect().width*1.2);
+  return bd<=R?best:null;
+}
+function dropOn(x,y,instantFail){
+  const target=nearestField(x,y);
+  if(target&&target.dataset.en===pickedCard.dataset.en){
+    commitMatch(pickedCard,target);
+  }else{
+    failDrop(instantFail);
+  }
+}
+function tryDrop(x,y){if(pickedCard)dropOn(x,y,true);}
+function stickyDrop(x,y){if(pickedCard)dropOn(x,y,false);}
+
+function commitMatch(avatar,target){
+  const atScene=sceneId;
+  state='busy';
+  const r=target.getBoundingClientRect();
+  flyGhost(r.left+r.width/2,r.top+r.height/2,220,()=>{
+    killGhost();
+    if(sceneId!==atScene){pickedCard=null;state='idle';return;}
+    const a=ANIMALS.find(v=>v.en===target.dataset.en);
+    target.classList.add('alive','boing');
+    setTimeout(()=>target.classList.remove('boing'),500);
+    sGood();
+    speak(a.en+'!');
+    avatar.classList.remove('pick');
+    avatar.classList.add('gone');
+    pickedCard=null;
+    matchedInRound++;
+    setTimeout(()=>{
+      state='idle';
+      if(matchedInRound===4)batchDone();
+    },650);
+  });
+}
+function failDrop(instant){
+  state='busy';
+  const r=pickedCard.getBoundingClientRect();
+  const cx=r.left+r.width/2,cy=r.top+r.height/2;
+  const finish=()=>{
+    killGhost();
+    pickedCard.classList.remove('pick');
+    pickedCard=null;state='idle';
+    sBad();
+  };
+  if(instant){flyGhost(cx,cy,260,finish);}else{finish();}
+}
+
+document.addEventListener('pointerdown',e=>{
+  if(state==='sticky'){stickyDrop(e.clientX,e.clientY);e.preventDefault();}
+},true);
+document.addEventListener('pointermove',e=>{
+  if((state==='drag'||state==='sticky')&&ghost){
+    if(state==='drag'&&Math.hypot(e.clientX-sX,e.clientY-sY)>8)moved=true;
+    moveGhost(e.clientX,e.clientY);
+  }
+});
+document.addEventListener('pointerup',e=>{
+  if(state!=='drag')return;
+  if(!moved){state='sticky';}
+  else{tryDrop(e.clientX,e.clientY);}
+});
+
+/* ---------- batch flow ---------- */
+function batchDone(){
+  sRound();
+  confettiBurst();
+  setTimeout(()=>speak('Great job!'),900);
+  setTimeout(newBatch,2200);
+}
+function confettiBurst(){
+  const colors=['#B89048','#2D5530','#E8B04B','#7FA86B','#E58FA2','#7EB3D8'];
+  for(let i=0;i<70;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.width=(6+Math.random()*8)+'px';
+    c.style.height=(8+Math.random()*10)+'px';
+    c.style.background=colors[i%colors.length];
+    c.style.borderRadius=Math.random()>.5?'50%':'2px';
+    c.style.animationDuration=(2.2+Math.random()*2.2)+'s';
+    c.style.animationDelay=(Math.random()*.6)+'s';
+    document.body.appendChild(c);
+    c.addEventListener('animationend',()=>c.remove());
+  }
+}
+document.getElementById('refresh').addEventListener('click',()=>{
+  if(state==='busy')return;
+  newBatch();
+});
+
+/* ---------- start ---------- */
+const params=()=>new URLSearchParams(location.hash.slice(1)||location.search);
+const initial=SCENES.some(s=>s.id===params().get('set'))?params().get('set'):'farm';
+renderEpisodeNav(1);
+setScene(initial);
+</script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/storygarden.js"></script>
+</body>
+</html>
