@@ -2,8 +2,8 @@
    数据文件提供 SCENES / ITEMS / EPISODES / THEME；
    各玩法引擎（recog/match/photo/reveal）引用这里的语音、音效、工具与场景弹窗 */
 
-/* ---------- voice ---------- */
-let voice=null;
+/* ---------- voice：TTS 优先，检测不到英语音色或朗读失败时回退到离线音频 english/audio/ ---------- */
+let voice=null,ttsBroken=false;
 function pickVoice(){
   const vs=window.speechSynthesis?speechSynthesis.getVoices():[];
   voice=
@@ -14,50 +14,68 @@ function pickVoice(){
     vs.find(v=>/^en([-_]|$)/i.test(v.name))||
     null;
   const vn=document.getElementById('voiceName');
-  if(vn)vn.textContent=voice?voice.name:'未检测到英语语音';
+  if(vn)vn.textContent=voice?voice.name:'内置发音 · Built-in Audio';
 }
 if('speechSynthesis' in window){
   pickVoice();
   speechSynthesis.onvoiceschanged=pickVoice;
 }else{
   const vn=document.getElementById('voiceName');
-  if(vn)vn.textContent='当前浏览器不支持语音合成';
+  if(vn)vn.textContent='内置发音 · Built-in Audio';
+}
+
+function slug(t){return t.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+function audioKey(text){
+  let m;
+  if(m=text.match(/^Where is the (.+?)\?$/))return slug(m[1]);
+  if(m=text.match(/^It's a (.+?)!$/))return slug(m[1]);
+  if(text==="Knock knock! What's inside?")return 'knock-knock-whats-inside';
+  if(text==="What's inside?")return 'whats-inside';
+  if(text==='Great job!')return 'great-job';
+  if(text==='Bye bye!')return 'bye-bye';
+  return slug(text);
+}
+let curAudio=null;
+function playAudio(key){
+  try{
+    if(curAudio){curAudio.pause();curAudio=null;}
+    const a=new Audio('audio/'+key+'.wav');
+    curAudio=a;
+    a.play().catch(()=>{});
+  }catch(e){}
 }
 
 /* utterance 必须持有全局引用：部分安卓浏览器会回收局部对象导致读一半停 */
 let utter=null;
 function speak(text){
-  if(!('speechSynthesis' in window))return;
+  const key=audioKey(text);
+  if(!('speechSynthesis' in window)||!voice||ttsBroken){
+    playAudio(key);
+    return;
+  }
   try{speechSynthesis.cancel();}catch(e){}
   utter=new SpeechSynthesisUtterance(text);
   utter.lang='en-US';utter.rate=0.8;utter.pitch=1.05;
   if(voice)utter.voice=voice;
-  const go=()=>{try{speechSynthesis.speak(utter);}catch(e){}};
+  utter.onerror=e=>{
+    if(e.error==='interrupted'||e.error==='canceled')return;
+    ttsBroken=true;
+    playAudio(key);
+  };
+  const go=()=>{try{speechSynthesis.speak(utter);}catch(e){ttsBroken=true;playAudio(key);}};
   /* cancel 后立刻 speak 在部分安卓浏览器会被吞，稍作间隔 */
   if(speechSynthesis.speaking||speechSynthesis.pending){setTimeout(go,40);}else{go();}
 }
 
 /* 移动端解锁：iOS 音色列表要手势后才加载；AudioContext 手势外创建会被挂起。
-   第一次按下时补取音色 + 恢复音频上下文；不支持语音的内置浏览器提示一次 */
+   第一次按下时补取音色 + 恢复音频上下文 */
 let unlocked=false;
 function unlockMedia(){
   if(unlocked)return;
   unlocked=true;
-  if('speechSynthesis' in window){
-    pickVoice();
-  }else{
-    showNoVoiceHint();
-  }
+  if('speechSynthesis' in window)pickVoice();
 }
 document.addEventListener('pointerdown',unlockMedia,true);
-function showNoVoiceHint(){
-  const t=document.createElement('div');
-  t.className='sg-toast';
-  t.setAttribute('role','alert');
-  t.textContent='这个浏览器发不出声音哦，用手机自带的 Safari 或 Chrome 打开就有啦';
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(),4200);
-}
 
 /* ---------- sound effects ---------- */
 let audioCtx=null;

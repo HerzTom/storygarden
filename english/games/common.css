@@ -78,16 +78,3 @@ h1 .en{color:var(--accent)}
 
 .foot{margin-top:34px;text-align:center;color:var(--ink-soft);font-size:.8rem;line-height:1.7}
 .foot .voice{color:var(--accent);font-weight:600}
-
-/* 一次性提示条（如：当前浏览器不支持发音） */
-.sg-toast{
-  position:fixed;left:50%;bottom:88px;transform:translateX(-50%);
-  z-index:90;max-width:82vw;
-  background:rgba(53,67,47,.92);color:#fff;
-  font-size:.85rem;font-weight:600;line-height:1.6;text-align:center;
-  padding:12px 20px;border-radius:16px;
-  box-shadow:0 10px 26px rgba(30,40,25,.35);
-  animation:toastIn .3s cubic-bezier(.34,1.56,.64,1);
-  pointer-events:none;
-}
-@keyframes toastIn{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
