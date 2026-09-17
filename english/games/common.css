@@ -1,0 +1,93 @@
+/* StoryGarden 启蒙英语 · 四集共享样式（页面壳先引本文件，再引各自玩法 css） */
+:root{
+  --bg:#FAF7F0;
+  --ink:#35432F;
+  --ink-soft:#8A8776;
+  --accent:#B89048;
+  --card-radius:26px;
+  --radius:26px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;
+  background:var(--bg);color:var(--ink);
+}
+.blob{position:fixed;border-radius:50%;filter:blur(70px);opacity:.45;pointer-events:none;z-index:0}
+.blob1{width:380px;height:380px;background:#CFE3C4;top:-120px;left:-100px}
+.blob2{width:320px;height:320px;background:#F4E3C2;bottom:-120px;right:-80px}
+
+h1{font-weight:900;text-align:center;letter-spacing:.01em}
+h1 .en{color:var(--accent)}
+.ep{display:inline-block;font-size:.42em;font-weight:800;letter-spacing:.08em;background:var(--accent);color:#fff;border-radius:999px;padding:.25em .85em;vertical-align:.55em;margin-left:.45em}
+.sub{text-align:center;color:var(--ink-soft);font-size:.95rem;margin:6px 0 20px}
+
+/* 场景选择弹窗 */
+.picker{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
+.picker.show{display:flex}
+.picker-mask{position:absolute;inset:0;background:rgba(53,67,47,.35);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.picker-box{position:relative;z-index:1;background:var(--bg);border-radius:32px;padding:34px 34px 26px;box-shadow:0 24px 60px rgba(30,40,25,.3);animation:popin .25s cubic-bezier(.34,1.56,.64,1);max-width:720px;width:100%}
+@keyframes popin{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.picker-title{text-align:center;font-size:1.35rem;font-weight:900;margin-bottom:24px}
+.picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:640px){.picker-grid{grid-template-columns:repeat(2,1fr)}}
+.pick{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  border:none;cursor:pointer;font-family:inherit;
+  background:var(--pc,#fff);border-radius:26px;
+  padding:22px 8px 16px;display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:transform .15s ease,box-shadow .15s ease;position:relative;
+  box-shadow:0 4px 12px rgba(90,70,30,.10);
+}
+.pick:hover{transform:translateY(-4px);box-shadow:0 10px 22px rgba(90,70,30,.16)}
+.pick:active{transform:scale(.96)}
+.pick:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.pick-icon{font-size:52px;line-height:1.15}
+.pick-zh{font-size:1.15rem;font-weight:900}
+.pick-en{font-size:.78rem;font-weight:700;color:var(--ink-soft);letter-spacing:.05em}
+.pick-here{position:absolute;top:10px;right:10px;background:var(--accent);color:#fff;font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:999px;display:none}
+.pick.current .pick-here{display:block}
+.pick.current{transform:scale(1.02)}
+.picker-close{display:block;margin:24px auto 0;font-size:.9rem;font-weight:700;color:var(--ink-soft);background:none;border:none;cursor:pointer;font-family:inherit;padding:8px 18px;border-radius:12px;transition:all .2s}
+.picker-close:hover{color:var(--accent);background:#F1EBDC}
+
+/* 集数翻页标签：上一集在左、下一集在右 */
+.ep-tab{
+  position:fixed;top:50%;transform:translateY(-50%);z-index:40;
+  display:flex;align-items:center;gap:10px;
+  padding:20px 16px;text-decoration:none;
+  box-shadow:0 8px 22px rgba(90,70,30,.22);
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.ep-tab .arrow{font-size:28px;line-height:1;color:#fff}
+.ep-tab .t{display:flex;flex-direction:column;gap:2px;line-height:1.2}
+.ep-tab .ep-no{font-size:.95rem;font-weight:900;color:#fff;white-space:nowrap}
+.ep-tab .ep-name{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.92);white-space:nowrap}
+.ep-tab.next{right:0;border-radius:22px 0 0 22px;background:var(--accent);padding-right:20px}
+.ep-tab.prev{left:0;border-radius:0 22px 22px 0;background:#6B8F5E;padding-left:20px}
+@media (hover:hover) and (pointer:fine) and (min-width:761px){
+  .ep-tab.next:hover{transform:translateY(-50%) translateX(-3px)}
+  .ep-tab.prev:hover{transform:translateY(-50%) translateX(3px)}
+}
+.ep-tab:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+@media (max-width:760px){
+  .ep-tab{top:auto;bottom:18px;transform:none;width:64px;height:64px;padding:0;justify-content:center;border-radius:50%}
+  .ep-tab .t{display:none}
+  .ep-tab.next{right:16px}
+  .ep-tab.prev{left:16px}
+}
+
+.foot{margin-top:34px;text-align:center;color:var(--ink-soft);font-size:.8rem;line-height:1.7}
+.foot .voice{color:var(--accent);font-weight:600}
+
+/* 一次性提示条（如：当前浏览器不支持发音） */
+.sg-toast{
+  position:fixed;left:50%;bottom:88px;transform:translateX(-50%);
+  z-index:90;max-width:82vw;
+  background:rgba(53,67,47,.92);color:#fff;
+  font-size:.85rem;font-weight:600;line-height:1.6;text-align:center;
+  padding:12px 20px;border-radius:16px;
+  box-shadow:0 10px 26px rgba(30,40,25,.35);
+  animation:toastIn .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}

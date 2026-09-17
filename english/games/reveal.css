@@ -1,0 +1,185 @@
+/* 第 4 集 · 惊喜容器（reveal 引擎样式；共享部分见 common.css）
+   容器皮肤：#box 快递箱 / #garage 车库，由 THEME.container 选择 */
+html,body{height:100%}
+body{
+  overflow:hidden;overscroll-behavior:none;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+}
+
+/* 世界：场景原野 + 一个送到门口的容器 */
+#field{
+  position:fixed;left:0;right:0;top:var(--sg-header-h,58px);bottom:0;
+  overflow:hidden;touch-action:none;
+  background:var(--sc-color,#E4EFD5);
+}
+.decor{position:absolute;transform:translate(-50%,-50%);line-height:1;opacity:.5;filter:blur(1.5px) saturate(1.05);pointer-events:none}
+
+/* 舞台：容器进场 / 退场 */
+#stage{
+  position:absolute;left:50%;top:56%;
+  transform:translate(-50%,-50%);
+  transition:transform .55s cubic-bezier(.34,1.45,.64,1),opacity .4s ease;
+}
+#stage.out{transform:translate(-50%,95%);opacity:0}
+#stage.noanim{transition:none}
+#shadow{
+  position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);
+  width:130%;height:28px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(60,45,20,.22),transparent 68%);
+}
+
+/* ========== 容器一：快递箱（前脸 + 顶口 + 两片盖 + 胶带） ========== */
+#box{position:relative;width:var(--bw,220px);height:var(--bh,200px)}
+#box.wiggle{animation:wig .5s ease}
+@keyframes wig{0%,100%{transform:rotate(0)}22%{transform:rotate(-3.5deg)}48%{transform:rotate(3deg)}74%{transform:rotate(-2deg)}}
+.box-front{
+  position:absolute;left:0;bottom:0;width:100%;height:72%;z-index:2;
+  border-radius:16px;
+  background:linear-gradient(160deg,#EBC08A,#D3A267);
+  box-shadow:inset 0 -12px 0 rgba(96,66,32,.14),inset 0 3px 0 rgba(255,255,255,.28),0 16px 30px rgba(90,70,30,.22);
+}
+.box-top{
+  position:absolute;left:3.5%;top:0;width:93%;height:36%;z-index:1;
+  border-radius:10px 10px 0 0;
+  background:linear-gradient(#6E5233,#83633F);
+  box-shadow:inset 0 6px 14px rgba(30,20,8,.5);
+}
+/* 可爱箱脸 */
+.face{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);z-index:3;width:46%;height:34%}
+.eye{position:absolute;top:0;width:16%;height:34%;border-radius:50%;background:#4A3826}
+.eye.l{left:12%}.eye.r{right:12%}
+.mouth{
+  position:absolute;left:50%;top:52%;transform:translateX(-50%);
+  width:30%;height:30%;
+  border:calc(var(--bw,220px)*.018) solid transparent;border-bottom-color:#4A3826;border-radius:0 0 60px 60px;
+}
+.blush{position:absolute;top:22%;width:18%;height:22%;border-radius:50%;background:rgba(229,143,162,.55)}
+.blush.l{left:-16%}.blush.r{right:-16%}
+.sticker{
+  position:absolute;left:9%;top:16%;z-index:3;
+  width:26%;height:24%;border-radius:8px;background:rgba(255,255,255,.92);
+  transform:rotate(-7deg);box-shadow:0 2px 6px rgba(90,70,30,.18);
+  display:flex;align-items:center;justify-content:center;font-size:calc(var(--bw,220px)*.09);
+}
+/* 盖子：左右两片，绕外缘翻开 */
+.flaps{position:absolute;left:3.5%;top:0;width:93%;height:38%;z-index:4;perspective:520px}
+.flap{
+  position:absolute;top:0;width:52%;height:100%;
+  border-radius:8px;
+  background:linear-gradient(#F2CDA0,#DFAF77);
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.3),0 4px 10px rgba(90,70,30,.18);
+  transition:transform .55s cubic-bezier(.5,-.25,.35,1.15);
+}
+.flap.l{left:0;transform-origin:left center}
+.flap.r{right:0;transform-origin:right center}
+#box.open .flap.l{transform:rotateY(-118deg)}
+#box.open .flap.r{transform:rotateY(118deg)}
+
+/* 胶带：中间竖条，划开后左右两半撕走 */
+.tape{
+  position:absolute;left:50%;top:-5%;width:17%;height:66%;z-index:5;
+  transform:translateX(-50%);
+}
+.tape i{
+  position:absolute;top:0;width:50%;height:100%;display:block;
+  background:linear-gradient(rgba(240,205,145,.94),rgba(215,175,112,.94));
+  box-shadow:0 1px 3px rgba(90,70,30,.25),inset 0 0 0 1px rgba(255,255,255,.35);
+  transition:transform .5s ease-in,opacity .5s ease-in;
+}
+.tape i.l{left:0;border-radius:3px 0 0 3px;transform-origin:top left}
+.tape i.r{right:0;border-radius:0 3px 3px 0;transform-origin:top right}
+.tape.ready{animation:tapeGlow 1.2s ease-in-out infinite}
+@keyframes tapeGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3) drop-shadow(0 0 12px rgba(255,214,120,.95))}}
+.tape.cut i.l{transform:translateX(-46%) rotate(-13deg);opacity:0}
+.tape.cut i.r{transform:translateX(46%) rotate(13deg);opacity:0}
+
+/* ========== 容器二：车库（坡道 + 车身 + 卷帘门，门上kawaii脸） ========== */
+#garage{position:relative;width:var(--bw,220px);height:var(--bh,200px)}
+#garage.wiggle{animation:wig .5s ease}
+.g-body{
+  position:absolute;left:0;top:10%;width:100%;height:90%;
+  border-radius:12px;
+  background:linear-gradient(160deg,#F4E6CB,#E2CFA6);
+  box-shadow:inset 0 -10px 0 rgba(96,66,32,.10),inset 0 3px 0 rgba(255,255,255,.35),0 16px 30px rgba(90,70,30,.22);
+}
+.g-hole{
+  position:absolute;left:8%;top:24%;width:84%;height:58%;z-index:1;
+  border-radius:8px;
+  background:linear-gradient(#5C4A33,#3E3122);
+  box-shadow:inset 0 8px 14px rgba(20,14,6,.55);
+}
+#garage #star{top:52%;font-size:calc(var(--bw,220px)*.40)}
+.g-door-wrap{
+  position:absolute;left:8%;top:24%;width:84%;height:58%;z-index:2;
+  border-radius:8px;overflow:hidden;
+  box-shadow:inset 0 0 0 3px rgba(96,66,32,.28);
+}
+.g-door{
+  position:absolute;left:0;top:0;width:100%;height:100%;
+  background:repeating-linear-gradient(0deg,#C7D8E8 0 17%,#AFC6DC 17% 21%);
+  transition:transform .65s cubic-bezier(.55,-.15,.4,1.05);
+}
+.g-door .face{top:56%}
+#garage.open .g-door{transform:translateY(-102%)}
+#garage.ready .g-door{animation:doorGlow 1.2s ease-in-out infinite}
+@keyframes doorGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25) drop-shadow(0 0 12px rgba(255,214,120,.95))}}
+.g-roof{
+  position:absolute;left:-5%;top:0;width:110%;height:16%;z-index:4;
+  border-radius:12px 12px 4px 4px;
+  background:linear-gradient(160deg,#E28A6E,#C96A50);
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.3),0 6px 14px rgba(90,70,30,.18);
+}
+.g-ramp{
+  position:absolute;left:2%;bottom:-7%;width:96%;height:12%;z-index:3;
+  border-radius:10px;
+  background:linear-gradient(#DACBA6,#C6B48C);
+  box-shadow:0 6px 14px rgba(90,70,30,.15);
+}
+
+/* 揭晓的主角：藏在容器内，开门/开箱后冒出来→上色→蹦走/开走 */
+#star{
+  position:absolute;left:50%;top:30%;z-index:1;
+  transform:translate(-50%,-10%) scale(.2);
+  font-size:calc(var(--bw,220px)*.44);line-height:1;
+  opacity:0;filter:grayscale(1);pointer-events:none;
+  transition:filter .45s ease;
+}
+#star.free{z-index:25}
+#star.show{opacity:1}
+#star.rise{animation:rise .6s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes rise{
+  0%{transform:translate(-50%,-10%) scale(.2)}
+  55%{transform:translate(-50%,-125%) scale(1.14)}
+  100%{transform:translate(-50%,-95%) scale(1)}
+}
+#star.g-rise{animation:gRise .6s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes gRise{
+  0%{transform:translate(-50%,-10%) scale(.2)}
+  55%{transform:translate(-50%,-48%) scale(1.14)}
+  100%{transform:translate(-50%,-40%) scale(1)}
+}
+#star.colored{filter:none}
+
+/* 顶部工具栏：场景横幅 */
+.hud{
+  position:fixed;top:calc(var(--sg-header-h,58px) + 10px);left:0;right:0;
+  z-index:30;display:flex;justify-content:center;pointer-events:none;padding:0 16px;
+}
+.hud>*{pointer-events:auto}
+.scene-banner{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  display:flex;align-items:center;gap:10px;
+  padding:8px 18px;border:none;border-radius:18px;cursor:pointer;
+  font-family:inherit;text-align:left;
+  background:var(--sc-color,#E4EFD5);
+  box-shadow:0 4px 14px rgba(90,70,30,.12);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.scene-banner:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(90,70,30,.18)}
+.scene-banner:active{transform:scale(.97)}
+.scene-banner:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.sb-icon{font-size:26px;line-height:1}
+.sb-name{display:flex;align-items:baseline;gap:8px;color:var(--ink)}
+.sb-name b{font-size:1.05rem;font-weight:900}
+.sb-name i{font-style:normal;font-size:.78rem;font-weight:700;color:var(--ink-soft);letter-spacing:.04em}
+.sb-hint{font-size:.72rem;color:var(--ink-soft)}

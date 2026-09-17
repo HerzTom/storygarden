@@ -1,4 +1,10 @@
-/* StoryGarden 启蒙英语 · 动物数据（animals.html / animals-match.html 共用） */
+/* StoryGarden 启蒙英语 · 动物数据（四集引擎共用）
+   约定：SCENES / ITEMS / EPISODES / THEME 由数据文件提供，games/ 引擎引用 */
+const THEME={
+  id:'animals',wordEn:'Animals',wordZh:'动物',
+  def:'farm',container:'box',
+  deco:['🌳','🌲','🌻','🌼','🍄','🌿','🍀','🪨','🦋','☁️','🌱','🐞'],
+};
 const SCENES=[
   {id:'farm',zh:'农场',en:'Farm',icon:'🚜',color:'#E4EFD5'},
   {id:'ocean',zh:'海洋',en:'Ocean',icon:'🌊',color:'#D8E9F7'},
@@ -7,7 +13,7 @@ const SCENES=[
 ];
 
 /* sound 字段为动物叫声，备用（当前玩法不朗读） */
-const ANIMALS=[
+const ITEMS=[
   /* ---- farm 农场 ---- */
   {en:'dog',zh:'狗',emoji:'🐶',bg:'#FFE8CC',sound:'Woof woof!',group:'farm'},
   {en:'cat',zh:'猫',emoji:'🐱',bg:'#E8F4D9',sound:'Meow meow!',group:'farm'},
@@ -53,32 +59,10 @@ const ANIMALS=[
 ];
 
 /* 集数链：翻书式导航（上一集在左、下一集在右）。加新一集只需在这里加一行，
-   新页面调 renderEpisodeNav(集数下标)，上一集的右侧标签自动出现 */
+   新页面调 renderEpisodeNav(集数下标)——函数本体在 games/common.js */
 const EPISODES=[
   {no:'第 1 集',name:'点一点 听一听',href:'animals.html'},
   {no:'第 2 集',name:'送小动物回家',href:'animals-match.html'},
   {no:'第 3 集',name:'小小摄影师',href:'animals-photo.html'},
   {no:'第 4 集',name:'拆快递 猜猜看',href:'animals-unbox.html'}
 ];
-function renderEpisodeNav(index){
-  const mk=(ep,dir)=>{
-    const a=document.createElement('a');
-    a.className='ep-tab '+dir;
-    a.dataset.href=ep.href;a.href=ep.href;
-    a.setAttribute('aria-label',ep.no+' '+ep.name);
-    a.innerHTML='<span class="arrow" aria-hidden="true">'+(dir==='next'?'→':'←')+'</span>'
-      +'<span class="t"><span class="ep-no">'+ep.no+'</span><span class="ep-name">'+ep.name+'</span></span>';
-    document.body.appendChild(a);
-    return a;
-  };
-  renderEpisodeNav.tabs={
-    prev:EPISODES[index-1]?mk(EPISODES[index-1],'prev'):null,
-    next:EPISODES[index+1]?mk(EPISODES[index+1],'next'):null
-  };
-}
-function syncEpisodeNav(sceneId){
-  const t=renderEpisodeNav.tabs;if(!t)return;
-  ['prev','next'].forEach(k=>{
-    if(t[k])t[k].href=t[k].dataset.href+'#set='+sceneId;
-  });
-}

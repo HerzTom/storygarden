@@ -1,0 +1,104 @@
+/* 第 2 集 · 配对上色（match 引擎样式；共享部分见 common.css） */
+html,body{height:100%}
+body{
+  min-height:100vh;overflow-x:hidden;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+}
+
+.wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:calc(var(--sg-header-h,58px) + 18px) 24px 60px}
+h1{font-size:clamp(1.8rem,4vw,2.4rem)}
+
+/* 场景横幅：点击弹出场景选择 */
+.scene-banner{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  display:flex;align-items:center;gap:16px;width:100%;max-width:560px;
+  margin:0 auto 26px;padding:14px 22px;
+  border:none;border-radius:22px;cursor:pointer;font-family:inherit;text-align:left;
+  background:var(--sc-color,#E4EFD5);
+  box-shadow:0 4px 14px rgba(90,70,30,.10);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.scene-banner:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(90,70,30,.16)}
+.scene-banner:active{transform:scale(.98)}
+.scene-banner:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.sb-icon{font-size:38px;line-height:1}
+.sb-name{display:flex;align-items:baseline;gap:10px;color:var(--ink)}
+.sb-name b{font-size:1.25rem;font-weight:900}
+.sb-name i{font-style:normal;font-size:.85rem;font-weight:700;color:var(--ink-soft);letter-spacing:.04em}
+.sb-hint{margin-left:auto;font-size:.78rem;color:var(--ink-soft)}
+
+.panel-cap{font-size:.8rem;color:var(--ink-soft);margin-bottom:12px;text-align:center;letter-spacing:.1em}
+
+/* 彩色动物：纯 emoji 头像，无底无文字 */
+.pool{display:flex;justify-content:center;align-items:center;gap:clamp(14px,5vw,52px);flex-wrap:wrap;margin-bottom:38px}
+.avatar{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:none;
+  border:none;background:none;cursor:pointer;
+  font-size:clamp(56px,9vw,90px);line-height:1;
+  padding:4px;
+  transition:transform .15s ease,opacity .45s ease;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+}
+.avatar:hover{transform:scale(1.12) rotate(-4deg)}
+.avatar:focus-visible{outline:none;transform:scale(1.15);filter:drop-shadow(0 8px 12px rgba(90,70,30,.28))}
+.avatar.pick{opacity:.18;transform:scale(.8)}
+.avatar.gone{opacity:0;transform:scale(.35);pointer-events:none}
+
+/* 灰色动物区：全套卡片，配对成功才上色 */
+.field{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:780px;margin:0 auto}
+@media (max-width:640px){.field{grid-template-columns:repeat(2,1fr)}}
+.card{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:none;
+  position:relative;border:none;cursor:pointer;
+  background:#EFEDE6;
+  border-radius:var(--radius);
+  padding:20px 8px 14px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  box-shadow:0 4px 14px rgba(90,70,30,.10);
+  transition:transform .15s ease,box-shadow .15s ease,background-color .7s ease;
+}
+.card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.card .pic{font-size:clamp(44px,7vw,62px);line-height:1.15;font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif;filter:grayscale(1) brightness(1.06);transition:filter .7s ease}
+.card .word{font-size:clamp(1.1rem,2.2vw,1.35rem);font-weight:800;letter-spacing:.02em;color:#9A978A;transition:color .7s ease}
+.card .zh{font-size:.8rem;color:#A9A696;transition:color .7s ease}
+.card.alive{background:var(--card-bg)}
+.card.alive .pic{filter:none}
+.card.alive .word{color:var(--ink)}
+.card.alive .zh{color:var(--ink-soft)}
+.card.boing{animation:boing .45s cubic-bezier(.34,1.56,.64,1)}
+.card.boing .pic{animation:wiggle .45s ease}
+@keyframes boing{0%{transform:scale(1)}30%{transform:scale(1.07)}55%{transform:scale(.96)}100%{transform:scale(1)}}
+@keyframes wiggle{0%{transform:scale(1) rotate(0)}35%{transform:scale(1.25) rotate(-8deg)}70%{transform:scale(1.1) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
+
+/* 跟手飞行的彩色头像：无描边大圆角气泡 */
+.ghost{
+  position:fixed;left:0;top:0;z-index:60;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(56px,9vw,90px);line-height:1;
+  background:rgba(255,255,255,.92);
+  border:none;border-radius:32px;
+  box-shadow:0 16px 30px rgba(90,70,30,.25);
+  will-change:transform;transform:translate(0,0);
+}
+
+/* 大刷新按钮 */
+.refresh{
+  display:block;margin:34px auto 0;
+  font-size:1.1rem;font-weight:800;font-family:inherit;
+  padding:15px 42px;border-radius:999px;
+  background:var(--accent);color:#fff;border:none;cursor:pointer;
+  box-shadow:0 6px 16px rgba(184,144,72,.35);
+  transition:all .2s;touch-action:manipulation;
+}
+.refresh:hover{background:#9A7838;transform:translateY(-2px)}
+.refresh:active{transform:scale(.96)}
+.refresh:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+
+.confetti{position:fixed;top:-24px;z-index:50;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(720deg)}}
+
+@media (max-width:760px){
+  .wrap{padding-bottom:100px}
+}
